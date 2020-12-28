@@ -16,31 +16,34 @@ store = Store()
 store.add_inventory(store_list) ### Implement list of store items once the specific items are created
 
 def buying(player, store):
-    """Function that allows the player to purchase items from the store. Player can either buy an item, refund an item, or type "Done" to finalize their purchase and start their adventure.
+    """Function that allows the player to purchase items from the store. Player can either buy an item, refund an item, or type "Done" to finalize their purchase and start their adventure. Raises an Invalid Input message if the input is one word that is not 'Done' 
+    or if it's multiple words that are not a valid command. The except case handles the first issue and the else case handles the second issue.  
     """
     store.show_inventory()
     print("")
-    action = input("What do you want to do? Type 'Buy' to buy something, 'Refund' to refund something you bought, or 'Done' to leave the store and start your journey. ")
-    action = fixed_input(action)
-    if action == "buy":
-        print("")
-        item_name = input("What do you want to buy? ")
-        item_name = fixed_input(item_name)
-        store.purchase(player, item_name)
-        print("")
-        return buying(player, store)
-    elif action == "refund":
-        print("")
-        player.show_backpack()
-        item_name = input("What do you want to refund? ")
-        item_name = fixed_input(item_name)
-        store.refund(player, item_name)
-        print("")
-        return buying(player, store)
-    elif action == "done":
-        return
-    else:
-        print("Invalid input, try again")
+    player.show_backpack()
+    print("")
+    command = input("What do you want to do? Type 'Buy' or 'Refund' followed by the name of the item or type 'Done' to leave the store and start your journey. ")
+    command = fixed_input(command)
+    try:
+        action = command.split(" ", 1)[0]
+        if action == "done":
+            return
+        item_name = command.split(" ", 1)[1]
+        if action == "buy":
+            store.purchase(player, item_name)
+            print("")
+            return buying(player, store)
+        elif action == "refund":
+            store.refund(player, item_name)
+            print("")
+            return buying(player, store)
+        else:
+            print("Invalid input, try again")
+            print("")
+            return buying(player, store)
+    except:
+        print("Invalid input. If buying or refunding, make sure to type in the action followed by the name of the item")
         print("")
         return buying(player, store)
 
