@@ -174,6 +174,7 @@ class Store:
         >>> store.refund(player, "spear")
         Spear refunded for 100 coins
         Spear removed from backpack
+        Wallet: 1100
         >>> player.wallet
         1100
         """
@@ -183,6 +184,7 @@ class Store:
             self.add_inventory([player.backpack.get(item_name)])
             player.backpack_remove(item_name)
             player.wallet += item.price
+            print("Wallet: {0}".format(player.wallet))
         else:
             print("Item does not exist in backpack")
     
@@ -205,18 +207,17 @@ class Entity:
     >>> x.armor 
     100
     >>> print(x)
-    Health: 150, Armor: 100
+    Entity, Health: 150, Armor: 100
     >>> x
     Entity
     """
     class_type = "Entity"
 
-    def __init__(self, health, armor, place = None):
+    def __init__(self, health, armor):
         self.health = health
         self.armor = armor
-        self.place = place
 
-    def damaged(self, amount):
+    def damaged(self, amount): #Come back to this when it's time to make the fighting mechanics
         """Reduces the entity's current health and armor, taking into account the special attributes of the weapons and equipment when applicable. Remove the enemy from the game when defeated."""
         self.health -= amount
         if self.health <= 0:
@@ -232,7 +233,7 @@ class Entity:
         return self.class_type
 
     def __str__(self):
-        return "Health: {0}, Armor: {1}".format(self.health, self.armor)
+        return "{0}, Health: {1}, Armor: {2}".format(self.class_type, self.health, self.armor)
 
 class Player(Entity):
     """Class for the player of the game, which is able to do certain actions that enemies cannot do. Unlike the enemies, the player is able to pick a weapon to attack with.
@@ -243,19 +244,19 @@ class Player(Entity):
     >>> x.current_weight 
     0
     >>> x
-    Player: (Dave, 100)
+    Player: (100, 0)
     >>> print(x)
-    Name: Dave, Health: 100, Armor: 0, Current Weight: 0 lbs
+    Dave, Health: 100, Armor: 0, Current Weight: 0 lbs
     """
     class_type = "Player"
     
     def __init__(self, name, health=100, armor=0):
         Entity.__init__(self, health, armor)
-        self.position = None 
-        self.name = name
+        self.position = None
+        self.name = name 
         self.backpack = {}
         self.current_weight = 0
-        self.weight_limit = 70
+        self.weight_limit = 50
         self.wallet = 1000
         self.weapon = None
 
@@ -302,11 +303,25 @@ class Player(Entity):
         for item in self.backpack.values():
             print(item)
 
+    def use_backpack(self):
+        """Allows the player to access their backpack and select an item to use. This method returns the item object so the game can see what item the 
+        player wants to use. If the player closes the backpack, return None. If the player gives an invalid input, raise an error and also return None."""
+        self.show_backpack()
+        print("")
+        choice = fixed_input(input("What would you like to use? Type the name of the item to use it or 'Close backpack' to go back. "))
+        if choice == "close backpack":
+            return None
+        elif choice in self.backpack:
+            return self.backpack[choice]
+        else:
+            print("Not in backpack")
+            return None
+
     def __repr__(self):
-        return "{0}: ({1}, {2})".format(self.class_type, self.name, self.health)
+        return "{0}: ({1}, {2})".format(self.class_type, self.health, self.armor)
     
     def __str__(self):
-        return "Name: {0}, Health: {1}, Armor: {2}, Current Weight: {3} lbs".format(self.name, self.health, self.armor, self.current_weight)
+        return "{0}, Health: {1}, Armor: {2}, Current Weight: {3} lbs".format(self.name, self.health, self.armor, self.current_weight)
 
 ### Enemy Classes ###
 
@@ -319,9 +334,9 @@ class Enemy(Entity):
     >>> x.move_speed
     1
     >>> print(x)
-    Name: Enemy, Health: 100, Armor: 100, Damage: 50, Range: 1 units, Move Speed: 1 units per turn
+    Enemy, Health: 100, Armor: 100, Damage: 50, Range: 1 units, Move Speed: 1 units per turn
     >>> x 
-    Enemy: (100, 100)
+    Enemy
     """
     class_type = "Enemy"
 
@@ -332,11 +347,8 @@ class Enemy(Entity):
         self.range = range
         self.move_speed = move_speed
 
-    def __repr__(self):
-        return "{0}: ({1}, {2})".format(self.class_type, self.health, self.armor)
-
     def __str__(self):
-        return "Name: {0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.class_type, self.health, self.armor, self.damage, self.range, self.move_speed)
+        return "{0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.class_type, self.health, self.armor, self.damage, self.range, self.move_speed)
 
 class Legionary(Enemy):
     """First enemies that the player encounters: Undead Legionaries kept alive by a successful experiment with magic, with the side effect of making them accelerate mental degredation. They have no special abilities,
@@ -345,9 +357,9 @@ class Legionary(Enemy):
     >>> x.damage 
     20
     >>> x
-    Legionary: (100, 50)
+    Legionary
     >>> print(x)
-    Name: Legionary, Health: 100, Armor: 50, Damage: 20, Range: 1 units, Move Speed: 1 units per turn
+    Legionary, Health: 100, Armor: 50, Damage: 20, Range: 1 units, Move Speed: 1 units per turn
     """
     class_type = "Legionary"
 
@@ -355,9 +367,9 @@ class Immortal_Dog(Enemy):
     """Using the same magic that keeping the Legionaries alive, these dogs are loyal to their undead human allies. Can move up to 2 steps per turn but deal very little damage. 
     >>> x = Immortal_Dog(75, 0, 10, 1, 2)
     >>> print(x)
-    Name: Immortal Dog, Health: 75, Armor: 0, Damage: 10, Range: 1 units, Move Speed: 2 units per turn
+    Immortal Dog, Health: 75, Armor: 0, Damage: 10, Range: 1 units, Move Speed: 2 units per turn
     >>> x
-    Immortal Dog: (75, 0)
+    Immortal Dog
     """
     class_type = "Immortal Dog"
 
@@ -409,8 +421,8 @@ def fixed_input(s):
     'the cow jumped over the moon'
     """
     return s.lower().strip()
-    
+
 ### In-Game Items ###
 
-spear = Weapon(20, 1, 10, 100, "Spear")
+spear = Weapon(20, 3, 10, 100, "Spear")
 store_list = [spear]
