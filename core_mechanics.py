@@ -15,7 +15,7 @@ class Equipment:
     Equipment
     """
     
-    def __init__(self, weight, price, name="Equipment"):
+    def __init__(self, weight, price, name = "Equipment"):
         self.weight = weight
         self.price = price
         self.name = name
@@ -46,7 +46,7 @@ class Weapon(Equipment):
     """
     armor_piercing = False
     
-    def __init__(self, damage, range, weight, price, name="Weapon"):
+    def __init__(self, damage, range, weight, price, name = "Weapon"):
         Equipment.__init__(self, weight, price, name)
         self.damage = damage
         self.range = range
@@ -71,7 +71,7 @@ class Healing_Tool(Equipment):
     Healing Equipment
     """
 
-    def __init__(self, heal_amount, uses, weight, price, name="Healing Equipment"):
+    def __init__(self, heal_amount, uses, weight, price, name = "Healing Equipment"):
         Equipment.__init__(self, weight, price, name)
         self.heal_amount = heal_amount
         self.uses = uses
@@ -211,7 +211,7 @@ class Entity:
     >>> x
     Entity
     """
-    class_type = "Entity"
+    name = "Entity"
 
     def __init__(self, health, armor):
         self.health = health
@@ -230,10 +230,10 @@ class Entity:
         """Removes the current entity from the current place when their health hits zero."""
 
     def __repr__(self):
-        return self.class_type
+        return self.name
 
     def __str__(self):
-        return "{0}, Health: {1}, Armor: {2}".format(self.class_type, self.health, self.armor)
+        return "{0}, Health: {1}, Armor: {2}".format(self.name, self.health, self.armor)
 
 class Player(Entity):
     """Class for the player of the game, which is able to do certain actions that enemies cannot do. Unlike the enemies, the player is able to pick a weapon to attack with.
@@ -248,7 +248,6 @@ class Player(Entity):
     >>> print(x)
     Dave, Health: 100, Armor: 0, Current Weight: 0 lbs
     """
-    class_type = "Player"
     
     def __init__(self, name, health=100, armor=0):
         Entity.__init__(self, health, armor)
@@ -318,7 +317,7 @@ class Player(Entity):
             return None
 
     def __repr__(self):
-        return "{0}: ({1}, {2})".format(self.class_type, self.health, self.armor)
+        return "Player: ({0}, {1})".format(self.health, self.armor)
     
     def __str__(self):
         return "{0}, Health: {1}, Armor: {2}, Current Weight: {3} lbs".format(self.name, self.health, self.armor, self.current_weight)
@@ -338,7 +337,7 @@ class Enemy(Entity):
     >>> x 
     Enemy
     """
-    class_type = "Enemy"
+    name = "Enemy"
 
     def __init__(self, health, armor, damage, range, move_speed):
         Entity.__init__(self, health, armor)
@@ -348,7 +347,7 @@ class Enemy(Entity):
         self.move_speed = move_speed
 
     def __str__(self):
-        return "{0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.class_type, self.health, self.armor, self.damage, self.range, self.move_speed)
+        return "{0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.name, self.health, self.armor, self.damage, self.range, self.move_speed)
 
 class Legionary(Enemy):
     """First enemies that the player encounters: Undead Legionaries kept alive by a successful experiment with magic, with the side effect of making them accelerate mental degredation. They have no special abilities,
@@ -361,7 +360,7 @@ class Legionary(Enemy):
     >>> print(x)
     Legionary, Health: 100, Armor: 50, Damage: 20, Range: 1 units, Move Speed: 1 units per turn
     """
-    class_type = "Legionary"
+    name = "Legionary"
 
 class Immortal_Dog(Enemy):
     """Using the same magic that keeping the Legionaries alive, these dogs are loyal to their undead human allies. Can move up to 2 steps per turn but deal very little damage. 
@@ -371,7 +370,7 @@ class Immortal_Dog(Enemy):
     >>> x
     Immortal Dog
     """
-    class_type = "Immortal Dog"
+    name = "Immortal Dog"
 
 ### Place Class ###
 
