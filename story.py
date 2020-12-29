@@ -42,3 +42,7 @@ Or did they discover it and perish before spreading the news? You move onwards, 
 
 ### First encounter ###
 
+first_encounter_1 = """The bushes on your right rustle violently and you hear a distinct clinking noise coupled with the sound of footsteps on packed dirt. Slowly, a gleaming figure walks out in front of you. Clad in armor and a helmet adorned with a feather crown, he stands before you, dagger
+in one hand, a massive shield in the other. Golden engravings are beautifully etched into the armor. He has a stern face but you notice something odd, very odd. This man has red eyes that pierce right through you. Before you can think about what to do, he raises right arm up into the sky."""
+
+first_encounter_2 = """He starts moving towards you, covering himself with his shield. It's clear what this man's -- no, not man -- Legionary's, intentions are. You said there is no turning back after crossing the mist so it's time to hold your ground and fend off this assailant."""

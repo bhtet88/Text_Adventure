@@ -338,6 +338,7 @@ class Enemy(Entity):
     Enemy
     """
     name = "Enemy"
+    battle_lines = []
 
     def __init__(self, health, armor, damage, range, move_speed):
         Entity.__init__(self, health, armor)
@@ -361,6 +362,7 @@ class Legionary(Enemy):
     Legionary, Health: 100, Armor: 50, Damage: 20, Range: 1 units, Move Speed: 1 units per turn
     """
     name = "Legionary"
+    battle_lines = ["Rome will prevail!", "You cannot run from the might of Rome!", "Another soul attempting to steal our treasure, you'll die like the rest!", "I'll enjoy watching you at the end of my blade!"]
 
 class Immortal_Dog(Enemy):
     """Using the same magic that keeping the Legionaries alive, these dogs are loyal to their undead human allies. Can move up to 2 steps per turn but deal very little damage. 
@@ -375,35 +377,51 @@ class Immortal_Dog(Enemy):
 ### Place Class ###
 
 class Place:
-    """Place class that is made up of a randomized set of tiles. Places can be visualized as a B x 1 grid, where B is an integer. Can randomly contain an enemy or event. 
-    A place can have up to 3 enemies at a time. The player starts at the first tile of the place and the enemies start on the opposite side. Each place has at least a size (default length 4) attribute to initialize it.
+    """Place class that is made up of a randomized set of tiles. Places can be visualized as a B x 1 grid, where B is an integer. Length is randomly determined by the class attribute for possible sizes. Can randomly contain an enemy or event, depending on the type. 
+    A place can have up to 3 enemies at a time. The player starts at the first tile of the place and the enemies start on the opposite side. The enemies attribute is a list of enemies while the event attribute is an single event instance. 
+    Different place and place types have a different list of possible enemies and events.
     """
-    
-    def __init__(self, size = 4):
+    possible_sizes = [x for x in range(4, 6)]
+    possible_enemies = [] #Contains the possible types of enemies and events that the place can be populated with
+    possible_events = []
+
+    def __init__(self, size = random.choice(possible_sizes), type = random.choice(["Enemy", "Event", "Tutorial"])):
         self.size = size
+        self.type = type
+        self.enemies = []
+        self.event = None
+        self.fill()
+
+    def fill(self):
+        """Fills the place with either enemies (up to three) or an event, depending on the type of the room.
+        >>> Place.possible_enemies.append(1)
+        >>> place = Place(4, "Tutorial")
+        >>> place.type
+        'Tutorial'
+        >>> place.enemies
+        [1]
+        """
+        if self.type == "Tutorial":
+            self.enemies.append(random.choice(self.possible_enemies))
+        elif self.type == "Enemy":
+            number = random.randint(1, 3)
+            for x in range(number):
+                self.enemies.append(random.choice(self.possible_enemies)) #Come back and add the list of enemies that can be added.
+        elif self.type == "Event":
+            self.event = random.choice(self.possible_events)
 
     def __repr__(self):
         return "Place"
 
     def __str__(self):
-        return "Place, Size: {0}".format(self.size)
+        return "{0} Place, Size: {1}".format(self.type, self.size)
 
-class Enemy_Room(Place):
-    """Room containing up to 3 enemies. If the player enters an enemy room, a battle will automatically begin, with the enemies on the opposite side of the room as the player."""
-
-    def __init__(self, size = 4):
-        Place.__init__(self, size)
-        self.enemies = []
-        opponent_count = random.randint(1, 3)
-        for x in range(opponent_count):
-            random.choice() #Randomly select from a list of potential enemies, COME BACK ONCE ENEMIES ARE CREATED
-
-class Event_Room(Place):
-    """Room with randomly selected treasure that the player can pick up if they choose."""
-
-    def __init__(self, size = 4):
-        Place.__init__(self, size)
-        self.event = random.choice() #Random selection from a list of potential hazards, COME BACK TO THIS
+class Jungle_Place(Place):
+    """Place class for locations in the jungle. Small length places that can have Legionaries, Immortal Dogs, and Feral Monkeys. The final fight of the jungle section will be a large anaconda.
+    """
+    possible_sizes = [x for x in range(3, 4)]
+    possible_enemies = []
+    possible_events = []
 
 ### Event Classes ###
 
@@ -420,6 +438,37 @@ def fixed_input(s):
     'the cow jumped over the moon'
     """
     return s.lower().strip()
+
+def buying(player, store):
+    """Function that allows the player to purchase items from the store. Player can either buy an item, refund an item, or type "Done" to finalize their purchase and start their adventure. Raises an Invalid Input message if the input is one word that is not 'Done' 
+    or if it's multiple words that are not a valid command. The except case handles the first issue and the else case handles the second issue.  
+    """
+    store.show_inventory()
+    print("")
+    player.show_backpack()
+    print("")
+    command = fixed_input(input("What do you want to do? Type 'Buy' or 'Refund' followed by the name of the item or type 'Done' to leave the store and start your journey. "))
+    try:
+        action = command.split(" ", 1)[0]
+        if action == "done":
+            return
+        item_name = command.split(" ", 1)[1]
+        if action == "buy":
+            store.purchase(player, item_name)
+            print("")
+            return buying(player, store)
+        elif action == "refund":
+            store.refund(player, item_name)
+            print("")
+            return buying(player, store)
+        else:
+            print("Invalid input, try again")
+            print("")
+            return buying(player, store)
+    except:
+        print("Invalid input. If buying or refunding, make sure to type in the action followed by the name of the item")
+        print("")
+        return buying(player, store)
 
 ### In-Game Items ###
 
