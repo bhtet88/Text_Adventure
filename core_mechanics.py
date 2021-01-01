@@ -20,6 +20,10 @@ class Equipment:
         self.price = price
         self.name = name
 
+    def action(self, place):
+        """All items have an action method that allows them to perform their intended function. The action takes in a player instance and a place instance in to ensure the item can have access to everything it needs to perform any action. The default action is that an item does nothing."""
+        return 
+
     def __repr__(self):
         return self.name
     
@@ -46,11 +50,39 @@ class Weapon(Equipment):
     """
     armor_piercing = False
     
-    def __init__(self, damage, range, weight, price, name = "Weapon"):
+    def __init__(self, damage, range, weight, price, name="Weapon"):
         Equipment.__init__(self, weight, price, name)
         self.damage = damage
         self.range = range
     
+    def action(self, place):
+        """The default action method for weapons allows the player to target a certain enemy in the place and attack them with the weapon by calling their injure method. When showing all the enemies, only show their health, armor, damage, and distance from the player.
+        If the enemy is out of range, have the player pick another target."""
+        sorted_list, i = sorted(place.enemies, key = lambda x: x.position - place.player.position), 0
+        print("*** Targets ***")
+        for enemy in sorted_list:
+            dist = enemy.position - place.player.position
+            print("[{0}] {1}, Health: {2}, Armor: {3}, Damage: {4}, Distance: {5}".format(i, enemy.name, enemy.health, enemy.armor, enemy.damage, dist))
+            i += 1
+        print("")
+        print("{0} Range: {1}".format(self.name, self.range))
+        print("")
+        choice = fixed_input(input("Who will you attack? Type the number of the enemy you will attack or type 'Back' to go back and perform a different action. "))
+        if choice == "back":
+            print("")
+            return place.player.take_turn(place)
+        elif not choice.isnumeric() or int(choice) < 0 or int(choice) > i:
+            print("Invalid input, answer must be a valid numeric input")
+            print("")
+            return self.action(place)
+        choice = int(choice)
+        target = sorted_list[choice]
+        if target.position - place.player.position > self.range:
+            print("Target out of range, choose another enemy")
+            print("")
+            return self.action(place)
+        target.injure(place, self.damage, self.armor_piercing)
+
     def __str__(self):
         return "{0}, Damage: {1}, Range: {2} units, Weight: {3} lbs, Armor Piercing: {4}, Price: {5} coins".format(self.name, self.damage, self.range, self.weight, self.armor_piercing, self.price)
 
@@ -216,18 +248,26 @@ class Entity:
     def __init__(self, health, armor):
         self.health = health
         self.armor = armor
+        self.position = None
 
-    def damaged(self, amount): #Come back to this when it's time to make the fighting mechanics
-        """Reduces the entity's current health and armor, taking into account the special attributes of the weapons and equipment when applicable. Remove the enemy from the game when defeated."""
-        self.health -= amount
+    def injure(self, place, damage, AP):
+        """Method to apply damage to the entity. Takes in a damage value and a boolean about whether the attack was armor piercing or not. AP damage is applied to the armor first and only lowers the entity's health when the armor is depleted."""
+        if AP:
+            self.health -= damage
+        else:
+            diff = damage - self.armor
+            if diff >= 0:
+                self.armor = 0
+                self.health -= diff
+            else:
+                self.armor -= damage
+        print("{0} took {1} damage!".format(self.name, damage))
         if self.health <= 0:
-            self.remove_place()
+            self.remove(place)
 
-    def add_place(self, place):
-        """Adds an entity instance to a specific place."""
-
-    def remove_place(self, place):
+    def remove(self, place):
         """Removes the current entity from the current place when their health hits zero."""
+        place.enemies.remove(self)
 
     def __repr__(self):
         return self.name
@@ -246,18 +286,18 @@ class Player(Entity):
     >>> x
     Player: (100, 0)
     >>> print(x)
-    Dave, Health: 100, Armor: 0, Current Weight: 0 lbs
+    Dave, Health: 100, Armor: 0, Current Weight: 0 lbs, Move Speed: 1 units per turn
     """
+    symbol = "P"
     
-    def __init__(self, name, health=100, armor=0):
+    def __init__(self, name, health=100, armor=0, move_speed=1):
         Entity.__init__(self, health, armor)
-        self.position = None
-        self.name = name 
+        self.name = name
+        self.move_speed = move_speed 
         self.backpack = {}
         self.current_weight = 0
         self.weight_limit = 50
         self.wallet = 1000
-        self.weapon = None
 
     def backpack_add(self, item):
         """Adds item to the player's backpack as long as adding the weight of the item does not cause the current weight to exceed the weight_limit.
@@ -289,9 +329,12 @@ class Player(Entity):
         >>> player.backpack 
         {}
         """
-        if item_name in self.backpack:
+        if item_name == "knife":
+            print("Cannot remove Knife from player's backpack")
+        elif item_name in self.backpack:
             item = self.backpack.get(item_name)
             del self.backpack[item_name]
+            self.current_weight = sum([x.weight for x in self.backpack.values()])
             print("{0} removed from backpack".format(item.name))
         else:
            print("Equipment not in backpack")
@@ -302,25 +345,110 @@ class Player(Entity):
         for item in self.backpack.values():
             print(item)
 
+    def show_weapons(self):
+        """Displays all the weapons that the player is carrying."""
+        print("*** Weapons ***")
+        for item in self.backpack.values(): #Show all weapons that the player currently has
+            if isinstance(item, Weapon):
+                print(item)
+
+    def use_weapon(self):
+        """Allows the player to select a weapon from their inventory and return the weapon object for them to use. Returns None if the weapon isn't in the backpack"""
+        self.show_weapons()
+        print("")
+        weapon = fixed_input(input("What weapon will you use? Type the name of the weapon or 'None' to select nothing and perform a different action. ")) #There will be no weapon with a name of 'None'
+        if weapon in self.backpack:
+            return self.backpack[weapon]
+        elif weapon != "none":
+            print("Weapon not in backpack")
+        return None
+
     def use_backpack(self):
-        """Allows the player to access their backpack and select an item to use. This method returns the item object so the game can see what item the 
-        player wants to use. If the player closes the backpack, return None. If the player gives an invalid input, raise an error and also return None."""
+        """Allows the player to access their backpack and select an item to use. This method returns the item object so the game can see what item the player wants to use. If the player closes the backpack, return None. If the player gives an invalid input,
+        raise an error and also return None. If the player removes an item, remove the item from the backpack and return None."""
         self.show_backpack()
         print("")
-        choice = fixed_input(input("What would you like to use? Type the name of the item to use it or 'Close backpack' to go back. "))
+        choice = fixed_input(input("What would you like to do? Type 'Use' or 'Remove' followed by the name of the item to either use or remove it or 'Close backpack' to go back. "))
         if choice == "close backpack":
             return None
-        elif choice in self.backpack:
-            return self.backpack[choice]
-        else:
-            print("Not in backpack")
+        try:
+            action, item_name = choice.split(" ", 1)[0], choice.split(" ", 1)[1]
+        except:
+            print("Invalid input, try again")
             return None
+        if action == "use":
+            if item_name in self.backpack:
+                return self.backpack[item_name]
+            print("Item not in backpack")
+            return None
+        elif action == "remove":
+            self.backpack_remove(item_name)
+            return None
+
+    def take_turn(self, place):
+        """Method that allows the player to take their turn during combat. Players can either attack, move, or use an item in their backpack. If the player puts in an invalid input, allow them to try again. If the enemy is out of a weapon's range, 
+        display a message saying so and let the player try again. If the player chooses an piece of equipment that isn't combat oriented, display a message and try again.
+        """
+        print(">>> {0}'s Turn".format(self.name))
+        print("*** Player ***")
+        print("{0}, Health: {1}, Armor: {2}, Move Speed: {3} units per turn".format(self.name, self.health, self.armor, self.move_speed))
+        print("")
+        place.show_enemies()
+        print("")
+        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move forward, 'Open backpack' to look at and use something in your backpack. "))
+        if action == "attack": #Attack decision
+            print("")
+            weapon = self.use_weapon()
+            if not weapon:
+                print("")
+                return self.take_turn(place)
+            print("")
+            weapon.action(place)
+        elif action == "move": #Movement decision
+            steps = fixed_input(input("How many steps will you advance? (Max steps: {0}). ".format(self.move_speed)))
+            if not steps.isnumeric():
+                print("Input not a valid integer, try again")
+                print("")
+                return self.take_turn(place)
+            steps = int(steps)
+            if steps > self.move_speed or steps < 0:
+                print("Cannot take that many steps forward, try again")
+                print("")
+                return self.take_turn(place)
+            i = 0
+            while steps:
+                if any([self.position + 1 == enemy.position for enemy in place.enemies]):
+                    print("Enemy in front of you, eliminate them to proceed")
+                    break
+                elif self.position >= place.size:
+                    print("Cannot move any further, at end of place")
+                    break
+                self.position += 1
+                steps -= 1
+                i += 1
+            print("{0} moved {1} steps forward".format(self.name, i))
+        elif action == "open backpack": #Item usage decision
+            print("")
+            item = self.use_backpack()
+            if not item:
+                print("")
+                return self.take_turn(place)
+            print("")
+            item.action(place)
+        else:
+            print("Invalid input, try again")
+            print("")
+            return self.take_turn(place)
+
+    def remove(self, place):
+        "The player has a special remove function that ends the game upon their death."
+        game_over()
 
     def __repr__(self):
         return "Player: ({0}, {1})".format(self.health, self.armor)
     
     def __str__(self):
-        return "{0}, Health: {1}, Armor: {2}, Current Weight: {3} lbs".format(self.name, self.health, self.armor, self.current_weight)
+        return "{0}, Health: {1}, Armor: {2}, Current Weight: {3} lbs, Move Speed: {4} units per turn".format(self.name, self.health, self.armor, self.current_weight, self.move_speed)
 
 ### Enemy Classes ###
 
@@ -339,20 +467,50 @@ class Enemy(Entity):
     """
     name = "Enemy"
     battle_lines = []
+    death_lines = []
+    armor_piercing = False
+    symbol = "E"
 
     def __init__(self, health, armor, damage, range, move_speed):
         Entity.__init__(self, health, armor)
-        self.position = None
         self.damage = damage
         self.range = range
         self.move_speed = move_speed
+    
+    def move(self, place):
+        """Default move method that advances the enemy towards the player unless the player is in front of them or they reach the end of the place"""
+        steps, i = self.move_speed, 0
+        while steps:
+            if self.position - 1 == place.player.position or self.position <= 0:
+                break
+            self.position, steps = self.position - 1, steps - 1
+            i += 1
+        print("{0} moved {1} steps towards you!".format(self.name, i))
+
+    def attack(self, place):
+        """Method that calls the player's injure method to apply damage"""
+        place.player.injure(place, self.damage, self.armor_piercing)
+
+    def take_turn(self, place):
+        """The default take turn method for enemies. The enemy will either advance towards the player if the player is not in range or they will attack if the player is in range."""
+        print(">>> {0}'s Turn".format(self.name))
+        if self.position - place.player.position <= self.range:
+            self.attack(place)
+        else:
+            self.move(place)
+
+    def remove(self, place):
+        """Enemies will spout a random death line when they are eliminated. This is a guarenteed event before they are removed from the place. Uses the remove method in the Entity parent class."""
+        print(random.choice(self.death_lines))
+        print("{0} eliminated!".format(self.name))
+        Entity.remove(self, place)
 
     def __str__(self):
         return "{0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.name, self.health, self.armor, self.damage, self.range, self.move_speed)
 
 class Legionary(Enemy):
     """First enemies that the player encounters: Undead Legionaries kept alive by a successful experiment with magic, with the side effect of making them accelerate mental degredation. They have no special abilities,
-    only a dagger and shield. 
+    only a dagger and shield. Follow the default take turn method where they either move towards the player if they aren't in range or they attack if the player is in range.
     >>> x = Legionary(100, 50, 20, 1, 1)
     >>> x.damage 
     20
@@ -362,7 +520,16 @@ class Legionary(Enemy):
     Legionary, Health: 100, Armor: 50, Damage: 20, Range: 1 units, Move Speed: 1 units per turn
     """
     name = "Legionary"
-    battle_lines = ["Rome will prevail!", "You cannot run from the might of Rome!", "Another soul attempting to steal our treasure, you'll die like the rest!", "I'll enjoy watching you at the end of my blade!"]
+    battle_lines = ["'Rome will prevail!'", "'You cannot run from the might of Rome!'", "'Another soul attempting to steal our treasure, you'll die like the rest!'", "'I'll enjoy watching you squirm at the end of my blade!'"]
+    death_lines = ["'How could I perish to mere human?'", "'No...I will...not...fall!'", "'I may be dead, but my comrades will avenge me!'", "'You will never get past the rest!'"]
+    symbol = "L"
+
+    def take_turn(self, place):
+        """Legionaries have a 1 in 3 chance of yelling a battle line. Follow the default take turn method"""
+        chance = random.randint(1, 3)
+        if chance == 1:
+            print(random.choice(self.battle_lines))
+        Enemy.take_turn(self, place)
 
 class Immortal_Dog(Enemy):
     """Using the same magic that keeping the Legionaries alive, these dogs are loyal to their undead human allies. Can move up to 2 steps per turn but deal very little damage. 
@@ -373,16 +540,18 @@ class Immortal_Dog(Enemy):
     Immortal Dog
     """
     name = "Immortal Dog"
+    battle_lines = ["'GRRRRRRRR!'"]
+    symbol = "ID"
 
 ### Place Class ###
 
 class Place:
-    """Place class that is made up of a randomized set of tiles. Places can be visualized as a B x 1 grid, where B is an integer. Length is randomly determined by the class attribute for possible sizes. Can randomly contain an enemy or event, depending on the type. 
-    A place can have up to 3 enemies at a time. The player starts at the first tile of the place and the enemies start on the opposite side. The enemies attribute is a list of enemies while the event attribute is an single event instance. 
-    Different place and place types have a different list of possible enemies and events.
+    """Place class that is made up of a randomized set of tiles. Places can be visualized as a B x 1 grid, where B is an integer. Since the player begins battles ar position 0, the true length of a place is actually the size attribute + 1. Length is randomly determined by the class 
+    attribute for possible sizes. Can randomly contain an enemy or event, depending on the type. A place can have up to 3 enemies at a time. The player starts at the first tile of the place and the enemies start on the opposite side. The enemies attribute is a list of enemies 
+    while the event attribute is an single event instance. Different place and place types have a different list of possible enemies and events.
     """
     possible_sizes = [x for x in range(4, 6)]
-    possible_enemies = [] #Contains the possible types of enemies and events that the place can be populated with
+    possible_enemies = [] #Contains the possible types of enemies and events that the place can be populated with. The enemies list is filled with the name of the potential enemies, not classes
     possible_events = []
 
     def __init__(self, size = random.choice(possible_sizes), type = random.choice(["Enemy", "Event", "Tutorial"])):
@@ -390,25 +559,29 @@ class Place:
         self.type = type
         self.enemies = []
         self.event = None
+        self.player = None
         self.fill()
 
     def fill(self):
         """Fills the place with either enemies (up to three) or an event, depending on the type of the room.
-        >>> Place.possible_enemies.append(1)
-        >>> place = Place(4, "Tutorial")
-        >>> place.type
-        'Tutorial'
-        >>> place.enemies
-        [1]
         """
         if self.type == "Tutorial":
-            self.enemies.append(random.choice(self.possible_enemies))
+            self.enemies.append(enemy_constructor("Legionary"))
         elif self.type == "Enemy":
             number = random.randint(1, 3)
             for x in range(number):
-                self.enemies.append(random.choice(self.possible_enemies)) #Come back and add the list of enemies that can be added.
-        elif self.type == "Event":
+                self.enemies.append(enemy_constructor(random.choice(self.possible_enemies))) 
+        for enemy in self.enemies:
+            enemy.position = self.size #Sets each enemy's position to be at the end of the place for when battle begins.
+        if self.type == "Event":
             self.event = random.choice(self.possible_events)
+    
+    def show_enemies(self):
+        """Prints all the enemies at the current place. 
+        """
+        print("*** Enemies ***")
+        for enemy in self.enemies:
+            print(enemy)
 
     def __repr__(self):
         return "Place"
@@ -420,13 +593,13 @@ class Jungle_Place(Place):
     """Place class for locations in the jungle. Small length places that can have Legionaries, Immortal Dogs, and Feral Monkeys. The final fight of the jungle section will be a large anaconda.
     """
     possible_sizes = [x for x in range(3, 4)]
-    possible_enemies = []
+    possible_enemies = [Legionary.name, Immortal_Dog.name]
     possible_events = []
 
 ### Event Classes ###
 
 class Event:
-    """Parent class for the random events in the game, which can be a puzzle, a hazard, or an enemy."""
+    """Parent class for the random events in the game, which can be a puzzle, a hazard, or a treasure."""
 
 ### Game Manager ###
 
@@ -470,7 +643,51 @@ def buying(player, store):
         print("")
         return buying(player, store)
 
+def enemy_constructor(name):
+    """Takes in a string version of the name of a class and then constructs instances of that class. This allows the game to generate new enemies. Uses a variety of conditional statements to decide which class instance to create. If stats of a class are to be changed, change them here.
+    >>> x = enemy_constructor("Legionary")
+    >>> isinstance(x, Legionary)
+    True
+    """
+    if name == Legionary.name:
+        return Legionary(100, 50, 20, 1, 1)
+    if name == Immortal_Dog.name:
+        return Immortal_Dog(50, 0, 20, 1, 2)
+
+def onward(player, place):
+    """Moves the player onto a new place, where if the place is an enemy place, a battle will begin and if the place is an event place, the event will be played"""
+    place.player = player
+    player.position = 0
+    if place.enemies:
+        battle(place)
+    elif place.type == "Event":
+        return
+
+def battle(place):
+    """Facilitates the entire battle if a player is in an enemy place. Battles begin with the player at position 0 and the enemies at the opposite end. The player always makes the first turn, then all the enemies."""
+    openings = ["Hostiles in front of you, prepare to fight!", "Enemies ahead, stand your ground!", "Enemies approaching, here we go!", "Aggressive figures ahead, they want you dead!", "Get ready, these creatures live for death!"]
+    print(random.choice(openings))
+    print(">>> Battle begin")
+    def fight(): #Using this internal function to avoid writing a battle opening for every call of the function
+        print("")
+        place.player.take_turn(place)
+        for enemy in place.enemies:
+            print("")
+            enemy.take_turn(place)
+        if place.enemies:
+            return fight()
+        print("")
+        print(">>> End of battle")
+    fight()
+    
+def game_over():
+    """Function that prints a game over message when the player dies and quits the program"""
+    print("You have died! The lost treasure will remain hidden from the rest of the world. Perhaps this is for the better.")
+    quit()
+
 ### In-Game Items ###
 
-spear = Weapon(20, 3, 10, 100, "Spear")
+spear = Weapon(200, 1, 10, 100, "Spear") #Test weapon
 store_list = [spear]
+
+knife = Weapon(50, 1, 0, 0, "Knife")
