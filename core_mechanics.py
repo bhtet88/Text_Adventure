@@ -291,7 +291,6 @@ class Player(Entity):
     >>> print(x)
     Dave, Health: 100, Armor: 0, Current Weight: 0 lbs, Move Speed: 1 units per turn
     """
-    symbol = "P"
     
     def __init__(self, name, health=100, armor=0, move_speed=1):
         Entity.__init__(self, health, armor)
@@ -435,6 +434,8 @@ class Player(Entity):
         display a message saying so and let the player try again. If the player chooses an piece of equipment that isn't combat oriented, display a message and try again.
         """
         print(">>> {0}'s Turn".format(self.name))
+        place.visualize()
+        print("")
         print("*** Player ***")
         print("{0}, Health: {1}, Armor: {2}, Move Speed: {3} units per turn".format(self.name, self.health, self.armor, self.move_speed))
         print("")
@@ -498,7 +499,6 @@ class Enemy(Entity):
     death_lines = []
     line_chance = 1
     armor_piercing = False
-    symbol = "E"
 
     def __init__(self, health, armor, damage, range, move_speed):
         Entity.__init__(self, health, armor)
@@ -555,7 +555,6 @@ class Legionary(Enemy):
     battle_lines = ["'Rome will prevail!'", "'You cannot run from the might of Rome!'", "'Another soul attempting to steal our treasure, you'll die like the rest!'", "'I'll enjoy watching you squirm at the end of my blade!'"]
     line_chance = 3
     death_lines = ["'How could I perish to a mere human?'", "'No...I will...not...fall!'", "'I may be dead, but my comrades will avenge me!'", "'You will never get past the rest!'"]
-    symbol = "L"
 
 class Immortal_Dog(Enemy):
     """Using the same magic that keeping the Legionaries alive, these dogs are loyal to their undead human allies. Can move up to 2 steps per turn but deal very little damage. 
@@ -569,7 +568,6 @@ class Immortal_Dog(Enemy):
     battle_lines = ["'GRRRRRRRR!'"]
     line_chance = 2
     death_lines = ["'Whimpers'"]
-    symbol = "ID"
 
 ### Place Class ###
 
@@ -610,6 +608,25 @@ class Place:
         print("*** Enemies ***")
         for enemy in self.enemies:
             print(enemy)
+
+    def visualize(self):
+        """Visualizes the place by showing it as a series of underscores for empty tiles. Tiles with an entity are replaced with their class symbol. Since multiple enemies can be on the same spot, that is also reflected on the visualization.
+        >>> steve = Player("Steve")
+        >>> steve.position = 0
+        >>> place = Place(4, "Tutorial")
+        >>> place.player = steve
+        >>> place.visualize()
+        [ Steve, ________, ________, ________, Legionary ]
+        """
+        spots = ["________"] * (self.size + 1)
+        spots[self.player.position] = self.player.name
+        for enemy in self.enemies:
+            if spots[enemy.position] == "________":
+                spots[enemy.position] = enemy.name
+            else:
+                spots[enemy.position] += " " + enemy.name
+        separator = ", "
+        print("[ " + separator.join(spots) + " ]")
 
     def __repr__(self):
         return "Place"
@@ -701,6 +718,7 @@ def battle(place):
         print("")
         nonlocal counter
         print("TURN {0}".format(counter))
+        print("")
         place.player.take_turn(place)
         for enemy in place.enemies:
             print("")
