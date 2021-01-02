@@ -46,7 +46,7 @@ def wall_decision(player):
     """Function facilitating the choice the player makes when encountering the wall"""
     print("")
     wall_choice = fixed_input(input("What will you do? If you want to look at or use something in your backpack, first type 'Open backpack'. "))
-    wall_forward = ["go forward", "press on", "move onwards", "move through", "forward", "go in", "go through wall", "move through wall", "move forward", "step forward", "go through", "walk forward", "walk"] #Valid inputs for moving forward
+    wall_forward = ["go forward", "press on", "move onwards", "move through", "forward", "go in", "go through wall", "move through wall", "move forward", "step forward", "go through", "walk forward", "walk", "move on"] #Valid inputs for moving forward
     wall_retreat = ["run away", "run", "leave", "go back", "return to village", "go home", "walk away", "step back"] #Valid inputs for leaving the situation, causing an early ending
     if wall_choice in wall_forward:
         print("")

@@ -14,6 +14,7 @@ class Equipment:
     >>> x
     Equipment
     """
+    combat_item = False
     
     def __init__(self, weight, price, name = "Equipment"):
         self.weight = weight
@@ -48,6 +49,7 @@ class Weapon(Equipment):
     >>> x
     Weapon
     """
+    combat_item = True
     armor_piercing = False
     
     def __init__(self, damage, range, weight, price, name="Weapon"):
@@ -102,6 +104,7 @@ class Healing_Tool(Equipment):
     >>> x
     Healing Equipment
     """
+    combat_item = True
 
     def __init__(self, heal_amount, uses, weight, price, name = "Healing Equipment"):
         Equipment.__init__(self, weight, price, name)
@@ -385,6 +388,48 @@ class Player(Entity):
             self.backpack_remove(item_name)
             return None
 
+    def move(self, place):
+        """Helper method to allow the player to move either forward or backwards during combat. Since this is only used during battle, this function can call the take_turn method if the player wants to backout of moving and try another action. Must perform checks if the player can move in the
+        selected direction, whether they are blocked by an enemy, or if they have reached the end of the place. If the player is immediately blocked, display a message and let them try again. If the player can move at least one unit, let them move and use that as their turn regardless of if 
+        they can move all the steps they wanted or not.
+        """
+        steps= fixed_input(input("How many steps will you move? Type a negative value to move backwards (Max steps: {0}) or 'Back' to perform another action. ".format(self.move_speed)))
+        if steps == "back":
+            print("")
+            return self.take_turn(place)
+        if not steps.replace("-", "").isnumeric():
+            print("Input not a valid integer, try again")
+            print("")
+            return self.take_turn(place)
+        steps, count = int(steps), 0
+        abs_steps, direction = abs(steps), (steps // abs(steps) if steps else 0)
+        if abs(steps) > self.move_speed:
+            print("Cannot take that many steps, try again")
+            print("")
+            return self.take_turn(place)
+        elif (steps > 0 and self.position >= place.size) or (steps < 0 and self.position == 0):
+            print("At the end of place, cannot move any further, try again")
+            print("")
+            return self.take_turn(place)
+        elif (steps > 0 and any([self.position + 1 == enemy.position for enemy in place.enemies])) or (steps < 0 and any([self.position - 1 == enemy.position for enemy in place.enemies])):
+                print("Enemy in front of you, eliminate them to proceed, try again")
+                print("")
+                return self.take_turn(place)
+        while abs_steps:
+            if (steps > 0 and any([self.position + 1 == enemy.position for enemy in place.enemies])) or (steps < 0 and any([self.position - 1 == enemy.position for enemy in place.enemies])):
+                print("Enemy in front of you, eliminate them to proceed")
+                break
+            elif (steps > 0 and self.position >= place.size) or (steps < 0 and self.position == 0):
+                print("Cannot move any further, at end of place")
+                break
+            if steps > 0:
+                self.position += 1
+            else: 
+                self.position -= 1
+            abs_steps -= 1
+            count += 1
+        print("{0} moved {1} steps {2}".format(self.name, count, "forward" if direction >= 0 else "backwards"))
+
     def take_turn(self, place):
         """Method that allows the player to take their turn during combat. Players can either attack, move, or use an item in their backpack. If the player puts in an invalid input, allow them to try again. If the enemy is out of a weapon's range, 
         display a message saying so and let the player try again. If the player chooses an piece of equipment that isn't combat oriented, display a message and try again.
@@ -395,7 +440,7 @@ class Player(Entity):
         print("")
         place.show_enemies()
         print("")
-        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move forward, 'Open backpack' to look at and use something in your backpack. "))
+        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Open backpack' to look at and use something in your backpack. "))
         if action == "attack": #Attack decision
             print("")
             weapon = self.use_weapon()
@@ -405,32 +450,15 @@ class Player(Entity):
             print("")
             weapon.action(place)
         elif action == "move": #Movement decision
-            steps = fixed_input(input("How many steps will you advance? (Max steps: {0}). ".format(self.move_speed)))
-            if not steps.isnumeric():
-                print("Input not a valid integer, try again")
-                print("")
-                return self.take_turn(place)
-            steps = int(steps)
-            if steps > self.move_speed or steps < 0:
-                print("Cannot take that many steps forward, try again")
-                print("")
-                return self.take_turn(place)
-            i = 0
-            while steps:
-                if any([self.position + 1 == enemy.position for enemy in place.enemies]):
-                    print("Enemy in front of you, eliminate them to proceed")
-                    break
-                elif self.position >= place.size:
-                    print("Cannot move any further, at end of place")
-                    break
-                self.position += 1
-                steps -= 1
-                i += 1
-            print("{0} moved {1} steps forward".format(self.name, i))
+            self.move(place)
         elif action == "open backpack": #Item usage decision
             print("")
             item = self.use_backpack()
             if not item:
+                print("")
+                return self.take_turn(place)
+            elif not item.combat_item:
+                print("Not an item for combat, try again")
                 print("")
                 return self.take_turn(place)
             print("")
@@ -468,6 +496,7 @@ class Enemy(Entity):
     name = "Enemy"
     battle_lines = []
     death_lines = []
+    line_chance = 1
     armor_piercing = False
     symbol = "E"
 
@@ -494,7 +523,10 @@ class Enemy(Entity):
     def take_turn(self, place):
         """The default take turn method for enemies. The enemy will either advance towards the player if the player is not in range or they will attack if the player is in range."""
         print(">>> {0}'s Turn".format(self.name))
+        if random.randint(1, self.line_chance) == 1:
+            print(random.choice(self.battle_lines))
         if self.position - place.player.position <= self.range:
+            print("{0} attacks!".format(self.name)) 
             self.attack(place)
         else:
             self.move(place)
@@ -521,15 +553,9 @@ class Legionary(Enemy):
     """
     name = "Legionary"
     battle_lines = ["'Rome will prevail!'", "'You cannot run from the might of Rome!'", "'Another soul attempting to steal our treasure, you'll die like the rest!'", "'I'll enjoy watching you squirm at the end of my blade!'"]
-    death_lines = ["'How could I perish to mere human?'", "'No...I will...not...fall!'", "'I may be dead, but my comrades will avenge me!'", "'You will never get past the rest!'"]
+    line_chance = 3
+    death_lines = ["'How could I perish to a mere human?'", "'No...I will...not...fall!'", "'I may be dead, but my comrades will avenge me!'", "'You will never get past the rest!'"]
     symbol = "L"
-
-    def take_turn(self, place):
-        """Legionaries have a 1 in 3 chance of yelling a battle line. Follow the default take turn method"""
-        chance = random.randint(1, 3)
-        if chance == 1:
-            print(random.choice(self.battle_lines))
-        Enemy.take_turn(self, place)
 
 class Immortal_Dog(Enemy):
     """Using the same magic that keeping the Legionaries alive, these dogs are loyal to their undead human allies. Can move up to 2 steps per turn but deal very little damage. 
@@ -541,6 +567,8 @@ class Immortal_Dog(Enemy):
     """
     name = "Immortal Dog"
     battle_lines = ["'GRRRRRRRR!'"]
+    line_chance = 2
+    death_lines = ["'Whimpers'"]
     symbol = "ID"
 
 ### Place Class ###
@@ -665,16 +693,20 @@ def onward(player, place):
 
 def battle(place):
     """Facilitates the entire battle if a player is in an enemy place. Battles begin with the player at position 0 and the enemies at the opposite end. The player always makes the first turn, then all the enemies."""
-    openings = ["Hostiles in front of you, prepare to fight!", "Enemies ahead, stand your ground!", "Enemies approaching, here we go!", "Aggressive figures ahead, they want you dead!", "Get ready, these creatures live for death!"]
+    openings = ["Hostiles in front of you, prepare to fight!", "Enemies ahead, stand your ground!", "Enemies approaching, here we go!", "Aggressive foes ahead, they want you dead!", "Get ready, these creatures live for death!"]
     print(random.choice(openings))
     print(">>> Battle begin")
+    counter = 1
     def fight(): #Using this internal function to avoid writing a battle opening for every call of the function
         print("")
+        nonlocal counter
+        print("TURN {0}".format(counter))
         place.player.take_turn(place)
         for enemy in place.enemies:
             print("")
             enemy.take_turn(place)
         if place.enemies:
+            counter += 1
             return fight()
         print("")
         print(">>> End of battle")
