@@ -83,6 +83,7 @@ class Weapon(Equipment):
             print("Target out of range, choose another enemy")
             print("")
             return self.action(place)
+        print("")
         target.injure(place, self.damage, self.armor_piercing)
 
     def __str__(self):
@@ -110,6 +111,23 @@ class Healing_Tool(Equipment):
         Equipment.__init__(self, weight, price, name)
         self.heal_amount = heal_amount
         self.uses = uses
+
+    def action(self, place):
+        """The default action method for healing items is to heal the player, with the heal amount determined by their heal amount attribute. Players cannot go over their maximum health. Remove the healing item from backpack if it is out of uses. If the player is already at max health, \
+        then display a message and let the player try another action."""
+        diff = place.player.max_health - place.player.health
+        if diff == 0:
+            print("Health already maximum, can't use this")
+            print("")
+            return place.player.take_turn(place)
+        elif diff <= self.heal_amount:
+            place.player.health = place.player.max_health
+        else:
+            place.player.health += self.heal_amount
+        self.uses -= 1
+        print("Healed for {0} HP, {1} uses remaining".format(diff, self.uses))
+        if not self.uses:
+            place.player.backpack_remove(self.name.lower())
 
     def __str__(self):
         return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Weight: {3} lbs, Price: {4} coins".format(self.name, self.heal_amount, self.uses, self.weight, self.price)
@@ -299,6 +317,7 @@ class Player(Entity):
         self.backpack = {}
         self.current_weight = 0
         self.weight_limit = 50
+        self.max_health = 100
         self.wallet = 1000
 
     def backpack_add(self, item):
@@ -384,6 +403,7 @@ class Player(Entity):
             print("Item not in backpack")
             return None
         elif action == "remove":
+            print("")
             self.backpack_remove(item_name)
             return None
 
@@ -427,6 +447,7 @@ class Player(Entity):
                 self.position -= 1
             abs_steps -= 1
             count += 1
+        print("")
         print("{0} moved {1} steps {2}".format(self.name, count, "forward" if direction >= 0 else "backwards"))
 
     def take_turn(self, place):
@@ -451,6 +472,7 @@ class Player(Entity):
             print("")
             weapon.action(place)
         elif action == "move": #Movement decision
+            print("")
             self.move(place)
         elif action == "open backpack": #Item usage decision
             print("")
@@ -526,9 +548,11 @@ class Enemy(Entity):
         if random.randint(1, self.line_chance) == 1:
             print(random.choice(self.battle_lines))
         if self.position - place.player.position <= self.range:
+            print("")
             print("{0} attacks!".format(self.name)) 
             self.attack(place)
         else:
+            print("")
             self.move(place)
 
     def remove(self, place):
@@ -737,7 +761,8 @@ def game_over():
 
 ### In-Game Items ###
 
+stim = Healing_Tool(20, 1, 0.5, 200, "Stim Shot")
 spear = Weapon(200, 1, 10, 100, "Spear") #Test weapon
-store_list = [spear]
+store_list = [spear, stim]
 
 knife = Weapon(50, 1, 0, 0, "Knife")
