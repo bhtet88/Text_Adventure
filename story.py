@@ -46,3 +46,42 @@ first_encounter_1 = """The bushes on your right rustle violently and you hear a 
 in one hand, a massive shield in the other. Golden engravings are beautifully etched into the armor. He has a stern face but you notice something odd, very odd. This man has red eyes that pierce right through you. Before you can think about what to do, he raises right arm up into the sky."""
 
 first_encounter_2 = """He starts moving towards you, covering himself with his shield. It's clear what this man's -- no, he's not a mere man -- Legionary's, intentions are. You said there is no turning back after crossing the mist so it's time to hold your ground and fend off this assailant."""
+
+### Event dialogues ###
+
+# Statues #
+
+
+
+statues_intro = """You walk into a room in a bizzare condition. The walls and floor are polished and clean, aside from a few specks of dirt and grim. Two large pillars lay toppled on the ground in front of you, beautifully etched with engravings of Legionaries marching into battle and of
+the Roman people celebrating a good harvest. A red carpet streches across the length of the whole room, from the entrance where you stand all the way to the exit on the other side. Just like the walls, it is also almost immaculate except for the crumbled remains of the pillars on it.
+Above you, you notice that the roof has broken down for some reason, causing the sunlight to pour into the room and shower the main attractions: gigantic statues of the legendary {0}, {1}, and {2}. 
+
+You climb over the pillars and walk in front of the statues to examine them. They are expertly crafted and have little signs of wear. It's incredible how they survived so long yet who is maintaining this room? In fact, are you the only person who has made it here? You take out your 
+Latin to English dictionary and decipher the worn out messages engraved on the base of each statue. 'Place hand here to...' The rest is suspiciously worn away on each statue. Should you place your hand where it tells you too? What will happen? You stand there, wondering what to do 
+as three looming giants judge you with their stone cold gazes."""
+
+statues_exit_input = """Having recieved a gift from one of the statues, the text at the base of each statue fades away. You try to place your hand on their bases but nothing happens. You can take this time to manage your backpack before moving on or just leave the room. Type 'Open backpack' 
+to manage your backpack or 'Continue' to leave the room. """
+
+mercury = """You walk up to and place your hand at the base of the statue of Mercury bent over in a sprint. An airy feeling overcomes you, making you feel as light as a feather. All the weight of being an adventurer, the stress of fending off creatures for your survival, the doubt of making it back home in one piece
+is lifted off of your shoulders. It feels as if you are merely existing but it is an enjoyable kind of existance. Gone with the worries of the world, it seems like you could just enjoy the feeling of being alive! You close your eyes to savor this moment. Slowly, this euphoric feeling goes away
+and you return to reality. You open your eyes and in front of you are a pair of chrome colored boots. You slip them on and immediately notice that they are almost weightless."""
+
+mars = """You walk up to the towering statue of Mars in full armor and place your hand at its polished base. Suddenly, how feel your body heat up to an immense degree. It's hot, painfully hot! The sweat running down your skin feels like a knife being dragged through your skin! You start jumping and 
+skipping about the room, intensely wiping off your sweat and screaming at the pain. You close your eyes, you want to die and end this suffering. However, the pain suddenly stops. You open your eyes and gasp for breath. What just happened?! You check your entire body yet there are no signs
+of damage and all your clothes have dry as ever. You are relieved. However, you also feel an incredible power inside of you now. It courses through every vessel in your body and you feel stronger than ever."""
+
+apollo = """You walk up to the statue of Apollo singing gracefully with his lyre and place your hand at its base. The one quiet room starts to fill with the sound of ancient Roman singing, slowly becoming louder and louder. A playful rhythm accompanies a steady beat and lyrics about the wonders
+of Roman life. The voices sing of a wonderful harvet and plentiful hunt, thanking the Gods for their mercy and blessings. The mystical bard moves on to tell of the glory of the Roman military, how graceful the men march into battle and the mercy they show their foes. The focus then turns to
+life in the city, encapsulating with descriptions of the town square, the political discussions occuring in the Senate, and the cheers of the crowd in the Colusseum. The music flows all around you and uplifts your spirit, making it as full of joy as the melody itself. You close your eyes to
+turn inwards and fully imagine what the song is saying. Then, the voices and music slowly fade away and you are left in the silence of the room once more. Upon opening your eyes, you find a beautiful lyre in front of you, a treasure for you to keep."""
+
+vejovis = """You walk up to the statue of Vejovis holding pilums standing next to a goat and place your hand at its base. You feel a quick rush of energy overcome you but then it quickly dissipates. However, when you take a drink of your water, you feel more refreshed than you were expecting. 
+The same feeling occurs when you try eating a snack from your backpack. Everything you consume invigorates you with more energy than ever before. """
+
+diana = """You walk up to the statue of Diana, crouched aiming her bow, and place your hand at its base. Immediately, you notice a whistle come from behind you and you whip around, ready to take on another foe. However, what was once a white room has now become an expansive forest. You turn
+back around to face the statue but that's gone as well, replace by more tall trees and short shrubs. You turn around once more, hearing a rustling in the bushes behind you. Out of the shrubs jumps a large, fat boar that immediately starts grazing in front of you. You don't know what you 
+should do. That thing has the speed and strength to rip your guts out with its tusks. Despite being frozen, you notice out of the corner of your right eye a graceful and silent archer crouching next to you. She has a finely crafted bow in hand but no quiver in sight. She sees you and puts her
+finger up to her lips. 'Sssshhhh, don't alert him,' she whispers. In one smooth motion, she loads one of her three arrows, draws her bow, and fires it directly into the boar. In rapid succession, she fires her other two. In less than a second, the boar goes down to the ground. The archer gives 
+you her thanks for staying quiet and goes forth to secure her kill. The forest vanishes around you and the room returns back to normal. You feel as if you learned something valuable from that experience: how to use a bow to its full potential. A skill that you think will come in handy."""

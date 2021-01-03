@@ -1,4 +1,5 @@
 import random
+from story import *
 
 ### Equipment Classes ###
 
@@ -16,7 +17,7 @@ class Equipment:
     """
     combat_item = False
     
-    def __init__(self, weight, price, name = "Equipment"):
+    def __init__(self, weight, price, name="Equipment"):
         self.weight = weight
         self.price = price
         self.name = name
@@ -30,6 +31,27 @@ class Equipment:
     
     def __str__(self):
         return "{0}, Weight: {1} lbs, Price: {2} coins".format(self.name, self.weight, self.price)
+
+class Lyre(Equipment):
+    """The lyre is a unique piece of equipment, only obtainable in a playthrough if the player gets the gift of Apollo. It is a supportive, combat usable item that allows the player to serenade all enemies except those that can't be charmed. Serenaded enemies have their damage reduced for the
+    remainder of battle.
+    """
+    attack_debuff = 10
+    min_attack = 10
+    combat_item = True
+
+    def __init__(self, weight=3, price=0, name="Lyre"):
+        Equipment.__init__(self, weight, price, name)
+
+    def action(self, place):
+        """The Lyre lowers the attack of all enemies on the field by the attack debuff attribute. Enemies cannot go less than the min attack attribute."""
+        for enemy in place.enemies:
+            if enemy.charmable:
+                diff = enemy.damage - self.min_attack
+                if diff <= self.attack_debuff:
+                    enemy.damage = self.min_attack
+                else:
+                    enemy.damage -= self.attack_debuff
 
 class Weapon(Equipment): 
     """Weapons that the player and enemies can use to fight with. Each weapon has damage, range, weight, and price. Some weapons can have an armor piercing ability
@@ -51,6 +73,8 @@ class Weapon(Equipment):
     """
     combat_item = True
     armor_piercing = False
+    damage_bonus = 0
+    range_bonus = 0
     
     def __init__(self, damage, range, weight, price, name="Weapon"):
         Equipment.__init__(self, weight, price, name)
@@ -60,6 +84,7 @@ class Weapon(Equipment):
     def action(self, place):
         """The default action method for weapons allows the player to target a certain enemy in the place and attack them with the weapon by calling their injure method. When showing all the enemies, only show their health, armor, damage, and distance from the player.
         If the enemy is out of range, have the player pick another target."""
+        eff_range, eff_damage = self.range + self.range_bonus + place.player.range_bonus, self.damage + self.damage_bonus + place.player.damage_bonus 
         sorted_list, i = sorted(place.enemies, key = lambda x: x.position - place.player.position), 0
         print("*** Targets ***")
         for enemy in sorted_list:
@@ -67,27 +92,60 @@ class Weapon(Equipment):
             print("[{0}] {1}, Health: {2}, Armor: {3}, Damage: {4}, Distance: {5}".format(i, enemy.name, enemy.health, enemy.armor, enemy.damage, dist))
             i += 1
         print("")
-        print("{0} Range: {1}".format(self.name, self.range))
+        print("{0} Range: {1}".format(self.name, eff_range))
         print("")
         choice = fixed_input(input("Who will you attack? Type the number of the enemy you will attack or type 'Back' to go back and perform a different action. "))
         if choice == "back":
             print("")
             return place.player.take_turn(place)
-        elif not choice.isnumeric() or int(choice) < 0 or int(choice) > i:
+        elif not choice.isnumeric() or int(choice) > i:
             print("Invalid input, answer must be a valid numeric input")
             print("")
             return self.action(place)
         choice = int(choice)
         target = sorted_list[choice]
-        if target.position - place.player.position > self.range:
+        if target.position - place.player.position > eff_range:
             print("Target out of range, choose another enemy")
             print("")
             return self.action(place)
         print("")
-        target.injure(place, self.damage, self.armor_piercing)
+        target.injure(place, eff_damage, self.armor_piercing)
 
     def __str__(self):
         return "{0}, Damage: {1}, Range: {2} units, Weight: {3} lbs, Armor Piercing: {4}, Price: {5} coins".format(self.name, self.damage, self.range, self.weight, self.armor_piercing, self.price)
+
+class Bow(Weapon):
+    """Bows are long ranged weapons that are armor piercing and can hit enemies that are more than 1 unit away. Damage is weaker than melee weapons. The bow itself is light but the bundle of arrows makes them heavier than expected. Have a special volley attack that allows them to deal half
+    damage to all enemies within range"""
+    armor_piercing = True
+    diana_bonus = False
+
+    def __init__(self, damage, range, weight, price, name="Bow"):
+        Weapon.__init__(self, damage, range, weight, price, name)
+
+    def volley_shot(self, place):
+        """The volley shot deals half of the bow's effective damage (damage after all buffs and debuffs are applied) to all enemies within range by summoning the might of Diana."""
+        eff_range, eff_damage = self.range + self.range_bonus + place.player.range_bonus, self.damage + self.damage_bonus + place.player.damage_bonus 
+        targets = [enemy for enemy in place.enemies if enemy.position - place.player.position <= eff_range]
+        for target in targets:
+            target.injure(place, eff_damage // 2, self.armor_piercing)
+
+    def action(self, place):
+        """The action method for bows allows the player to decide if they want to use the normal attack or use the volley shot method if they have the gift of Diana. Each decision will call the proper method."""
+        if self.diana_bonus:
+            attack = fixed_input(input("What attack will you use? Type 'Normal' or 'Volley Shot' to attack or 'Back' to choose a different action. "))
+            if attack == "back":
+                print("")
+                return place.player.take_turn(place)
+            elif attack == "normal":
+                Weapon.action(self, place)
+            elif attack == "volley shot":
+                self.volley_shot(place)
+            else:
+                print("Invalid input, try again")
+                print("")
+                return self.action(place)
+        Weapon.action(self, place)
 
 class Healing_Tool(Equipment):
     """Healing equipment for the player to regain health. Each healing equipment has healing amount, number of uses, weight, and price
@@ -106,6 +164,7 @@ class Healing_Tool(Equipment):
     Healing Equipment
     """
     combat_item = True
+    heal_bonus = 0
 
     def __init__(self, heal_amount, uses, weight, price, name = "Healing Equipment"):
         Equipment.__init__(self, weight, price, name)
@@ -115,17 +174,17 @@ class Healing_Tool(Equipment):
     def action(self, place):
         """The default action method for healing items is to heal the player, with the heal amount determined by their heal amount attribute. Players cannot go over their maximum health. Remove the healing item from backpack if it is out of uses. If the player is already at max health, \
         then display a message and let the player try another action."""
-        diff = place.player.max_health - place.player.health
+        diff, eff_heal = place.player.max_health - place.player.health, self.heal_amount + self.heal_bonus
         if diff == 0:
             print("Health already maximum, can't use this")
             print("")
             return place.player.take_turn(place)
-        elif diff <= self.heal_amount:
+        elif diff <= eff_heal:
             place.player.health = place.player.max_health
         else:
-            place.player.health += self.heal_amount
+            place.player.health += eff_heal
         self.uses -= 1
-        print("Healed for {0} HP, {1} uses remaining".format(diff, self.uses))
+        print("Healed for {0} HP, {1} uses remaining".format(min(diff, eff_heal), self.uses))
         if not self.uses:
             place.player.backpack_remove(self.name.lower())
 
@@ -319,6 +378,8 @@ class Player(Entity):
         self.weight_limit = 50
         self.max_health = 100
         self.wallet = 1000
+        self.damage_bonus = 0
+        self.range_bonus = 0
 
     def backpack_add(self, item):
         """Adds item to the player's backpack as long as adding the weight of the item does not cause the current weight to exceed the weight_limit.
@@ -521,6 +582,7 @@ class Enemy(Entity):
     death_lines = []
     line_chance = 1
     armor_piercing = False
+    charmable = True
 
     def __init__(self, health, armor, damage, range, move_speed):
         Entity.__init__(self, health, armor)
@@ -593,6 +655,115 @@ class Immortal_Dog(Enemy):
     line_chance = 2
     death_lines = ["'Whimpers'"]
 
+### Event Classes ###
+
+class Event:
+    """Parent class for the random events in the game, which can be a puzzle, a hazard, or a treasure. All Event instances have a play method that plays the event and contains all the information on what happens in the event. Therefore, each event instance has a unique play method.
+    If an event has any randomized elements, the randomization occurs in the play method so that a single event instance can be used. All events are initialized without any parameters since all the important info is contained in the play method."""
+
+    def __init__(self):
+        self.name = "Event"
+    
+    def play(self, place):
+        """The default play method takes in a place instance as a parameter, giving it access to everything it could need to function. Any randomization will occur here so a single instance can suffice for the entire game and no other new ones need to be created. The default play method
+        also does nothing."""
+        return
+    
+    def __repr__(self):
+        return self.name
+
+class Three_Perks(Event):
+    """This type of event consists of the player finding three statues of three Roman gods with worn away etchings. The player is able to read a 'Place your hand here to...' message, giving the player the choice to stand in front of any of the three statues for a potential permanent bonus.
+    The three statues are randomly picked and the player also has the option to skip out on the bonuses entirely. Some statues give a light bonus but others give a strong bonus with a drawback."""
+
+    statues = ["Mercury", "Mars", "Diana", "Vejovis", "Apollo"]
+
+    def __init__(self):
+        Event.__init__(self)
+
+    def play(self, place):
+        """The player can decide to get a bonus from one of the statues or they can just choose to leave without any bonus."""
+        rand_gods = random.sample(self.statues, k=3)
+        rand_gods_lower = [x.lower() for x in rand_gods]
+        print(statues_intro.format(rand_gods[0], rand_gods[1], rand_gods[2]))
+        input()
+        choice = fixed_input(input("What will you do? If you just want to leave, type 'Leave'. "))
+        if choice == "leave":
+            print("")
+            print("You decide that the risk is not worth it and decide to continue your journey, leaving the room untouched and its guests unamused.")
+        elif any([x in choice for x in rand_gods_lower]):
+            god = None
+            for z in rand_gods_lower:
+                if z in choice:
+                    god = z
+                    break
+            if god == "mercury":
+                print("")
+                print(mercury)
+                input()
+                speed_boost = 1
+                place.player.move_speed += speed_boost
+                print("The gift of Mercury has been acquired! Your max movement speed has been increased by {0} units.".format(speed_boost))
+            elif god == "mars":
+                print("")
+                print(mars)
+                input()
+                damage_boost, health_decrease = 10, 15
+                place.player.damage_bonus += damage_boost
+                place.player.max_health -= health_decrease
+                if place.player.health > place.player.max_health:
+                    place.player.health = place.player.max_health
+                print("The gift of Mars has been acquired! You now deal an extra {0} points of damage with each attack but your max health decreases by {1} points.".format(damage_boost, health_decrease))
+            elif god == "diana":
+                print("")
+                print(diana)
+                input()
+                damage_boost, range_bonus = 6, 1
+                Bow.damage_bonus, Bow.range_bonus = damage_boost + Weapon.damage_bonus, range_bonus + Weapon.range_bonus
+                Bow.diana_bonus = True
+                print("The gift of Diana has been acquired! You now deal an extra {0} points of damage with bows and their range has been increased by {1} units. Can now use the volley shot attack that attacks all enemies within range for half damage".format(damage_boost, range_bonus))
+            elif god == "vejovis":
+                print("")
+                print(vejovis)
+                input()
+                heal_boost = 10
+                Healing_Tool.heal_bonus += heal_boost
+                print("The gift of Vejovis has been acquired! All healing items now heal {0} more health points.".format(heal_boost))
+            elif god == "apollo":
+                print("")
+                print(apollo)
+                input()
+                while True:
+                    answer = fixed_input(input("Will you add the Lyre to your backpack? Type 'Open backpack' to manage your backpack. "))
+                    if answer == "open backpack":
+                        place.player.use_backpack()
+                    elif answer == "yes":
+                        place.player.backpack_add(Lyre())
+                        print("The gift of Apollo has been acquired! The Lyre allows you to seranade all enemies on the field with Apollo's help, lowering their attacks by {0} points each".format(Lyre.attack_debuff))
+                        break
+                    elif answer == "no":
+                        print("")
+                        print("You decide to leave behind the Lyre for your own reasons.")
+                        break
+                    print("Invalid input, try again")
+                    print("")
+            while True:
+                decision = fixed_input(input(statues_exit_input))
+                if decision == "open backpack":
+                    place.player.use_backpack()
+                elif decision == "continue":
+                    print("")
+                    print("Satisfied with your backpack, you leave the room and its towering occupants behind.")
+                    break
+                else:
+                    print("Invalid option, try again")
+                    print("")
+        else:
+            print("")
+            print("Invalid input, try again")
+            print("")
+            return self.play(place)
+
 ### Place Class ###
 
 class Place:
@@ -661,14 +832,9 @@ class Place:
 class Jungle_Place(Place):
     """Place class for locations in the jungle. Small length places that can have Legionaries, Immortal Dogs, and Feral Monkeys. The final fight of the jungle section will be a large anaconda.
     """
-    possible_sizes = [x for x in range(3, 4)]
+    possible_sizes = [x for x in range(3, 6)]
     possible_enemies = [Legionary.name, Immortal_Dog.name]
     possible_events = []
-
-### Event Classes ###
-
-class Event:
-    """Parent class for the random events in the game, which can be a puzzle, a hazard, or a treasure."""
 
 ### Game Manager ###
 
@@ -730,7 +896,7 @@ def onward(player, place):
     if place.enemies:
         battle(place)
     elif place.type == "Event":
-        return
+        place.event.play(place)
 
 def battle(place):
     """Facilitates the entire battle if a player is in an enemy place. Battles begin with the player at position 0 and the enemies at the opposite end. The player always makes the first turn, then all the enemies."""
@@ -763,6 +929,7 @@ def game_over():
 
 stim = Healing_Tool(20, 1, 0.5, 200, "Stim Shot")
 spear = Weapon(200, 1, 10, 100, "Spear") #Test weapon
+
 store_list = [spear, stim]
 
 knife = Weapon(50, 1, 0, 0, "Knife")
