@@ -1,4 +1,5 @@
 import random
+import time
 from story import *
 
 ### Equipment Classes ###
@@ -92,9 +93,8 @@ class Weapon(Equipment):
         self.eff_damage = max(self.damage + self.damage_bonus + place.player.damage_bonus + place.damage_bonus, 5) #Prevents the weapons from becoming useless 
         self.eff_range = max(self.range + self.range_bonus + place.player.range_bonus + place.range_bonus, 1)
 
-    def action(self, place):
-        """The default action method for weapons allows the player to target a certain enemy in the place and attack them with the weapon by calling their injure method. When showing all the enemies, only show their health, armor, damage, and distance from the player.
-        If the enemy is out of range, have the player pick another target."""
+    def combat_table(self, place):
+        """Helper method for the action method for Weapons, showing the enemies sorted by distance and the current weapon's effective range."""
         sorted_list, i = sorted(place.enemies, key = lambda x: x.position - place.player.position), 0
         print("*** Targets ***")
         for enemy in sorted_list:
@@ -103,18 +103,26 @@ class Weapon(Equipment):
             i += 1
         print("")
         print("{0} Range: {1}".format(self.name, self.eff_range))
+        return sorted_list, i
+
+    def action(self, place):
+        """The default action method for weapons allows the player to target a certain enemy in the place and attack them with the weapon by calling their injure method. When showing all the enemies, only show their health, armor, damage, and distance from the player.
+        If the enemy is out of range, have the player pick another target."""
+        sorted_list, i = self.combat_table(place)
         print("")
         choice = fixed_input(input("Who will you attack? Type the number of the enemy you will attack or type 'Back' to go back and perform a different action. "))
         if choice == "back":
             print("")
             return place.player.take_turn(place)
         elif not choice.isnumeric() or int(choice) > i:
+            print("")
             print("Invalid input, answer must be a valid numeric input")
             print("")
             return self.action(place)
         choice = int(choice)
         target = sorted_list[choice]
         if target.position - place.player.position > self.eff_range:
+            print("")
             print("Target out of range, choose another enemy")
             print("")
             return self.action(place)
@@ -156,6 +164,52 @@ class Bow(Weapon):
                 return self.action(place)
         Weapon.action(self, place)
 
+class Rifle(Weapon):
+    """Rifles are a powerful ranged weapon similar to bows but in exchange for their great power, each rifle has an accuracy rating that determines if the weapon hits the target or misses. Accuracy is a value between 0 and 100."""
+    armor_piercing = True
+    accuracy_bonus = 0
+
+    def __init__(self, damage, range, accuracy, weight, price, name="Rifle"):
+        Weapon.__init__(self, damage, range, weight, price, name)
+        self.accuracy = accuracy
+        self.eff_accuracy = accuracy
+
+    def recalculate(self, place):
+        """Uses the normal weapon class recalculation plus recalculates the effective accuracy attribute."""
+        Weapon.recalculate(self, place)
+        self.eff_accuracy = max(min(self.accuracy + self.accuracy_bonus + place.accuracy_bonus, 100), 40) #Ensures that accuracy will never surpass 100 but will also always be at least 40
+
+    def action(self, place):
+        """Rifles damage enemies the same as any other armor piercing weapon but can only damage after the pass an accuracy roll governed by their effective accuracy. If the target is hit, apply damage normally. If the player misses, show a message."""
+        sorted_list, i = self.combat_table(place)
+        print("")
+        choice = fixed_input(input("Who will you attack? Type the number of the enemy you will attack or type 'Back' to go back and perform a different action. "))
+        if choice == "back":
+            print("")
+            return place.player.take_turn(place)
+        elif not choice.isnumeric() or int(choice) > i:
+            print("")
+            print("Invalid input, answer must be a valid numeric input")
+            print("")
+            return self.action(place)
+        choice = int(choice)
+        target = sorted_list[choice]
+        if target.position - place.player.position > self.eff_range:
+            print("")
+            print("Target out of range, choose another enemy")
+            print("")
+            return self.action(place)
+        hit = random.choices([1, 0], weights=(self.eff_accuracy, 100 - self.eff_accuracy))
+        if hit[0]:
+            print("")
+            target.injure(place, self.eff_damage, self.armor_piercing)
+        else:
+            print("")
+            print("You missed!")
+
+    def __str__(self):
+        return "{0}, Damage: {1}, Range: {2} units, Accuracy: {3}, Weight: {4} lbs, Armor Piercing: {5}, Price: {6} coins".format(self.name, self.eff_damage, self.eff_range, self.eff_accuracy, self.weight, self.armor_piercing, self.price)
+
 class Healing_Tool(Equipment):
     """Healing equipment for the player to regain health. Each healing equipment has healing amount, number of uses, weight, and price
     >>> x = Healing_Tool(30, 1, 0.5, 12)
@@ -193,7 +247,7 @@ class Healing_Tool(Equipment):
         then display a message and let the player try another action."""
         diff = place.player.max_health - place.player.health
         if diff == 0:
-            print("Health already maximum, can't use this")
+            print("Health already maximum, can not use this")
             print("")
             return place.player.take_turn(place)
         elif diff <= self.eff_heal:
@@ -361,6 +415,7 @@ class Entity:
                 self.armor -= damage
         print("{0} took {1} damage!".format(self.name, damage))
         if self.health <= 0:
+            print("")
             self.remove(place)
 
     def remove(self, place):
@@ -453,7 +508,7 @@ class Player(Entity):
     def show_backpack(self):
         """Displays all the items in the player's backpack, with one item on each line."""
         self.recalculate(self.place)
-        print("*** Backpack ***")
+        print("*** Backpack (Weight: {0} / {1}) ***".format(self.current_weight, self.weight_limit))
         for item in self.backpack.values():
             print(item)
 
@@ -461,7 +516,7 @@ class Player(Entity):
         """Displays all the weapons that the player is carrying."""
         self.recalculate(self.place)
         print("*** Weapons ***")
-        for item in self.backpack.values(): #Show all weapons that the player currently has
+        for item in self.backpack.values(): 
             if isinstance(item, Weapon):
                 print(item)
 
@@ -487,11 +542,13 @@ class Player(Entity):
         try:
             action, item_name = choice.split(" ", 1)[0], choice.split(" ", 1)[1]
         except:
+            print("")
             print("Invalid input, try again")
             return None
         if action == "use":
             if item_name in self.backpack:
                 return self.backpack[item_name]
+            print("")
             print("Item not in backpack")
             return None
         elif action == "remove":
@@ -548,6 +605,7 @@ class Player(Entity):
         """
         place.player.recalculate(place)
         print(">>> {0}'s Turn".format(self.name))
+        print("")
         place.visualize()
         print("")
         print("*** Player ***")
@@ -580,6 +638,7 @@ class Player(Entity):
             print("")
             item.action(place)
         else:
+            print("")
             print("Invalid input, try again")
             print("")
             return self.take_turn(place)
@@ -675,6 +734,9 @@ class Legionary(Enemy):
     line_chance = 3
     death_lines = ["'How could I perish to a mere human?'", "'No...I will...not...fall!'", "'I may be dead, but my comrades will avenge me!'", "'You will never get past the rest!'"]
 
+    def __init__(self, health, armor, damage, range, move_speed):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+
 class Immortal_Dog(Enemy):
     """Using the same magic that keeping the Legionaries alive, these dogs are loyal to their undead human allies. Can move up to 2 steps per turn but deal very little damage. 
     >>> x = Immortal_Dog(75, 0, 10, 1, 2)
@@ -685,8 +747,11 @@ class Immortal_Dog(Enemy):
     """
     name = "Immortal Dog"
     battle_lines = ["'GRRRRRRRR!'"]
-    line_chance = 2
+    line_chance = 1
     death_lines = ["'Whimpers'"]
+
+    def __init__(self, health, armor, damage, range, move_speed):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
 
 ### Event Classes ###
 
@@ -730,34 +795,10 @@ class Three_Perks(Event):
                 if z in choice:
                     god = z
                     break
-            if god == "mercury":
-                print("")
-                self.mercury(place)
-            elif god == "mars":
-                print("")
-                self.mars(place)
-            elif god == "diana":
-                print("")
-                self.diana(place)
-            elif god == "vejovis":
-                print("")
-                self.vejovis(place)
-            elif god == "apollo":
-                print("")
-                self.apollo(place)
-            while True:
-                print("")
-                decision = fixed_input(input(statues_exit_input))
-                if decision == "open backpack":
-                    print("")
-                    place.player.use_backpack()
-                elif decision == "continue":
-                    print("")
-                    print("Satisfied with your backpack, you leave the room and its towering occupants behind.")
-                    break
-                else:
-                    print("")
-                    print("Invalid option, try again")
+            print("")
+            eval("self." + god + "(self, place)")
+            print("")
+            print(statues_exit) 
         else:
             print("")
             print("Invalid input, try again")
@@ -770,7 +811,7 @@ class Three_Perks(Event):
         input()
         speed_boost = 1
         place.player.move_speed += speed_boost
-        print("The gift of Mercury has been acquired! Your max movement speed has been increased by {0} units.".format(speed_boost))
+        print("The gift of Mercury has been acquired! Your max movement speed has been increased by {0} units permanently.".format(speed_boost))
 
     def mars(self, place):
         """Mars's gift gives players an overall damage bonus in exchange for a decreased max health."""
@@ -803,22 +844,68 @@ class Three_Perks(Event):
     
     def apollo(self, place):
         """Apollo's gift is the only way for the player to obtain the Lyre, which allows them to seranade most enemies and lower their damage."""
+        lyre = Lyre()
         print(apollo)
         input()
         while True:
-            answer = fixed_input(input("Will you add the Lyre to your backpack? Type 'Open backpack' to manage your backpack. "))
+            answer = fixed_input(input("Will you add the Lyre to your backpack? Type 'Open backpack' to remove items. "))
             if answer == "open backpack":
+                print("")
                 place.player.use_backpack()
+                print("")
+            elif answer == "yes" and place.player.weight_limit - place.player.current_weight < lyre.weight:
+                print("")
+                print("Not enough room in your backpack, remove items to make space")
             elif answer == "yes":
-                place.player.backpack_add(Lyre())
+                print("")
+                place.player.backpack_add(lyre)
+                print("")
                 print("The gift of Apollo has been acquired! The Lyre allows you to seranade all enemies on the field with Apollo's help, lowering their attacks by {0} points each".format(Lyre.attack_debuff))
                 break
             elif answer == "no":
                 print("")
                 print("You decide to leave behind the Lyre for your own reasons.")
                 break
+            print("")
             print("Invalid input, try again")
             print("")
+
+class Legendary_Item(Event):
+    """The legendary item event is when the player comes across a skeleton of a long dead adventurer like them. This skeleton has a powerful item that can aid the player in their travels. The item can be a supportive item, a weapon, or a healing item."""
+
+    possible_items = {Rifle(50, 5, 85, 10, 500, "Ross Rifle"): ross_rifle_text}
+
+    def __init__(self):
+        Event.__init__(self)
+
+    def play(self, place):
+        """Player comes across a room, text plays to describe the room and the item found. Player has the choice to either pick up the item or to not, assuming they can carry it."""
+        print(legit_intro)
+        input()
+        loot = random.choice(list(self.possible_items.keys()))
+        print(self.possible_items[loot])
+        input()
+        print(loot)
+        while True:
+            print("")
+            choice = fixed_input(input("Will you take the {0} with you? Type 'Open backpack' to remove items. ".format(loot.name)))
+            if choice == "no":
+                print("")
+                print("You decide to leave this legendary item with its original owner, certain you will find even greater things the more you push onwards.")
+                break
+            elif choice == "open backpack":
+                print("")
+                place.player.use_backpack()
+            elif choice == "yes" and place.player.weight_limit - place.player.current_weight < loot.weight:
+                print("")
+                print("Not enough room in your backpack, remove items to make space")
+            elif choice == "yes":
+                print("")
+                place.player.backpack_add(loot)
+                break
+            else:
+                print("")
+                print("Invalid input, try again")
 
 ### Place Class ###
 
@@ -836,8 +923,9 @@ class Place:
     heal_bonus = 0
     move_bonus = 0
     uses_bonus = 0
+    accuracy_bonus = 0
 
-    def __init__(self, type = random.choice(["Enemy", "Event", "Tutorial"]), size = random.choice(possible_sizes)):
+    def __init__(self, type = random.choice(["Enemy", "Event"]), size = random.choice(possible_sizes)):
         self.size = size
         self.type = type
         self.enemies = []
@@ -871,7 +959,7 @@ class Place:
         """Visualizes the place by showing it as a series of underscores for empty tiles. Tiles with an entity are replaced with their class symbol. Since multiple enemies can be on the same spot, that is also reflected on the visualization.
         >>> steve = Player("Steve")
         >>> steve.position = 0
-        >>> place = Place(4, "Tutorial")
+        >>> place = Place("Tutorial", 4)
         >>> place.player = steve
         >>> place.visualize()
         [ Steve, ________, ________, ________, Legionary ]
@@ -882,7 +970,7 @@ class Place:
             if spots[enemy.position] == "________":
                 spots[enemy.position] = enemy.name
             else:
-                spots[enemy.position] += " " + enemy.name
+                spots[enemy.position] += " / " + enemy.name
         separator = ", "
         print("[ " + separator.join(spots) + " ]")
 
@@ -897,8 +985,11 @@ class Jungle_Place(Place):
     """
     possible_sizes = [x for x in range(3, 6)]
     possible_enemies = [Legionary.name, Immortal_Dog.name]
-    possible_events = [Three_Perks()]
+    possible_events = [Legendary_Item()]
     range_bonus = -1
+
+    def __init__(self, type = random.choice(["Enemy", "Event"]), size = random.choice(possible_sizes)):
+        Place.__init__(self, type, size)
 
 ### Game Manager ###
 
@@ -962,11 +1053,34 @@ def onward(player, place):
         battle(place)
     elif place.type == "Event":
         place.event.play(place)
+    while True:
+            print("")
+            choice = fixed_input(input("Type 'Open backpack' to manage your backpack or 'Continue' to move onwards. "))
+            if choice == 'open backpack':
+                print("")
+                item = place.player.use_backpack()
+                if isinstance(item, Weapon):
+                    print("")
+                    print("There's no point using a weapon when not in combat")
+                elif isinstance(item, Healing_Tool) and player.health == player.max_health:
+                    print("")
+                    print("Health already maximum, can not use this")
+                elif item:
+                    print("")
+                    item.action(place)
+            elif choice == "continue":
+                print("")
+                print("You decide to continue forwards")
+                break
+            else:
+                print("")
+                print("Invalid input, try again")
 
 def battle(place):
     """Facilitates the entire battle if a player is in an enemy place. Battles begin with the player at position 0 and the enemies at the opposite end. The player always makes the first turn, then all the enemies."""
     openings = ["Hostiles in front of you, prepare to fight!", "Enemies ahead, stand your ground!", "Enemies approaching, here we go!", "Aggressive foes ahead, they want you dead!", "Get ready, these creatures live for death!"]
     print(random.choice(openings))
+    print("")
     print(">>> Battle begin")
     counter = 1
     def fight(): #Using this internal function to avoid writing a battle opening for every call of the function
@@ -977,10 +1091,12 @@ def battle(place):
         print("")
         place.player.take_turn(place)
         for enemy in place.enemies:
+            time.sleep(1.5)
             print("")
             enemy.take_turn(place)
         if place.enemies:
             counter += 1
+            time.sleep(1.5)
             return fight()
         print("")
         print(">>> End of battle")
@@ -994,9 +1110,10 @@ def game_over():
 ### In-Game Items ###
 
 stim = Healing_Tool(20, 1, 0.5, 200, "Stim Shot")
-bow = Bow(40, 4, 12, 150, "Bow")
+bow = Bow(30, 4, 12, 150, "Bow")
 spear = Weapon(200, 1, 10, 100, "Spear") #Test weapon
+rifle = Rifle(60, 4, 50, 15, 200, "Crude Rifle")
 
-store_list = [spear, stim, bow]
+store_list = [spear, stim, bow, rifle]
 
-knife = Weapon(50, 1, 0, 0, "Knife")
+knife = Weapon(25, 1, 0, 0, "Knife")

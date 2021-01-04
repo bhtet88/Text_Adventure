@@ -1,11 +1,12 @@
 from core_mechanics import *
 from story import *
+import random
 
 ### Creating player character ###
 
 name = input("You are an adventurer and just arrived at the airport of a little known European city. What is your name adventurer? ")
 player = Player(name)
-generic_place = Place()
+generic_place = Place("Tutorial")
 player.place, generic_place.player = generic_place, player
 
 print("\n" + opening.format(player.name))
@@ -68,6 +69,7 @@ def wall_decision(player):
                 print("")
                 print(wall_boomerang)
             else:
+                print("")
                 print("You look at the item you are holding but you can't figure out how this will assist you.")
             return wall_decision(player)
     else:
@@ -85,10 +87,17 @@ input("")
 print(random.choice(Legionary.battle_lines))
 input("")
 print(first_encounter_2)
-input("")
+input()
 
-tut_place = Jungle_Place("Tutorial")
+tut_place = Jungle_Place("Tutorial", 4)
 onward(player, tut_place)
 
 print("")
 print(first_encounter_end)
+
+times = random.randint(5, 7)
+while times:
+    input()
+    place = Jungle_Place()
+    onward(player, place)
+    times -= 1

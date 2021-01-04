@@ -50,7 +50,7 @@ first_encounter_2 = """He starts moving towards you, covering himself with his s
 first_encounter_end = """The Legionary falls, his corpse making a heavy landing on the ground and kicking up small clouds of dust. Shaking, you slowly make your way to his body and examine this being. Why is there a Legionary out of all things here? Yeah sure, you are searching for ancient
 Roman treasure but the Western Roman empire's army is a thing of the past. His glowing red eyes have now changed to just look like the eyes of any normal human. All over his skin are scars and features that can be best described as shallow cracks, looking like the cracks in the ground when 
 there is extreme heat and no water. Aside from all this, he looks like a normal person. If this guy was so bent on killing you, there has to be something up ahead, some sort of secret, maybe even treasure! You take a few deep breaths and collect yourself together. If this was any indicator,
-getting to the lost city is going to be a challenge. Looks like the game begins now."""
+getting to the lost city is going to be a challenge. This forest that you are in also doesn't help. It's so dense that you find it difficult to see things that are far away. However, you walk forward with a hardened resolve. Looks like the game begins now."""
 
 ### Event dialogues ###
 
@@ -64,15 +64,14 @@ You climb over the pillars and walk in front of the statues to examine them. The
 Latin to English dictionary and decipher the worn out messages engraved on the base of each statue. 'Place hand here to...' The rest is suspiciously worn away on each statue. Should you place your hand where it tells you too? What will happen? You stand there, wondering what to do 
 as three looming giants judge you with their stone cold gazes."""
 
-statues_exit_input = """Having recieved a gift from one of the statues, the text at the base of each statue fades away. You try to place your hand on their bases but nothing happens. You can take this time to manage your backpack before moving on or just leave the room. Type 'Open backpack' 
-to manage your backpack or 'Continue' to leave the room. """
+statues_exit = """Having recieved a gift from one of the statues, the text at the base of each statue fades away. You try to place your hand on their bases but nothing happens."""
 
-mercury = """You walk up to and place your hand at the base of the statue of Mercury bent over in a sprint. An airy feeling overcomes you, making you feel as light as a feather. All the weight of being an adventurer, the stress of fending off creatures for your survival, the doubt of making it back home in one piece
-is lifted off of your shoulders. It feels as if you are merely existing but it is an enjoyable kind of existance. Gone with the worries of the world, it seems like you could just enjoy the feeling of being alive! You close your eyes to savor this moment. Slowly, this euphoric feeling goes away
-and you return to reality. You open your eyes and in front of you are a pair of chrome colored boots. You slip them on and immediately notice that they are almost weightless."""
+mercury = """You walk up to and place your hand at the base of the statue of Mercury bent over in a sprint. An airy feeling overcomes you, making you feel as light as a feather. All the weight of being an adventurer, the stress of fending off creatures for your survival, the doubt of making it 
+back home in one piece is lifted off of your shoulders. It feels as if you are merely existing but it is an enjoyable kind of existance. Gone with the worries of the world, it seems like you could just enjoy the feeling of being alive! You close your eyes to savor this moment. Slowly, 
+this euphoric feeling goes away and you return to reality. You open your eyes and in front of you are a pair of chrome colored boots. You slip them on and immediately notice that they are almost weightless."""
 
-mars = """You walk up to the towering statue of Mars in full armor and place your hand at its polished base. Suddenly, how feel your body heat up to an immense degree. It's hot, painfully hot! The sweat running down your skin feels like a knife being dragged through your skin! You start jumping and 
-skipping about the room, intensely wiping off your sweat and screaming at the pain. You close your eyes, you want to die and end this suffering. However, the pain suddenly stops. You open your eyes and gasp for breath. What just happened?! You check your entire body yet there are no signs
+mars = """You walk up to the towering statue of Mars in full armor and place your hand at its polished base. Suddenly, how feel your body heat up to an immense degree. It's hot, painfully hot! The sweat running down your skin feels like a knife being dragged through your skin! You start jumping 
+and skipping about the room, intensely wiping off your sweat and screaming at the pain. You close your eyes, you want to die and end this suffering. However, the pain suddenly stops. You open your eyes and gasp for breath. What just happened?! You check your entire body yet there are no signs
 of damage and all your clothes have dry as ever. You are relieved. However, you also feel an incredible power inside of you now. It courses through every vessel in your body and you feel stronger than ever."""
 
 apollo = """You walk up to the statue of Apollo singing gracefully with his lyre and place your hand at its base. The one quiet room starts to fill with the sound of ancient Roman singing, slowly becoming louder and louder. A playful rhythm accompanies a steady beat and lyrics about the wonders
@@ -88,3 +87,15 @@ back around to face the statue but that's gone as well, replace by more tall tre
 should do. That thing has the speed and strength to rip your guts out with its tusks. Despite being frozen, you notice out of the corner of your right eye a graceful and silent archer crouching next to you. She has a finely crafted bow in hand but no quiver in sight. She sees you and puts her
 finger up to her lips. 'Sssshhhh, don't alert him,' she whispers. In one smooth motion, she loads one of her three arrows, draws her bow, and fires it directly into the boar. In rapid succession, she fires her other two. In less than a second, the boar goes down to the ground. The archer gives 
 you her thanks for staying quiet and goes forth to secure her kill. The forest vanishes around you and the room returns back to normal. You feel as if you learned something valuable from that experience: how to use a bow to its full potential. A skill that you think will come in handy."""
+
+# Legendary Items #
+
+legit_intro = """You encounter a worn down gray stone wall with a human skeleton peacefully resting on it, sitting on the ground with its back on the cold stone. Something tells you that this skeleton has been sitting here for years as time rolled by. Surprisingly, there is still a hat
+perched on its head, a worn down jacket on its torso, and trousers on its legs. You check the canteen lying nearby. No water. No food either, probably eaten by the occupants of this place or nature's own animals. There are so many ways this person could have perished. Maybe its your mind
+placing you in the skeleton's shoes but you imagine that this brave and foolish soul stopped moving forward for whatever reason. No more food, water, equipment, willpower, or whatever it may be. You imagine that they just sat down in this room, resting their back on this wall. Perhaps they
+cried or thrashed around in anger and frustration. Eventually, they made peace with the idea of death and slowly let their life slip away from them. At least, that is how you would like to die, accepting the end of your life if it came down to this."""
+
+ross_rifle_text = """You notice that the skeleton was craddling something in its arms, almost like a baby. You gently and respectfully slip it out of the skeleton's arms. Brushing off the dust and polishing it a bit with a rag, you find that it's bolt action rifle in a usable condition. You
+operate the bolt, pulling it back and sliding it forward once again. It still feels incredibly smooth and a little grease would make it flawless. There are still some bullets left in the chamber of the rifle. You throughly inspect the rifle and determine that while old, it is still a usable
+machine. However, this is not just any rifle. It's the Ross Rifle, legendary Canadian bolt action rifle renowned for its accuracy and power! It became known after its performance with Canadian troops during the Great War, becoming a precision weapon in the hands of a skilled user. If only
+there was a scope you could attach to this. That would make this the perfect rifle."""
