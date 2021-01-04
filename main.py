@@ -5,6 +5,8 @@ from story import *
 
 name = input("You are an adventurer and just arrived at the airport of a little known European city. What is your name adventurer? ")
 player = Player(name)
+generic_place = Place()
+player.place, generic_place.player = generic_place, player
 
 print("\n" + opening.format(player.name))
 print("\n" + store_intro.format(player.weight_limit, player.wallet))
@@ -69,6 +71,7 @@ def wall_decision(player):
                 print("You look at the item you are holding but you can't figure out how this will assist you.")
             return wall_decision(player)
     else:
+        print("")
         print("Invalid input, try again")
         return wall_decision(player)
 
@@ -84,5 +87,8 @@ input("")
 print(first_encounter_2)
 input("")
 
-tut_place = Place(4, "Tutorial")
+tut_place = Jungle_Place("Tutorial")
 onward(player, tut_place)
+
+print("")
+print(first_encounter_end)

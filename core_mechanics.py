@@ -22,6 +22,10 @@ class Equipment:
         self.price = price
         self.name = name
 
+    def recalculate(self, place):
+        """The default recalculate method does nothing but for Weapons and Healing Tools, it recalculates their effective statistics so that the shown statistics are accurate."""
+        return
+
     def action(self, place):
         """All items have an action method that allows them to perform their intended function. The action takes in a player instance and a place instance in to ensure the item can have access to everything it needs to perform any action. The default action is that an item does nothing."""
         return 
@@ -80,11 +84,17 @@ class Weapon(Equipment):
         Equipment.__init__(self, weight, price, name)
         self.damage = damage
         self.range = range
+        self.eff_damage = damage
+        self.eff_range = range
     
+    def recalculate(self, place):
+        """Recalculates the effective damage and range of the weapon, taking into account the bonuses of the weapon class, the player, and the current place."""
+        self.eff_damage = max(self.damage + self.damage_bonus + place.player.damage_bonus + place.damage_bonus, 5) #Prevents the weapons from becoming useless 
+        self.eff_range = max(self.range + self.range_bonus + place.player.range_bonus + place.range_bonus, 1)
+
     def action(self, place):
         """The default action method for weapons allows the player to target a certain enemy in the place and attack them with the weapon by calling their injure method. When showing all the enemies, only show their health, armor, damage, and distance from the player.
         If the enemy is out of range, have the player pick another target."""
-        eff_range, eff_damage = self.range + self.range_bonus + place.player.range_bonus, self.damage + self.damage_bonus + place.player.damage_bonus 
         sorted_list, i = sorted(place.enemies, key = lambda x: x.position - place.player.position), 0
         print("*** Targets ***")
         for enemy in sorted_list:
@@ -92,7 +102,7 @@ class Weapon(Equipment):
             print("[{0}] {1}, Health: {2}, Armor: {3}, Damage: {4}, Distance: {5}".format(i, enemy.name, enemy.health, enemy.armor, enemy.damage, dist))
             i += 1
         print("")
-        print("{0} Range: {1}".format(self.name, eff_range))
+        print("{0} Range: {1}".format(self.name, self.eff_range))
         print("")
         choice = fixed_input(input("Who will you attack? Type the number of the enemy you will attack or type 'Back' to go back and perform a different action. "))
         if choice == "back":
@@ -104,15 +114,15 @@ class Weapon(Equipment):
             return self.action(place)
         choice = int(choice)
         target = sorted_list[choice]
-        if target.position - place.player.position > eff_range:
+        if target.position - place.player.position > self.eff_range:
             print("Target out of range, choose another enemy")
             print("")
             return self.action(place)
         print("")
-        target.injure(place, eff_damage, self.armor_piercing)
+        target.injure(place, self.eff_damage, self.armor_piercing)
 
     def __str__(self):
-        return "{0}, Damage: {1}, Range: {2} units, Weight: {3} lbs, Armor Piercing: {4}, Price: {5} coins".format(self.name, self.damage, self.range, self.weight, self.armor_piercing, self.price)
+        return "{0}, Damage: {1}, Range: {2} units, Weight: {3} lbs, Armor Piercing: {4}, Price: {5} coins".format(self.name, self.eff_damage, self.eff_range, self.weight, self.armor_piercing, self.price)
 
 class Bow(Weapon):
     """Bows are long ranged weapons that are armor piercing and can hit enemies that are more than 1 unit away. Damage is weaker than melee weapons. The bow itself is light but the bundle of arrows makes them heavier than expected. Have a special volley attack that allows them to deal half
@@ -125,10 +135,9 @@ class Bow(Weapon):
 
     def volley_shot(self, place):
         """The volley shot deals half of the bow's effective damage (damage after all buffs and debuffs are applied) to all enemies within range by summoning the might of Diana."""
-        eff_range, eff_damage = self.range + self.range_bonus + place.player.range_bonus, self.damage + self.damage_bonus + place.player.damage_bonus 
-        targets = [enemy for enemy in place.enemies if enemy.position - place.player.position <= eff_range]
+        targets = [enemy for enemy in place.enemies if enemy.position - place.player.position <= self.eff_range]
         for target in targets:
-            target.injure(place, eff_damage // 2, self.armor_piercing)
+            target.injure(place, self.eff_damage // 2, self.armor_piercing)
 
     def action(self, place):
         """The action method for bows allows the player to decide if they want to use the normal attack or use the volley shot method if they have the gift of Diana. Each decision will call the proper method."""
@@ -165,31 +174,40 @@ class Healing_Tool(Equipment):
     """
     combat_item = True
     heal_bonus = 0
+    uses_bonus = 0
 
     def __init__(self, heal_amount, uses, weight, price, name = "Healing Equipment"):
         Equipment.__init__(self, weight, price, name)
         self.heal_amount = heal_amount
+        self.eff_heal = heal_amount
         self.uses = uses
+        self.eff_uses = uses
+
+    def recalculate(self, place):
+        """Recalculates the effective healing of a healing item by taking into account the base heal amount, heal bonus of the class, heal bonus of the player, and heal bonus of the place."""
+        self.eff_heal = max(self.heal_amount + self.heal_bonus + place.player.heal_bonus + place.heal_bonus, 5) #Prevents item from being completely useless
+        self.eff_uses = max(self.uses + self.uses_bonus + place.player.uses_bonus + place.uses_bonus, 0)
 
     def action(self, place):
         """The default action method for healing items is to heal the player, with the heal amount determined by their heal amount attribute. Players cannot go over their maximum health. Remove the healing item from backpack if it is out of uses. If the player is already at max health, \
         then display a message and let the player try another action."""
-        diff, eff_heal = place.player.max_health - place.player.health, self.heal_amount + self.heal_bonus
+        diff = place.player.max_health - place.player.health
         if diff == 0:
             print("Health already maximum, can't use this")
             print("")
             return place.player.take_turn(place)
-        elif diff <= eff_heal:
+        elif diff <= self.eff_heal:
             place.player.health = place.player.max_health
         else:
-            place.player.health += eff_heal
+            place.player.health += self.eff_heal
         self.uses -= 1
-        print("Healed for {0} HP, {1} uses remaining".format(min(diff, eff_heal), self.uses))
-        if not self.uses:
+        print("Healed for {0} HP, {1} uses remaining".format(min(diff, self.eff_heal), self.uses))
+        self.recalculate(place)
+        if not self.eff_uses:
             place.player.backpack_remove(self.name.lower())
 
     def __str__(self):
-        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Weight: {3} lbs, Price: {4} coins".format(self.name, self.heal_amount, self.uses, self.weight, self.price)
+        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Weight: {3} lbs, Price: {4} coins".format(self.name, self.eff_heal, self.eff_uses, self.weight, self.price)
 
 ### Store Class ###
 
@@ -368,18 +386,29 @@ class Player(Entity):
     >>> print(x)
     Dave, Health: 100, Armor: 0, Current Weight: 0 lbs, Move Speed: 1 units per turn
     """
-    
+    damage_bonus = 0
+    range_bonus = 0
+    move_bonus = 0
+    max_health = 100
+    heal_bonus = 0
+    uses_bonus = 0
+
     def __init__(self, name, health=100, armor=0, move_speed=1):
         Entity.__init__(self, health, armor)
         self.name = name
-        self.move_speed = move_speed 
+        self.move_speed = move_speed
+        self.eff_move = move_speed 
         self.backpack = {}
         self.current_weight = 0
         self.weight_limit = 50
-        self.max_health = 100
         self.wallet = 1000
-        self.damage_bonus = 0
-        self.range_bonus = 0
+        self.place = None
+    
+    def recalculate(self, place):
+        """The player recalculate method recalculates their move speed stat and all the items in their inventory."""
+        self.eff_move = max(self.move_speed + self.move_bonus + place.move_bonus, 1) #Player will always move at least one unit
+        for item in self.backpack.values():
+            item.recalculate(place)
 
     def backpack_add(self, item):
         """Adds item to the player's backpack as long as adding the weight of the item does not cause the current weight to exceed the weight_limit.
@@ -423,12 +452,14 @@ class Player(Entity):
 
     def show_backpack(self):
         """Displays all the items in the player's backpack, with one item on each line."""
+        self.recalculate(self.place)
         print("*** Backpack ***")
         for item in self.backpack.values():
             print(item)
 
     def show_weapons(self):
         """Displays all the weapons that the player is carrying."""
+        self.recalculate(self.place)
         print("*** Weapons ***")
         for item in self.backpack.values(): #Show all weapons that the player currently has
             if isinstance(item, Weapon):
@@ -473,7 +504,7 @@ class Player(Entity):
         selected direction, whether they are blocked by an enemy, or if they have reached the end of the place. If the player is immediately blocked, display a message and let them try again. If the player can move at least one unit, let them move and use that as their turn regardless of if 
         they can move all the steps they wanted or not.
         """
-        steps= fixed_input(input("How many steps will you move? Type a negative value to move backwards (Max steps: {0}) or 'Back' to perform another action. ".format(self.move_speed)))
+        steps= fixed_input(input("How many steps will you move? Type a negative value to move backwards (Max steps: {0}) or 'Back' to perform another action. ".format(self.eff_move)))
         if steps == "back":
             print("")
             return self.take_turn(place)
@@ -483,7 +514,7 @@ class Player(Entity):
             return self.take_turn(place)
         steps, count = int(steps), 0
         abs_steps, direction = abs(steps), (steps // abs(steps) if steps else 0)
-        if abs(steps) > self.move_speed:
+        if abs(steps) > self.eff_move:
             print("Cannot take that many steps, try again")
             print("")
             return self.take_turn(place)
@@ -515,11 +546,12 @@ class Player(Entity):
         """Method that allows the player to take their turn during combat. Players can either attack, move, or use an item in their backpack. If the player puts in an invalid input, allow them to try again. If the enemy is out of a weapon's range, 
         display a message saying so and let the player try again. If the player chooses an piece of equipment that isn't combat oriented, display a message and try again.
         """
+        place.player.recalculate(place)
         print(">>> {0}'s Turn".format(self.name))
         place.visualize()
         print("")
         print("*** Player ***")
-        print("{0}, Health: {1}, Armor: {2}, Move Speed: {3} units per turn".format(self.name, self.health, self.armor, self.move_speed))
+        print("{0}, Health: {1}, Armor: {2}, Move Speed: {3} units per turn".format(self.name, self.health, self.armor, self.eff_move))
         print("")
         place.show_enemies()
         print("")
@@ -560,7 +592,7 @@ class Player(Entity):
         return "Player: ({0}, {1})".format(self.health, self.armor)
     
     def __str__(self):
-        return "{0}, Health: {1}, Armor: {2}, Current Weight: {3} lbs, Move Speed: {4} units per turn".format(self.name, self.health, self.armor, self.current_weight, self.move_speed)
+        return "{0}, Health: {1}, Armor: {2}, Current Weight: {3} lbs, Move Speed: {4} units per turn".format(self.name, self.health, self.armor, self.current_weight, self.eff_move)
 
 ### Enemy Classes ###
 
@@ -578,8 +610,8 @@ class Enemy(Entity):
     Enemy
     """
     name = "Enemy"
-    battle_lines = []
-    death_lines = []
+    battle_lines = [""]
+    death_lines = [""]
     line_chance = 1
     armor_piercing = False
     charmable = True
@@ -608,6 +640,7 @@ class Enemy(Entity):
         """The default take turn method for enemies. The enemy will either advance towards the player if the player is not in range or they will attack if the player is in range."""
         print(">>> {0}'s Turn".format(self.name))
         if random.randint(1, self.line_chance) == 1:
+            print("")
             print(random.choice(self.battle_lines))
         if self.position - place.player.position <= self.range:
             print("")
@@ -699,70 +732,93 @@ class Three_Perks(Event):
                     break
             if god == "mercury":
                 print("")
-                print(mercury)
-                input()
-                speed_boost = 1
-                place.player.move_speed += speed_boost
-                print("The gift of Mercury has been acquired! Your max movement speed has been increased by {0} units.".format(speed_boost))
+                self.mercury(place)
             elif god == "mars":
                 print("")
-                print(mars)
-                input()
-                damage_boost, health_decrease = 10, 15
-                place.player.damage_bonus += damage_boost
-                place.player.max_health -= health_decrease
-                if place.player.health > place.player.max_health:
-                    place.player.health = place.player.max_health
-                print("The gift of Mars has been acquired! You now deal an extra {0} points of damage with each attack but your max health decreases by {1} points.".format(damage_boost, health_decrease))
+                self.mars(place)
             elif god == "diana":
                 print("")
-                print(diana)
-                input()
-                damage_boost, range_bonus = 6, 1
-                Bow.damage_bonus, Bow.range_bonus = damage_boost + Weapon.damage_bonus, range_bonus + Weapon.range_bonus
-                Bow.diana_bonus = True
-                print("The gift of Diana has been acquired! You now deal an extra {0} points of damage with bows and their range has been increased by {1} units. Can now use the volley shot attack that attacks all enemies within range for half damage".format(damage_boost, range_bonus))
+                self.diana(place)
             elif god == "vejovis":
                 print("")
-                print(vejovis)
-                input()
-                heal_boost = 10
-                Healing_Tool.heal_bonus += heal_boost
-                print("The gift of Vejovis has been acquired! All healing items now heal {0} more health points.".format(heal_boost))
+                self.vejovis(place)
             elif god == "apollo":
                 print("")
-                print(apollo)
-                input()
-                while True:
-                    answer = fixed_input(input("Will you add the Lyre to your backpack? Type 'Open backpack' to manage your backpack. "))
-                    if answer == "open backpack":
-                        place.player.use_backpack()
-                    elif answer == "yes":
-                        place.player.backpack_add(Lyre())
-                        print("The gift of Apollo has been acquired! The Lyre allows you to seranade all enemies on the field with Apollo's help, lowering their attacks by {0} points each".format(Lyre.attack_debuff))
-                        break
-                    elif answer == "no":
-                        print("")
-                        print("You decide to leave behind the Lyre for your own reasons.")
-                        break
-                    print("Invalid input, try again")
-                    print("")
+                self.apollo(place)
             while True:
+                print("")
                 decision = fixed_input(input(statues_exit_input))
                 if decision == "open backpack":
+                    print("")
                     place.player.use_backpack()
                 elif decision == "continue":
                     print("")
                     print("Satisfied with your backpack, you leave the room and its towering occupants behind.")
                     break
                 else:
-                    print("Invalid option, try again")
                     print("")
+                    print("Invalid option, try again")
         else:
             print("")
             print("Invalid input, try again")
             print("")
             return self.play(place)
+
+    def mercury(self, place):
+        """Mercury's gift gives the player a permanent movement bonus."""
+        print(mercury)
+        input()
+        speed_boost = 1
+        place.player.move_speed += speed_boost
+        print("The gift of Mercury has been acquired! Your max movement speed has been increased by {0} units.".format(speed_boost))
+
+    def mars(self, place):
+        """Mars's gift gives players an overall damage bonus in exchange for a decreased max health."""
+        print(mars)
+        input()
+        damage_boost, health_decrease = 10, 15
+        place.player.damage_bonus += damage_boost
+        place.player.max_health -= health_decrease
+        if place.player.health > place.player.max_health:
+            place.player.health = place.player.max_health
+        print("The gift of Mars has been acquired! You now deal an extra {0} points of damage with each attack but your max health decreases by {1} points.".format(damage_boost, health_decrease))
+
+    def diana(self, place):
+        """Diana's gift boosts the player's use of bows, giving a range and damage bonus and the ability to use the volley shot attack."""
+        print(diana)
+        input()
+        damage_boost, range_bonus = 6, 1
+        Bow.damage_bonus, Bow.range_bonus = damage_boost + Weapon.damage_bonus, range_bonus + Weapon.range_bonus
+        Bow.diana_bonus = True
+        print("The gift of Diana has been acquired! You now deal an extra {0} points of damage with bows and their range has been increased by {1} units. Can now use the volley shot attack that attacks all enemies within range for half damage".format(damage_boost, range_bonus))
+
+    def vejovis(self, place):
+        """Vejovis's gift gives the player a healing boost to all healing items and an additional use for each item."""
+        print(vejovis)
+        input()
+        heal_boost, use_boost = 10, 1
+        place.player.heal_bonus += heal_boost
+        place.player.use_bonus += use_boost
+        print("The gift of Vejovis has been acquired! All healing items now heal {0} more health points and have {1} more use.".format(heal_boost, use_boost))
+    
+    def apollo(self, place):
+        """Apollo's gift is the only way for the player to obtain the Lyre, which allows them to seranade most enemies and lower their damage."""
+        print(apollo)
+        input()
+        while True:
+            answer = fixed_input(input("Will you add the Lyre to your backpack? Type 'Open backpack' to manage your backpack. "))
+            if answer == "open backpack":
+                place.player.use_backpack()
+            elif answer == "yes":
+                place.player.backpack_add(Lyre())
+                print("The gift of Apollo has been acquired! The Lyre allows you to seranade all enemies on the field with Apollo's help, lowering their attacks by {0} points each".format(Lyre.attack_debuff))
+                break
+            elif answer == "no":
+                print("")
+                print("You decide to leave behind the Lyre for your own reasons.")
+                break
+            print("Invalid input, try again")
+            print("")
 
 ### Place Class ###
 
@@ -772,15 +828,22 @@ class Place:
     while the event attribute is an single event instance. Different place and place types have a different list of possible enemies and events.
     """
     possible_sizes = [x for x in range(4, 6)]
-    possible_enemies = [] #Contains the possible types of enemies and events that the place can be populated with. The enemies list is filled with the name of the potential enemies, not classes
-    possible_events = []
+    possible_enemies = [Entity.name] #Contains the possible types of enemies and events that the place can be populated with. The enemies list is filled with the name of the potential enemies, not classes
+    possible_events = [Event()]
+    damage_bonus = 0
+    range_bonus = 0
+    move_bonus = 0
+    heal_bonus = 0
+    move_bonus = 0
+    uses_bonus = 0
 
-    def __init__(self, size = random.choice(possible_sizes), type = random.choice(["Enemy", "Event", "Tutorial"])):
+    def __init__(self, type = random.choice(["Enemy", "Event", "Tutorial"]), size = random.choice(possible_sizes)):
         self.size = size
         self.type = type
         self.enemies = []
         self.event = None
         self.player = None
+        self.turn_count = 1
         self.fill()
 
     def fill(self):
@@ -791,7 +854,7 @@ class Place:
         elif self.type == "Enemy":
             number = random.randint(1, 3)
             for x in range(number):
-                self.enemies.append(enemy_constructor(random.choice(self.possible_enemies))) 
+                self.enemies.append(enemy_constructor(random.choice(self.possible_enemies)))
         for enemy in self.enemies:
             enemy.position = self.size #Sets each enemy's position to be at the end of the place for when battle begins.
         if self.type == "Event":
@@ -834,7 +897,8 @@ class Jungle_Place(Place):
     """
     possible_sizes = [x for x in range(3, 6)]
     possible_enemies = [Legionary.name, Immortal_Dog.name]
-    possible_events = []
+    possible_events = [Three_Perks()]
+    range_bonus = -1
 
 ### Game Manager ###
 
@@ -891,7 +955,8 @@ def enemy_constructor(name):
 
 def onward(player, place):
     """Moves the player onto a new place, where if the place is an enemy place, a battle will begin and if the place is an event place, the event will be played"""
-    place.player = player
+    place.player, player.place = player, place
+    player.recalculate(place)
     player.position = 0
     if place.enemies:
         battle(place)
@@ -907,6 +972,7 @@ def battle(place):
     def fight(): #Using this internal function to avoid writing a battle opening for every call of the function
         print("")
         nonlocal counter
+        place.turn_count += 1
         print("TURN {0}".format(counter))
         print("")
         place.player.take_turn(place)
@@ -928,8 +994,9 @@ def game_over():
 ### In-Game Items ###
 
 stim = Healing_Tool(20, 1, 0.5, 200, "Stim Shot")
+bow = Bow(40, 4, 12, 150, "Bow")
 spear = Weapon(200, 1, 10, 100, "Spear") #Test weapon
 
-store_list = [spear, stim]
+store_list = [spear, stim, bow]
 
 knife = Weapon(50, 1, 0, 0, "Knife")

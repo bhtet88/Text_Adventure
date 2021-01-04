@@ -47,11 +47,14 @@ in one hand, a massive shield in the other. Golden engravings are beautifully et
 
 first_encounter_2 = """He starts moving towards you, covering himself with his shield. It's clear what this man's -- no, he's not a mere man -- Legionary's, intentions are. You said there is no turning back after crossing the mist so it's time to hold your ground and fend off this assailant."""
 
+first_encounter_end = """The Legionary falls, his corpse making a heavy landing on the ground and kicking up small clouds of dust. Shaking, you slowly make your way to his body and examine this being. Why is there a Legionary out of all things here? Yeah sure, you are searching for ancient
+Roman treasure but the Western Roman empire's army is a thing of the past. His glowing red eyes have now changed to just look like the eyes of any normal human. All over his skin are scars and features that can be best described as shallow cracks, looking like the cracks in the ground when 
+there is extreme heat and no water. Aside from all this, he looks like a normal person. If this guy was so bent on killing you, there has to be something up ahead, some sort of secret, maybe even treasure! You take a few deep breaths and collect yourself together. If this was any indicator,
+getting to the lost city is going to be a challenge. Looks like the game begins now."""
+
 ### Event dialogues ###
 
 # Statues #
-
-
 
 statues_intro = """You walk into a room in a bizzare condition. The walls and floor are polished and clean, aside from a few specks of dirt and grim. Two large pillars lay toppled on the ground in front of you, beautifully etched with engravings of Legionaries marching into battle and of
 the Roman people celebrating a good harvest. A red carpet streches across the length of the whole room, from the entrance where you stand all the way to the exit on the other side. Just like the walls, it is also almost immaculate except for the crumbled remains of the pillars on it.
