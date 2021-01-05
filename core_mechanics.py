@@ -819,6 +819,37 @@ class Feral_Monkey(Enemy):
             if self.dung_counter == 1:
                 self.throw = True
 
+class Feral_Monkey(Enemy):
+    """Feral monkeys are rabid beasts that the result of failed experiments with Roman sorcery. Despite losing their minds and being unable to think for themselves for anything other than survival, they fight alongside the Roman defenses. They have the ability to hurl fecal matter at the
+    player if the player is 2 units away. This attack can damage the player but only deals 40% of the base attack."""
+
+    name = "Feral Monkey"
+    battle_lines = ["'OOOO OOOO AAHH AAHH'"]
+    line_chance = 1
+    death_lines = ["'Whimpers'"]
+
+    def __init__(self, health=70, armor=0, damage=30, range=1, move_speed=2):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.dung_multiplier = 0.40
+        self.dung_range = 3
+        self.throw = True
+        self.dung_counter = 0
+    
+    def dung_hurl(self, place):
+        """Feral monkeys can hurl dung at the player if the player is 2 spaces away, which deals 40% of their base damage stat. Once hurling the dung, they must wait a turn before throwing another one so they have time to make their projectile."""
+        place.player.injure(place, self.damage * self.dung_multiplier, self.armor_piercing)
+        self.throw, self.dung_counter = False, 0
+
+    def take_turn(self, place):
+        """If the player is within 3 spaces away from the monkey and they aren't in a cooldown period, throw a dung pile. Otherwise, perform the same take turn as the default Enemy class, moving towards the player to attack them."""
+        if self.throw and (1 < self.position - place.player.position <= self.dung_range):
+            self.dung_hurl(place)
+        else:
+            Enemy.take_turn(self, place)
+            self.dung_counter += 1
+            if self.dung_counter == 1:
+                self.throw = True
+
 ### Event Classes ###
 
 class Event:
