@@ -15,7 +15,7 @@ village_arrive = """After getting your supplies, you take a bus to a small, quie
 A group of children are playing games in the village square. Some friendly dogs join in their game, eagerly wanting to have their share of the fun as well. People are walking around the small village, going about their daily lives and ignoring your humble presence."""
 
 village_depart = """No matter. You have everything you need for your journey. After talking with some of the locals about the legends of the ancient city, they point you to a well-trodden dirt road leading out of the village. Their eyes always widen with fear when you mention your intentions.
-Many travelers have gone down this path yet none have returned. The village priest whispers his prayers for your safe return and the village elder gives you a final farewell before you trek down this path. The elder also hands you a knife, just in case."""
+Many travelers have gone down this path yet none have returned. The village priest whispers his prayers for your safe return and the village elder gives you a final farewell before you trek down this path. The elder also hands you a knife and a sturdy rope, just in case."""
 
 early_end = """You've come this far but as you look down at the village, you think about what kind of terrors previous adventurers faced. How many ran out of food and water, dying a slow and painful death? Who knows what perils are up ahead? A hostile people? Wild, aggressive animals? 
 Deadly traps created by unknown people? Just thinking about these dangers makes your heart race. Life is too precious to risk your life to acquire treasures based upon mere legend. Maybe it exists, maybe it doesn't. It doesn't matter. You turn around and get back on the bus to the airport.
@@ -32,6 +32,9 @@ you also can't help feel anxiety overcome you. Is this wall the reason why adven
 wall_boomerang = """Using your mighty arms, you throw the boomerang through the mist. It glistens as the moisture engulfs it and then, it disappears. A few seconds go by, only for the boomerang to emerge from the mist. Having completed it's mission, it safely returns to your hands. You wipe
 off the moisture on it but other than that, it looks just like how it did before you threw it. You then put it back into your backpack, still pondering what to do next."""
 
+wall_rope = """The rope is nice, sturdy, and very long. You pull out a long section of rope and throw it into the mist, then drag it back out. Aside from some moisture on the parts of the rope that went into the wall, there is no damage to the rope at all. You coil the rope back up and put it
+back into your backpack, contemplating what to do next."""
+
 wall_end = """Sadly, all these thoughts are too much for you to take. The stress of being an adventurer is overbearing. If you can't muster up the strength to take a step through this shroud, how can you make it past harder obstacles? Perhaps this mist was a blessing, stopping you from 
 making such a foolish mistake. You slowly walk back to the village and board a bus back to the airport. It's a sad thought to have spent so much time planning and preparing for this trip, just to turn around when the adventure just began. At least you have a home to look forward to, something
 many adventurers can never say again."""
@@ -40,7 +43,7 @@ wall_onwards = """Mustering up your courage, you slowly walk towards the mist. Y
 refreshing on your skin, cleansing you of all the sweat accumulated on your trek. A few more steps and then, daylight. You feel the same as before and the forest around you looks the same as that before the wall. What was the purpose of this? How has no one discovered this before? 
 Or did they discover it and perish before spreading the news? You move onwards, unaware of the perils up ahead."""
 
-### First encounter ###
+### The Forest ###
 
 first_encounter_1 = """The bushes on your right rustle violently and you hear a distinct clinking noise coupled with the sound of footsteps on packed dirt. Slowly, a gleaming figure walks out in front of you. Clad in armor and a helmet adorned with a feather crown, he stands before you, dagger
 in one hand, a massive shield in the other. Golden engravings are beautifully etched into the armor. He has a stern face but you notice something odd, very odd. This man has red eyes that pierce right through you. Before you can think about what to do, he raises right arm up into the sky."""
@@ -50,7 +53,7 @@ first_encounter_2 = """He starts moving towards you, covering himself with his s
 first_encounter_end = """The Legionary falls, his corpse making a heavy landing on the ground and kicking up small clouds of dust. Shaking, you slowly make your way to his body and examine this being. Why is there a Legionary out of all things here? Yeah sure, you are searching for ancient
 Roman treasure but the Western Roman empire's army is a thing of the past. His glowing red eyes have now changed to just look like the eyes of any normal human. All over his skin are scars and features that can be best described as shallow cracks, looking like the cracks in the ground when 
 there is extreme heat and no water. Aside from all this, he looks like a normal person. If this guy was so bent on killing you, there has to be something up ahead, some sort of secret, maybe even treasure! You take a few deep breaths and collect yourself together. If this was any indicator,
-getting to the lost city is going to be a challenge. This forest that you are in also doesn't help. It's so dense that you find it difficult to see things that are far away. However, you walk forward with a hardened resolve. Looks like the game begins now."""
+getting to the lost city is going to be a challenge. This forest that you are in also doesn't help. It's so dense that you find it difficult to see things that are far away. However, you walk forward with a hardened resolve, ready to take on what's up ahead. Looks like the game begins now."""
 
 ### Event dialogues ###
 
@@ -99,3 +102,18 @@ ross_rifle_text = """You notice that the skeleton was craddling something in its
 operate the bolt, pulling it back and sliding it forward once again. It still feels incredibly smooth and a little grease would make it flawless. There are still some bullets left in the chamber of the rifle. You throughly inspect the rifle and determine that while old, it is still a usable
 machine. However, this is not just any rifle. It's the Ross Rifle, legendary Canadian bolt action rifle renowned for its accuracy and power! It became known after its performance with Canadian troops during the Great War, becoming a precision weapon in the hands of a skilled user. If only
 there was a scope you could attach to this. That would make this the perfect rifle."""
+
+# Ghostly Vision #
+
+ghosts_banquet = """ """
+
+ghosts_banquet_end = """ """
+
+ghosts_battle = """ """
+
+ghosts_battle_end = """ """
+
+ghosts_run = """Fear has a vice grip on you and your heart is beating as hard as it can. Adrenaline surges through you and your leg muscles are bursting with energy. Whatever is happening, it's best to get out of there! Good or bad or whatever, you don't care enough to find out. But, but, but,
+you were here to push on, to move towards the treasure. You summon up all your courage and run through this paranormal scene as fast as you can, dashing out of the room until its exit was out of your sight. Exhausted from that sprint, you lean back on a rock and catch your breath, collecting
+youself back together. All you think about is that this treasure better be damn worth it!"""
+
