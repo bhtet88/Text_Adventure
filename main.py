@@ -28,16 +28,20 @@ input("") #Adds pause to prevent overwhelming text chunks
 print(village_depart)
 print("")
 player.backpack_add(knife)
+player.backpack_add(rope)
 
 print("")
 print("You take one final look at civilization, wondering if this was the right choice.")
+print("")
 decision = fixed_input(input("Will you go onward? Is it worth it? "))
 while decision != "yes":
     if decision == "no":
         print("")
         print(early_end)
         quit()
+    print("")
     print("Invalid input, try again")
+    print("")
     decision = fixed_input(input("Will you go onward? Is it worth it? "))
 
 print("")
@@ -68,6 +72,9 @@ def wall_decision(player):
             if item.name.lower() == "boomerang": #Player uses the boomerang to see if it can return through the cloud, giving more info and some illusion of player choice.
                 print("")
                 print(wall_boomerang)
+            elif item.name.lower() == "rope":
+                print("")
+                print(wall_rope)
             else:
                 print("")
                 print("You look at the item you are holding but you can't figure out how this will assist you.")
@@ -98,6 +105,6 @@ print(first_encounter_end)
 times = random.randint(5, 7)
 while times:
     input()
-    place = Jungle_Place()
+    place = Jungle_Place("Event")
     onward(player, place)
     times -= 1
