@@ -22,7 +22,6 @@ buying(player, store)
 
 ### Start of journey ###
 
-print("")
 print(village_arrive)
 input("") #Adds pause to prevent overwhelming text chunks
 print(village_depart)
@@ -53,7 +52,7 @@ def wall_decision(player):
     """Function facilitating the choice the player makes when encountering the wall"""
     print("")
     wall_choice = fixed_input(input("What will you do? If you want to look at or use something in your backpack, first type 'Open backpack'. "))
-    wall_forward = ["go forward", "press on", "move onwards", "move through", "forward", "go in", "go through wall", "move through wall", "move forward", "step forward", "go through", "walk forward", "walk", "move on"] #Valid inputs for moving forward
+    wall_forward = ["go forward", "press on", "move onwards", "move through", "forward", "go in", "go through wall", "move through wall", "move forward", "step forward", "go through", "walk forward", "walk", "move on", "continue"] #Valid inputs for moving forward
     wall_retreat = ["run away", "run", "leave", "go back", "return to village", "go home", "walk away", "step back"] #Valid inputs for leaving the situation, causing an early ending
     if wall_choice in wall_forward:
         print("")
@@ -102,7 +101,7 @@ onward(player, tut_place)
 print("")
 print(first_encounter_end)
 print("")
-print("You have just begun your journey in the forest. The forest is very dense, decreasing your range by {0} unit but your determination to survive also gives you an extra {1} units of damage.".format(Forest_Place.range_bonus, Forest_Place.damage_bonus))
+print("You have just begun your journey in the forest. The forest is very dense, decreasing your range by {0} unit but your determination to survive also gives you an extra {1}% points of damage.".format(Forest_Place.range_bonus, int(Forest_Place.damage_bonus * 100)))
 
 times = random.randint(5, 7)
 while times:
