@@ -105,15 +105,31 @@ there was a scope you could attach to this. That would make this the perfect rif
 
 # Ghostly Vision #
 
-ghosts_banquet = """ """
+ghosts_banquet = """You walk into a place and see a bunch of apparitions appear in front of you. They are dressed in formal attire, chatting excitedly about life, the weather, politics, or whatever is on their mind. There is a long table adorned with an amazing amount of food, enough to
+make your mouth water. The room around you consists of polished while columns decorated with colorful banners and intricate symbols. The floor has a beautiful carpet that stretches the length of the shiny marble tiles. The laughter, the conversations, the music, the footsteps all flood your
+ears."""
 
-ghosts_banquet_end = """ """
+ghosts_banquet_end = """A team of musicians plays their instruments, producing a beautiful melody as a singer produces a song with their powerful voice. You stand there and take all of this in. So this was what a wealthy Roman gathering was, seems like a joyous occasion. There is respect that
+have to give to the Romans, they knew what elegance was. You take a walk around. The ghostly guests pay no heed to your presence, even when you pass through them. You smell the wonderful odor of the food yet unfortunately, when you attempt to take something, your hand passes through it.
+No matter, this experience was a wonderful one. It's a shame that whatever is left of the Roman empire is trying to kill you. Perhaps you might have enjoyed living in this society. Slowly, the sounds and sights fade away, along with the guests. You are left by yourself, with only your
+memory of that event as evidence of its existance."""
 
-ghosts_battle = """ """
+ghosts_battle = """You walk into a room and see are taken aback by what is in front of you. Many apparitions appear in front of you, Roman legionaries maintaining a shield wall against Gallic barbarians. You hear the smashing of shields, the clash of metal, and the slamming of bodies against
+one another. The sky is a firey orange, colored by the flames and smoke litering the battlefield. The field in front of the Romans is littered with bodies and blood, a truly gruesome sight. Above you, a hail of arrows wizz past, cutting the barbarians down."""
 
-ghosts_battle_end = """ """
+ghosts_battle_end = """You are encapsulated, continuing to watch the battle unfold. A tall man in gleaming armor and a helmet adorned with a striking red feather plume. 'Legionaries, we must turn this battle around. The barbarians are fierce, hungry to kill us and harm our friends, families,
+and legacies. However, we are not mere raiders, bandits, or soldiers from a lesser empire. We are Romans! We are from the strongest empire backed by the Gods themselves! How can we let ourselves be defeated by people who have no dignity, no honor, no morals?! Assemble the shield wall and
+advance!' At that moment, the ranks behind the front line of Legionaries placed their shields above their heads, forming an inpenetrable fortess of Roman might. They unit slowly creeped towards the barbarians, their shields fending off the arrows. On their flanks, their auxilliary archers
+peppered the enemy. When they clashed with the barbarian warriors, the Legionaries showed their skill and strength, cutting down their foes and whittling the enemy's numbers. A charge from their cavalry finished off the survivors, leaving the Romans the victors. You are in awe of their
+might and shocked by their determination. The vision fades away and you are left in an empty place. It's a shame that you have to go against these powerful foes. No wonder they were a legendary fighting force. This event left no evidence but left a lasting memory inside you."""
 
 ghosts_run = """Fear has a vice grip on you and your heart is beating as hard as it can. Adrenaline surges through you and your leg muscles are bursting with energy. Whatever is happening, it's best to get out of there! Good or bad or whatever, you don't care enough to find out. But, but, but,
 you were here to push on, to move towards the treasure. You summon up all your courage and run through this paranormal scene as fast as you can, dashing out of the room until its exit was out of your sight. Exhausted from that sprint, you lean back on a rock and catch your breath, collecting
 youself back together. All you think about is that this treasure better be damn worth it!"""
 
+# Merchant Event #
+
+merchant_intro = """You come across a mysterious figure standing inside in what appears to look like a type of makeshift stand or shop. A sign in the front reads 'Merchant' in Latin but this place also gives a bad feeling. You can't see the merchant's face, shrouded in darkness by the hood
+over their head. The inside of the shop is extremely dark as well, allowing you to only see the merchant leaning over the front counter. Even though there's light all around you, it's as if the light is averted once it attempts to enter the shop. Despite the peculiar nature of this shop, 
+the likes of which you've never seem before, the merchant notices your presence and gestures for you to come over. 'Weeeeeelcome traveler, needs some...wares?' said a gruff, crackled voice. Even the way this merchant spoke sounds like someone trying to lure you into a back alley to rob
+you. But this may also be the only chance you have to resupply on your travels, especially in a place so removed from normal civilization."""

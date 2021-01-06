@@ -42,7 +42,7 @@ class Lyre(Equipment):
     """The lyre is a unique piece of equipment, only obtainable in a playthrough if the player gets the gift of Apollo. It is a supportive, combat usable item that allows the player to serenade all enemies except those that can't be charmed. Serenaded enemies have their damage reduced for the
     remainder of battle.
     """
-    attack_debuff = 10
+    attack_debuff = 0.80
     min_attack = 10
     combat_item = True
 
@@ -53,11 +53,10 @@ class Lyre(Equipment):
         """The Lyre lowers the attack of all enemies on the field by the attack debuff attribute. Enemies cannot go less than the min attack attribute."""
         for enemy in place.enemies:
             if enemy.charmable:
-                diff = enemy.damage - self.min_attack
-                if diff <= self.attack_debuff:
+                if self.min_attack >= int(self.attack_debuff * enemy.attack):
                     enemy.damage = self.min_attack
                 else:
-                    enemy.damage -= self.attack_debuff
+                    enemy.damage = int(enemy.damage * self.attack_debuff)
 
 class Armor_Piece(Equipment):
     """Armor pieces are equipment that the player can get to add to their armor value, protecting their health from non armor piercing attacks. Armor pieces have to be used first, so their action method is what adds to the player's armor, not just the act
@@ -127,9 +126,13 @@ class Weapon(Equipment):
         print("{0} Range: {1}".format(self.name, self.eff_range))
         return sorted_list, i
 
+    def attack(self, place, target):
+        """Helper method for the action method that actually calculates how to damage the enemies. Call this after the player is done making a valid decision on who to attack. The default just injures the single target."""
+        target.injure(place, self.eff_damage, self.armor_piercing)
+
     def action(self, place):
         """The default action method for weapons allows the player to target a certain enemy in the place and attack them with the weapon by calling their injure method. When showing all the enemies, only show their health, armor, damage, and distance from the player.
-        If the enemy is out of range, have the player pick another target."""
+        If the enemy is out of range, have the player pick another target. Calls self.attack at the end to perform the actual damaging"""
         sorted_list, i = self.combat_table(place)
         print("")
         choice = fixed_input(input("Who will you attack? Type the number of the enemy you will attack or type 'Back' to go back and perform a different action. "))
@@ -149,7 +152,7 @@ class Weapon(Equipment):
             print("")
             return self.action(place)
         print("")
-        target.injure(place, self.eff_damage, self.armor_piercing)
+        self.attack(place, target)
 
     def __str__(self):
         return "{0}, Damage: {1}, Range: {2} units, Weight: {3} lbs, Armor Piercing: {4}, Price: {5} coins".format(self.name, self.eff_damage, self.eff_range, self.weight, self.armor_piercing, self.price)
@@ -184,7 +187,8 @@ class Bow(Weapon):
                 print("Invalid input, try again")
                 print("")
                 return self.action(place)
-        Weapon.action(self, place)
+        else:
+            Weapon.action(self, place)
 
 class Rifle(Weapon):
     """Rifles are a powerful ranged weapon similar to bows but in exchange for their great power, each rifle has an accuracy rating that determines if the weapon hits the target or misses. Accuracy is a value between 0 and 100."""
@@ -201,36 +205,34 @@ class Rifle(Weapon):
         Weapon.recalculate(self, place)
         self.eff_accuracy = max(min(self.accuracy + self.accuracy_bonus + place.accuracy_bonus, 100), 30) #Ensures that accuracy will never surpass 100 but will also always be at least 40
 
-    def action(self, place):
-        """Rifles damage enemies the same as any other armor piercing weapon but can only damage after the pass an accuracy roll governed by their effective accuracy. If the target is hit, apply damage normally. If the player misses, show a message."""
-        sorted_list, i = self.combat_table(place)
-        print("")
-        choice = fixed_input(input("Who will you attack? Type the number of the enemy you will attack or type 'Back' to go back and perform a different action. "))
-        if choice == "back":
-            print("")
-            return place.player.take_turn(place)
-        elif not choice.isnumeric() or int(choice) > i:
-            print("")
-            print("Invalid input, answer must be a valid numeric input")
-            print("")
-            return self.action(place)
-        choice = int(choice)
-        target = sorted_list[choice]
-        if target.position - place.player.position > self.eff_range:
-            print("")
-            print("Target out of range, choose another enemy")
-            print("")
-            return self.action(place)
+    def attack(self, place, target):
+        """Rifles have to perform a random roll to see if they hit their target or not."""
         hit = random.choices([1, 0], weights=(self.eff_accuracy, 100 - self.eff_accuracy))
         if hit[0]:
-            print("")
             target.injure(place, self.eff_damage, self.armor_piercing)
         else:
-            print("")
             print("You missed!")
-
+        
     def __str__(self):
         return "{0}, Damage: {1}, Range: {2} units, Accuracy: {3}, Weight: {4} lbs, Armor Piercing: {5}, Price: {6} coins".format(self.name, self.eff_damage, self.eff_range, self.eff_accuracy, self.weight, self.armor_piercing, self.price)
+
+class Shotgun(Weapon):
+    """Shotguns are a powerful short ranged weapon that have no accuracy stat but have extremely limited range. In exchange, shotguns are damage machines. For every space closer to the player that the enemy is past the maximum range, the gun gains a damage bonus. Furthermore, a player is able
+    to deal full damage to the selected enemy but then all other enemies on the same spot as that enemy are also hit by the spread of the pellets, causing reduced damage."""
+    
+    def __init__(self, damage, range, spread_multiplier, cqc_bonus, weight, price, name="Shotgun"):
+        Weapon.__init__(self, damage, range, weight, price, name)
+        self.spread_multiplier = spread_multiplier
+        self.cqc_bonus = cqc_bonus
+
+    def attack(self, place, target):
+        """For every 1 unit the enemy is closer to the player after the max range of the shotgun, the player gets a damage addition determined by the CQC bonus attribte. When the player picks a target to attack, the other enemies on that same place as get hit with reduced damage, which is
+        determined by the spread multiplier attribute."""
+        dmg = self.eff_damage + (self.cqc_bonus * (self.eff_range - target.position))
+        target.injure(place, dmg, self.armor_piercing)
+        for enemy in place.enemies:
+            if enemy.position == target.position and enemy is not target:
+                enemy.injure(place, dmg * self.spread_multiplier, self.armor_piercing)
 
 class Healing_Tool(Equipment):
     """Healing equipment for the player to regain health. Each healing equipment has healing amount, number of uses, weight, and price
@@ -268,13 +270,13 @@ class Healing_Tool(Equipment):
     def action(self, place):
         """The default action method for healing items is to heal the player, with the heal amount determined by their heal amount attribute. Players cannot go over their maximum health. Remove the healing item from backpack if it is out of uses. If the player is already at max health, \
         then display a message and let the player try another action."""
-        diff = place.player.max_health - place.player.health
+        diff = place.player.eff_max_health - place.player.health
         if diff == 0:
             print("Health already maximum, can not use this")
             print("")
             return place.player.take_turn(place)
         elif diff <= self.eff_heal:
-            place.player.health = place.player.max_health
+            place.player.health = place.player.eff_max_health
         else:
             place.player.health += self.eff_heal
         self.uses -= 1
@@ -468,7 +470,6 @@ class Player(Entity):
     damage_bonus = 0
     range_bonus = 0
     move_bonus = 0
-    max_health = 100
     heal_bonus = 0
     uses_bonus = 0
 
@@ -480,12 +481,17 @@ class Player(Entity):
         self.backpack = {}
         self.current_weight = 0
         self.weight_limit = 50
+        self.max_health = 100
+        self.eff_max_health = self.max_health
         self.wallet = 1000
         self.place = None
     
     def recalculate(self, place):
         """The player recalculate method recalculates their move speed stat and all the items in their inventory."""
         self.eff_move = max(self.move_speed + self.move_bonus + place.move_bonus, 1) #Player will always move at least one unit
+        self.eff_max_health = max(50, self.max_health + place.max_health_bonus) #Player max health will always be at least 50 points
+        if self.health > self.eff_max_health:
+            self.health = self.eff_max_health
         for item in self.backpack.values():
             item.recalculate(place)
 
@@ -589,7 +595,7 @@ class Player(Entity):
         if isinstance(item, Weapon):
             print("")
             print("There's no point using a weapon when not in combat")
-        elif isinstance(item, Healing_Tool) and self.health == self.max_health:
+        elif isinstance(item, Healing_Tool) and self.health == self.eff_max_health:
             print("")
             print("Health already maximum, can not use this")
         elif item:
@@ -819,37 +825,6 @@ class Feral_Monkey(Enemy):
             if self.dung_counter == 1:
                 self.throw = True
 
-class Feral_Monkey(Enemy):
-    """Feral monkeys are rabid beasts that the result of failed experiments with Roman sorcery. Despite losing their minds and being unable to think for themselves for anything other than survival, they fight alongside the Roman defenses. They have the ability to hurl fecal matter at the
-    player if the player is 2 units away. This attack can damage the player but only deals 40% of the base attack."""
-
-    name = "Feral Monkey"
-    battle_lines = ["'OOOO OOOO AAHH AAHH'"]
-    line_chance = 1
-    death_lines = ["'Whimpers'"]
-
-    def __init__(self, health=70, armor=0, damage=30, range=1, move_speed=2):
-        Enemy.__init__(self, health, armor, damage, range, move_speed)
-        self.dung_multiplier = 0.40
-        self.dung_range = 3
-        self.throw = True
-        self.dung_counter = 0
-    
-    def dung_hurl(self, place):
-        """Feral monkeys can hurl dung at the player if the player is 2 spaces away, which deals 40% of their base damage stat. Once hurling the dung, they must wait a turn before throwing another one so they have time to make their projectile."""
-        place.player.injure(place, self.damage * self.dung_multiplier, self.armor_piercing)
-        self.throw, self.dung_counter = False, 0
-
-    def take_turn(self, place):
-        """If the player is within 3 spaces away from the monkey and they aren't in a cooldown period, throw a dung pile. Otherwise, perform the same take turn as the default Enemy class, moving towards the player to attack them."""
-        if self.throw and (1 < self.position - place.player.position <= self.dung_range):
-            self.dung_hurl(place)
-        else:
-            Enemy.take_turn(self, place)
-            self.dung_counter += 1
-            if self.dung_counter == 1:
-                self.throw = True
-
 ### Event Classes ###
 
 class Event:
@@ -917,8 +892,7 @@ class Three_Perks(Event):
         damage_boost, health_decrease = 10, 15
         place.player.damage_bonus += damage_boost
         place.player.max_health -= health_decrease
-        if place.player.health > place.player.max_health:
-            place.player.health = place.player.max_health
+        place.player.recalculate()
         print("The gift of Mars has been acquired! You now deal an extra {0} points of damage with each attack but your max health decreases by {1} points.".format(damage_boost, health_decrease))
 
     def diana(self, place):
@@ -1014,7 +988,8 @@ class Ghostly_Vision(Event):
     def __init__(self):
         Event.__init__(self)
 
-    def play(self, palce):
+    def play(self, place):
+        """This event plays a random vision scene and asks if the player wants to continue watching. Regardless of what they do, it plays the appropriate dialogue and ends without any changes to the player and no new items."""
         scene = random.choice(self.possible_scenes)
         print(scene)
         input()
@@ -1032,7 +1007,32 @@ class Ghostly_Vision(Event):
                 print("")
 
 class Merchant(Event):
-    """Event where the player finds an Roman merchant who serves as a shop for the player. Player is allowed to buy things, just like from the store at the beginning of the game. Merchant sells powerful yet expensive weapons and strong healing items. Player has the choice to skip this event.""" 
+    """Event where the player finds an ancient Roman merchant who serves as a shop for the player. Player is allowed to buy things, just like from the store at the beginning of the game. Merchant sells powerful yet expensive weapons and strong healing items. Player has the choice to 
+    skip this event."""
+
+    possible_items = []
+
+    def __init__(self):
+        Event.__init__(self)
+
+    def play(self, place):
+        """The merchant is like any other store, except that they carry much better items than normally expected and the store is randomly generated from a list of possible items. Players also have the option to skip the store."""
+        merchant, goods = Store(), random.sample(self.possible_items, k=5)
+        merchant.add_inventory(goods)
+        print(merchant_intro)
+        input()
+        while True:
+            choice = fixed_input(input("Will you buy items from this person or continue onwards? "))
+            print("")
+            if "yes" in choice or "buy" in choice:
+                buying(place.player, merchant)
+                break
+            elif "no" in choice or "continue" in choice:
+                print("For your own reasons, you decide to keep going and not stop here.")
+                break
+            else:
+                print("Invalid input, try again")
+                print("")
 
 ### Place Class ###
 
@@ -1047,6 +1047,7 @@ class Place:
     damage_bonus = 0
     range_bonus = 0
     move_bonus = 0
+    max_health_bonus = 0
     heal_bonus = 0
     move_bonus = 0
     uses_bonus = 0
@@ -1061,15 +1062,19 @@ class Place:
         self.turn_count = 1
         self.fill()
 
+    def add_enemy(self, enemy):
+        """Helper function that adds an enemy instance to the enemies list. Takes in an enemy instance as an argument."""
+        self.enemies.append(enemy)
+
     def fill(self):
         """Fills the place with either enemies (up to three) or an event, depending on the type of the room.
         """
         if self.type == "Tutorial":
-            self.enemies.append(enemy_constructor(Legionary.name))
+            self.add_enemy(enemy_constructor(Legionary.name))
         elif self.type == "Enemy" and self.possible_enemies:
             number = random.randint(1, 3)
             for x in range(number):
-                self.enemies.append(enemy_constructor(random.choice(self.possible_enemies)))
+                self.add_enemy(enemy_constructor(random.choice(self.possible_enemies)))
         for enemy in self.enemies:
             enemy.position = self.size #Sets each enemy's position to be at the end of the place for when battle begins.
         if self.type == "Event" and self.possible_events:
@@ -1138,7 +1143,7 @@ def buying(player, store):
     print("")
     player.show_backpack()
     print("")
-    command = fixed_input(input("What do you want to do? Type 'Buy' or 'Refund' followed by the name of the item or type 'Done' to leave the store and start your journey. "))
+    command = fixed_input(input("What do you want to do? Type 'Buy' or 'Refund' followed by the name of the item or type 'Done' to leave the store. "))
     try:
         action = command.split(" ", 1)[0]
         if action == "done":
