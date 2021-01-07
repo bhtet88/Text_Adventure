@@ -296,8 +296,13 @@ armor_plate = Armor_Piece(25, 7, 50, "Armor Plate")
 bandages = Healing_Tool(20, 1, 0.5, 75, "Bandages")
 bow = Bow(30, 4, 12, 75, "Bow")
 spear = Weapon(45, 1, 10, 100, "Spear") 
-rifle = Rifle(65, 4, 60, 15, 200, "Rifle")
+rifle = Rifle(70, 4, 60, 15, 200, "Rifle")
 trench_gun = Shotgun(60, 3, 0.4, 0.2, 10, 250, "Trench Gun")
+
+heavy_spear = Weapon(65, 1, 15, 150, "Heavy Spear")
+longbow = Bow(45, 6, 18, 250, "Longbow")
+padded_jacket = Armor_Piece(45, 10.5, 200, "Padded Jacket")
+healing_syringe = Healing_Tool(40, 4, 1, 200, "Healing Syringe")
 
 store_list = [spear, bandages, bow, rifle, armor_plate, trench_gun]
 
@@ -617,18 +622,23 @@ class Enemy(Entity):
         self.range = range
         self.move_speed = move_speed
     
-    def move(self, place):
-        """Default move method that advances the enemy towards the player unless the player is in front of them or they reach the end of the place"""
+    def move(self, place, back=False):
+        """Default move method that advances the enemy towards the player unless the player is in front of them or they reach the end of the place. If the back argument is True, this function will move the enemy as far away as possible."""
         steps, i = self.move_speed, 0
         while steps:
-            if self.position - 1 == place.player.position or self.position <= 0:
-                break
-            self.position, steps = self.position - 1, steps - 1
+            if not back:
+                if self.position - 1 == place.player.position or self.position <= 0:
+                    break
+                self.position, steps = self.position - 1, steps - 1
+            elif back:
+                if self.position + 1 > place.size:
+                    break
+                self.position, steps = self.position + 1, steps - 1
             i += 1
-        print("{0} moved {1} steps towards you!".format(self.name, i))
+        print("{0} moved {1} steps {2}!".format(self.name, i, ("towards you" if not back else "away from you")))
 
     def attack(self, place):
-        """Method that calls the player's injure method to apply damage"""
+        """Method that calls the player's injure method to apply the normal damage"""
         place.player.injure(place, self.damage, self.armor_piercing)
 
     def take_turn(self, place):
@@ -720,6 +730,73 @@ class Feral_Monkey(Enemy):
             if self.dung_counter == 1:
                 self.throw = True
 
+class Giant_Snake(Enemy):
+    """The final boss of the forest level is a giant snake, a mutant beast that escaped Roman grasps and now lives in a large field in the forest. The snake has a high move stat, allowing it to close the gap quickly. It also has a lunge attack, allowing it to attack the player from a long
+    range for reduced damage. It also has the rattle move, which gives it a flat bonus attack buff for a few turns. Normal attacks from the snake result in some health damage even if the player has armor on. If the player has no armor, this corrosive damage is dealt as pure bonus damage.
+    Can be charmed."""
+    name = "Giant Snake"
+    battle_lines = ["'SSSSSSSSSSSS'"]
+    line_chance = 1
+    death_lines = ["'SSSS...SSSS...SS...S'"]
+
+    def __init__(self, health=250, crit_health=40, gap=3, armor=0, damage=35, rattle_buff=10, rattle_length=2, corrosion=5, range=1, lunge_range=4, lunge_multiplier=0.70, move_speed=3):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.crit_health=crit_health
+        self.gap = gap
+        self.rattle_buff = rattle_buff
+        self.rattle_length = rattle_length
+        self.rattle_counter = 1
+        self.corrosion = corrosion
+        self.lunge_range = lunge_range
+        self.lunge_muliplier = lunge_multiplier
+
+    def lunge(self, place):
+        """The lunge move allows the snake to lunge forwards at the player, performing a long range attack with range determined by the lunge range attribute. This attack applies no corrosive damage but only does a portion of the normal damage, determined by the lunge multiplier attribute."""
+        print("{0} aggressively lunges at you.".format(self.name))
+        print()
+        place.player.injure(place, int(self.damage * self.lunge_muliplier), self.armor_piercing)
+
+    def rattle(self, place):
+        """The rattle ability gives the snake a flat damage bonus determined by the rattle buff attribute. It lasts for a limited amount of turns, governed by the rattle length attribute. The turn it was activated doesn't count. Once a rattle has been performed, apply the bonus and then 
+        set the rattle counter to the turn number when the rattle effect will wear off and the snake can do the rattle again."""
+        print("{0} rattles its tail, increasing its damage by {1} points for {2} turns".format(self.name, self.rattle_buff, self.rattle_length))
+        self.damage += self.rattle_buff
+        self.rattle_counter = place.turn_count + self.rattle_length
+
+    def attack(self, place):
+        """The attack method applies damage normally, just like the default attack method, but also applies the additional corrosion damage directly to the player's health. If the player has no armor, then corrosion is applied as a pure bonus damage on top of the normal damage."""
+        Enemy.attack(self, place)
+        print("")
+        print("{0} does an additional {1} points of corrosive damage directly to your health!".format(self.name, self.corrosion))
+        print("")
+        place.player.injure(place, self.corrosion, True)
+
+    def take_turn(self, place):
+        """The snake's first priority is performing its rattle move. While it is unable to rattle, it will analyze if it can make it directly in front of the player with its move speed. If it can, it will move in front of the player if it can. If it cannot but the player is within lunge
+        range, the snake will perform a lunge. If the snake is in front of the player, it will rattle if it can or normally attack the player. When its health reaches a certain level determined by the crit health attribute, it will try to stay away from the player and perform lunges.
+        Priorities are 1) Rattle 2) Move 3) Attack 4) Lunge. This method is also in charge of taking off the rattle buff when the buff's time is up."""
+        print()
+        if place.turn_count > self.rattle_counter or place.turn_count == 1:
+            self.rattle(place)
+        elif self.health > self.crit_health:
+            if self.position - place.player.position <= self.range:
+                self.attack(place)
+            elif self.position - place.player.position <= self.move_speed:
+                    self.move(place)
+            elif self.position - place.player.position <= self.lunge_range:
+                self.lunge(place)
+            else:
+                self.move(place)
+        else:
+            if self.position - place.player.position < self.gap:
+                self.move(place, True)
+            elif self.position - place.player.position <= self.lunge_range:
+                self.lunge(place)
+            else:
+                self.move(place)
+        if place.turn_count == self.rattle_counter:
+            self.damage -= self.rattle_buff
+
 ### Event Classes ###
 
 class Event:
@@ -748,7 +825,7 @@ class Three_Perks(Event):
 
     def play(self, place):
         """The player can decide to get a bonus from one of the statues or they can just choose to leave without any bonus."""
-        rand_gods = random.sample(self.statues, k=3)
+        rand_gods = random.sample(self.statues, 3)
         rand_gods_lower = [x.lower() for x in rand_gods]
         print(statues_intro.format(rand_gods[0], rand_gods[1], rand_gods[2]))
         input()
@@ -905,14 +982,14 @@ class Merchant(Event):
     """Event where the player finds an ancient Roman merchant who serves as a shop for the player. Player is allowed to buy things, just like from the store at the beginning of the game. Merchant sells powerful yet expensive weapons and strong healing items. Player has the choice to 
     skip this event."""
 
-    possible_items = [spear, bandages, bow, rifle, armor_plate]
+    possible_items = [heavy_spear, longbow, padded_jacket, healing_syringe, rifle, armor_plate, bandages]
 
     def __init__(self):
         Event.__init__(self)
 
     def play(self, place):
         """The merchant is like any other store, except that they carry much better items than normally expected and the store is randomly generated from a list of possible items. Players also have the option to skip the store."""
-        merchant, goods = Store(), random.sample(self.possible_items, k=5)
+        merchant, goods = Store(), random.sample(self.possible_items, 5)
         merchant.add_inventory(goods)
         print(merchant_intro)
         input()
@@ -960,11 +1037,14 @@ class Place:
     def add_enemy(self, enemy):
         """Helper function that adds an enemy instance to the enemies list. Takes in an enemy instance as an argument."""
         self.enemies.append(enemy)
+        enemy.position = self.size
 
     def fill(self):
         """Fills the place with either enemies (up to three) or an event, depending on the type of the room.
         """
-        if self.type == "Tutorial":
+        if self.type == "Boss":
+            return
+        elif self.type == "Tutorial":
             self.add_enemy(enemy_constructor(Legionary.name))
         elif self.type == "Enemy" and self.possible_enemies:
             number = random.randint(1, 3)
@@ -1008,7 +1088,7 @@ class Place:
         return "{0} Place, Size: {1}".format(self.type, self.size)
 
 class Forest_Place(Place):
-    """Place class for locations in the forest. Small length places that can have Legionaries, Immortal Dogs, and Feral Monkeys. The final fight of the jungle section will be a large anaconda.
+    """Place class for locations in the forest. Small length places that can have Legionaries, Immortal Dogs, and Feral Monkeys. The final fight of the jungle section will be a large snake.
     """
     possible_sizes = [x for x in range(3, 6)]
     possible_enemies = [Legionary.name, Immortal_Dog.name, Feral_Monkey.name]
@@ -1033,8 +1113,8 @@ class Store:
     Store selling []
     """
 
-    def __init__(self, items = {}):
-        self.inventory = items
+    def __init__(self):
+        self.inventory = {}
 
     def add_inventory(self, lst):
         """Takes in a list of equipment instances and adds them to the store's inventory, which is a dictionary. Keys are the name of the weapon (all lowercase) and the values are equipment instances themselves. If multiple
@@ -1159,16 +1239,17 @@ def buying(player, store):
         player.show_backpack()
         print("")
         command = fixed_input(input("What do you want to do? Type 'Buy' or 'Refund' followed by the name of the item or type 'Done' to leave the store. "))
-        print("")
         try:
             action = command.split(" ", 1)[0]
             if action == "done":
                 break
             item_name = command.split(" ", 1)[1]
             if action == "buy":
+                print("")
                 store.purchase(player, item_name)
                 print("")
             elif action == "refund":
+                print("")
                 store.refund(player, item_name)
                 print("")
             else:
@@ -1176,6 +1257,7 @@ def buying(player, store):
                 print("Invalid input, try again")
                 print("")
         except:
+            print("")
             print("Invalid input. If buying or refunding, make sure to type in the action followed by the name of the item")
             print("")
 
@@ -1191,6 +1273,8 @@ def enemy_constructor(name):
         return Immortal_Dog()
     elif name == Feral_Monkey.name:
         return Feral_Monkey()
+    elif name == Giant_Snake.name:
+        return Giant_Snake()
 
 def onward(player, place):
     """Moves the player onto a new place, where if the place is an enemy place, a battle will begin and if the place is an event place, the event will be played"""
@@ -1223,12 +1307,9 @@ def battle(place):
     print(random.choice(openings))
     print("")
     print(">>> Battle begin")
-    counter = 1
     def fight(): #Using this internal function to avoid writing a battle opening for every call of the function
         print("")
-        nonlocal counter
-        place.turn_count += 1
-        print("TURN {0}".format(counter))
+        print("TURN {0}".format(place.turn_count))
         print("")
         print(">>> {0}'s Turn".format(place.player.name))
         print("")
@@ -1242,7 +1323,7 @@ def battle(place):
                 print(random.choice(enemy.battle_lines))
             enemy.take_turn(place)
         if place.enemies:
-            counter += 1
+            place.turn_count += 1
             time.sleep(1.5)
             return fight()
         print("")

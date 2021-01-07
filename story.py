@@ -55,6 +55,15 @@ Roman treasure but the Western Roman empire's army is a thing of the past. His g
 there is extreme heat and no water. Aside from all this, he looks like a normal person. If this guy was so bent on killing you, there has to be something up ahead, some sort of secret, maybe even treasure! You take a few deep breaths and collect yourself together. If this was any indicator,
 getting to the lost city is going to be a challenge. This forest that you are in also doesn't help. It's so dense that you find it difficult to see things that are far away. However, you walk forward with a hardened resolve, ready to take on what's up ahead. Looks like the game begins now."""
 
+boss1_intro1 = """After fighting through many enemies, you come into an incredibly dense part of the forest, denser than any region you've previously been in. Branches upon branches cause you to pause and move them out of their way. Eventually, you push past all of the vegetation and 
+make it into a large, grassy field. The grass is incredibly green, as if it has been well maintained daily by the care of a professonal gardener. The wind sweeps through the field, causing the blades of grass to dance in unison. There are even some colorful flowers popping out of the ground. 
+Despite have to fight for your life, you stand there and take in the scenery, relieved to be taking a pause on your journey. Suddenly, you see sections of grass being flattened, like something is moving through the field out of your sight! You hear the sound of something moving over
+dirt and rocks, producing a noticeable crunching noise. You get back on your guard, readying your weapons for whatever happens next. Then, the unexpected happens or perhaps maybe you should suspend your disbelief at this point."""
+
+boss2_intro2 = """A giant snake rises out of the grass in front of you, hissing loudly and rattling its tail. It's death tune makes you turn stone cold. The gigantic, pearl white fangs glisten in the sunlight and you can see drops of venom dripping of them to the ground. This is not like
+the enemies you faced before. Should you run? No, its definately faster than you can even sprint. Maybe hide? No, it already sees you and can probably smell you out of the smallest corner. Before you can decide what you will do, the snake charges you. You narrowly dodge its strike by jumping
+to the side. This creature seems to want to eat your flesh by tearing you apart. If you're going to get to the lost city, you have no option. You will have to take this beast head on! You steel youself, ready for battle."""
+
 ### Event dialogues ###
 
 # Statues #

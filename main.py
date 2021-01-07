@@ -22,6 +22,7 @@ buying(player, store)
 
 ### Start of journey ###
 
+print("")
 print(village_arrive)
 input("") #Adds pause to prevent overwhelming text chunks
 print(village_depart)
@@ -84,10 +85,10 @@ def wall_decision(player):
         return wall_decision(player)
 
 wall_decision(player)
-input("")
+input()
 
 ### The Forest ###
-
+"""
 print(first_encounter_1)
 input("")
 print(random.choice(Legionary.battle_lines))
@@ -109,6 +110,20 @@ while times:
     place = Forest_Place()
     onward(player, place)
     times -= 1
+"""
+boss_merchant = Forest_Place("Event")
+boss_merchant.event = Merchant()
+onward(player, boss_merchant)
+
+print("")
+print(boss1_intro1)
+input()
+print(boss2_intro2)
+input()
+
+boss1 = Forest_Place("Boss", 11)
+boss1.add_enemy(enemy_constructor(Giant_Snake.name))
+onward(player, boss1)
 
 ### The Caves ###
 
@@ -117,6 +132,10 @@ while times:
 ### The Town ###
 
 ### The Machine Labs ###
+
+### The Mage Dens ###
+
+### The College ###
 
 ### The Hospital ###
 
