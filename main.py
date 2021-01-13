@@ -167,8 +167,8 @@ input()
 
 ### The Cliffs ###
 
-print("""You are now at the perilous cliffs. The cliffs are wide and open, allowing you to clearly see what is up ahead, giving you a range increase of {0} units. Since you are 
-taking every step carefully, you can only take 1 step per turn and cannot change this with item effects.""".format(Cliff_Place.range_bonus))
+print("""You are now at the perilous cliffs. The cliffs are wide and open, allowing you to clearly see what is up ahead, giving you a range increase of {0} units. Since you are taking every step carefully, you can only take 1 step per turn and 
+cannot change this with item effects.""".format(Cliff_Place.range_bonus))
 input()
 print(cliffs_intro)
 times = random.randint(5, 6)
@@ -181,8 +181,19 @@ boss_merchant = Cliff_Place([0, 1])
 boss_merchant.event = Merchant()
 input()
 onward(player, boss_merchant)
+print(boss2_intro)
+input()
+print(boss2_intro2)
+boss2 = Cliff_Place([1, 0])
+boss2.size, boss2.enemies = 11, []
+boss2.add_enemy(enemy_constructor("Alpha_Harpy"))
+onward(player, boss2)
+print(boss2_end)
+input()
 
 ### The Town ###
+
+print(town_intro)
 
 ### The Machine Labs ###
 

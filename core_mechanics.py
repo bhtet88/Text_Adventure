@@ -1087,7 +1087,7 @@ class Harpy(Enemy):
         """If the screech effect is over, divide the enemy damage by the screech damage multiplier and increase their range. Range cannot become higher than their original range, stored in the default range attribute. Set the can screech attribute back to True."""
         if place.turn == self.screech_counter:
             for enemy in place.enemies:
-                enemy.damage, enemy.range = int(enemy.damage / self.screech_damage), min(enemy.range + self.range_debuff, self.default_range)
+                enemy.damage, enemy.range = int(enemy.damage / self.screech_damage), min(enemy.range + self.range_debuff, enemy.default_range)
             self.can_screech = True
 
 class Harpy_Archer(Enemy):
@@ -1104,10 +1104,25 @@ class Harpy_Archer(Enemy):
 
     def move(self, place, back=False):
         """This move method lets the archer move forward as much as needed to get within range of the player. If the archer moves backwards, use the default method to move back as much as possible to maintain the gap."""
+        if back:
+            Enemy.move(self, place, True)
+        else:
+            dist = self.position - (place.player.position + self.range)
+            steps = min(dist, self.move_speed)
+            self.position = self.position - steps
+            print("{0} moved {1} steps towards you!".format(self.name, steps))
 
     def take_turn(self, place):
         """If the player is within range and the gap is maintained, then the Harpy archer attacks. If the player is not in range, then the Harpy archer moves until within range. If the desired gap between the player and the archer is not maintained, the archer moves back as much as it can to 
-        maintain a safe distance."""
+        maintain a safe distance, assuming it is not already at the end of the place."""
+        print()
+        dist = self.position - place.player.position
+        if dist <= self.gap and self.position < place.size:
+            self.move(place, True)
+        elif dist <= self.range:
+            self.attack(place)
+        elif dist > self.range:
+            self.move(place)
 
 class Alpha_Harpy(Harpy):
     """The Alpha Harpy is a Harpy that also has a wing beat move that uses its powerful wings to push the player backwards a certain amount of spaces if the player is too close to the enemy. This move has a cooldown period as well. On top of this, the Alpha still retains all the moves of a 
@@ -1125,12 +1140,23 @@ class Alpha_Harpy(Harpy):
 
     def wing_beat(self, place):
         """The Alpha beats her wings furiously, moving the player back a certain number of steps governed by the knockback attribute. Display a message for this move and then push the player back. Ensure to recalculate the counter for this move and also set the can beat attribute to False."""
+        print("{0} beats its wings furiously, knocking you backwards {1} steps!".format(self.name, min(self.knockback, place.player.position)))
+        place.player.position = max(place.player.position - self.knockback, 0)
+        self.can_beat, self.beat_counter = False, place.turn_count + self.cooldown
 
     def take_turn(self, place):
         """The Alpha will use her wing beat if the player is within a certain distance from her, determined by the gap attribute, and if the player is not at the end of the place. Otherwise, she will use the regular Harpy take turn method."""
+        if self.can_beat and self.position - place.player.position <= self.gap and place.player.position:
+            print()
+            self.wing_beat(place)
+        else:
+            Harpy.take_turn(self, place)
 
     def check(self, place):
         """The Alpha's check method checks if the wing beat cooldown is over and if so, sets the can beat attribute to True. It also uses the Harpy check method for its other time limited effects."""
+        if place.turn_count == self.beat_counter:
+            self.can_beat = True
+        Harpy.check(self, place)
 
 ### Event Classes ###
 
