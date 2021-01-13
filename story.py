@@ -89,15 +89,29 @@ cliffs_intro = """Trying not to look down, you slowly progress forward, step by 
 surrounding you. Some have a bow and arrow while others have swords, knifes, or other melee weapons. They all look like female humans with claws for hands and feet and wings growing out of their backs. All of them have extremely long, black hair that complements the thick black feathers on 
 their wings. Most of them also appear to have armor on their torso and helmets. One of them dives down towards you but you manage to dodge the attack. Having missed, the creature flies back into the air, looking excited to strike again."""
 
-boss2_intro = """ """
+boss2_intro = """You turn a corner on the cliff path and see a bridge off in the distance ahead of you. On the other side of the bridge appears to be some sort of town. You can just barely make out some of the buildings from the background. Perhaps that is where you need to go next, even if 
+its just to rest and get more supplies. In front of you, the path gradually becomes wider and wider, growing to be twice its width. The floor is littered with bird feces and large, loose branches. However, the most noticeable feature in front of you are multiple large circular nests. These 
+nests are gigantic, at least twice your height in diameter and are as tall as your waist. Inside are equally large dull grey eggs, each of which are about as tall as you. The surface of the eggs are smooth and each nest has a cluster of them laying there. You also notice bones and worn 
+away Legionary armor next to the eggs clusters. It appears that you and the Romans have a common foe. Perhaps these creatures crave flesh from birth. You decide to quickly but quietly try to get past this area before any protective mothers come back. You almost make it across when a large 
+shadow flies over you and you hear an earpiercing shreek."""
 
-boss2_intro2 = """ """
+boss2_intro2 = """You look up to see another one of those bird-like creatures hovering over you. It is about twice as large as the other ones you encountered and its feathers are a bright white, glistening in the sunlight. Its talons look more like daggers, sharper than any blade in existance. 
+With every flap of its wings, you feel a gust of wind trying to move you back. It takes all of your might just to stand your ground. If there is anything about pack animals, it's that their leader is the embodiment of all the qualities of their kind. They are always the most fierce, the most 
+brave, the most cunning, and the most protective. It seems like this is the alpha for these creatures and you are invading their territory. You know that this will be a fight to the death. You can't outrun it nor hide from it. It is a battle between you, an adventurer trying to just move 
+past, and this beast, protecting what's left of its flock."""
 
-boss2_end = """ """
+boss2_end = """With a final loud screech, the creature plummets down into the endless chasm below. Its feathers fly off of its wings, leaving a trail behind in the sky. Eventually, the body is too far down and vanishes from your sight. You progress forward and make it to the bridge you saw 
+earlier. Surprisingly, there is no one at the stone bridge. No guards. None of their crazed dogs. Nothing. You cross the bridge while still keeping your guard up. You look off to the side and take one more look at the endless drop below, wondering how much effort and engineering it took to 
+build this bridge. Perhaps the Romans know more than you expected. After all, they did have an amazing form of concrete that no historian or engineer has been able to replicate in the present day. Perhaps if you make it out alive, you can spread this knowledge back to the real world. """
 
 ### The Town ### 
 
-town_intro = """ """
+town_intro = """Reaching the opposite end of the bridge, you find youself at the edge of a town or city. You see a few large, multistory apartment buildings, the 'insula' if you remember your research correctly, that appear to be a bit worn, with cracks in their bricks and dirt and grim on the 
+walls. On the bottom floor, it appears that there are signs for shops, blacksmiths, armorers, and other services. On the upper levels, you see name plates, leading you to believe that those sections are the living quarters. In front of you, the road turns from a simple dust path to a well 
+made cobblestone lane. You can see places where the lane intersects with other cobblestone paths at 90 degree angles, perhaps making a city with perfectly square blocks. An organized city, that is something the Romans definately strived for. The other buildings in front of you also look like 
+more bars, shops, and services. They all looks like they have seen better days as well. Perhaps this is the poor section of the city, left at the edge of the frontier to serve as a buffer against enemy attacks. If your knowledge of Roman cities serves you right, there should be a main town 
+square or something of the like to help you orientate yourself. You see the residents of the city in front of you, going about their lives and not batting an eye to your presence. Since they don't seem to want you dead, perhaps you can use this time to rest and prepare your gear. You see a 
+few shops that you can go to for items and services and also a bar, where people are gathering. You can also use this time to talk to the locals, gathering information on the city and how to navigate it."""
 
 ### Event dialogues ###
 

@@ -181,13 +181,16 @@ boss_merchant = Cliff_Place([0, 1])
 boss_merchant.event = Merchant()
 input()
 onward(player, boss_merchant)
+input()
 print(boss2_intro)
 input()
 print(boss2_intro2)
+input()
 boss2 = Cliff_Place([1, 0])
-boss2.size, boss2.enemies = 11, []
+boss2.size, boss2.enemies = 14, []
 boss2.add_enemy(enemy_constructor("Alpha_Harpy"))
 onward(player, boss2)
+input()
 print(boss2_end)
 input()
 

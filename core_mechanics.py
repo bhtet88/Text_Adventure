@@ -99,8 +99,8 @@ class Shield(Equipment):
             print()
             return place.player.take_turn(place)
         for enemy in place.enemies:
-            enemy.damage = int(enemy.damage * self.damage_multiplier)
-        print("{0} reduced the enemy's attacks by {1}% for {2} turns!".format(self.name, int((1 - self.damage_multiplier) * 100), self.buff_length))
+            enemy.damage = round(enemy.damage * self.damage_multiplier)
+        print("{0} reduced the enemy's attacks by {1}% for {2} turns!".format(self.name, round((1 - self.damage_multiplier) * 100), self.buff_length))
         self.used, self.buff_counter = True, Place.global_turns + self.buff_length
         if self not in Place.current_time_items:
             Place.current_time_items.append(self)
@@ -114,7 +114,7 @@ class Shield(Equipment):
             self.used = False
 
     def __str__(self):
-        return "{0}, Damage Reduction: {1}%, Block Duration: {2} turns, Weight: {3} lbs, Price: {4} coins".format(self.name, int((1 - self.damage_multiplier) * 100), self.buff_length, self.weight, self.price)
+        return "{0}, Damage Reduction: {1}%, Block Duration: {2} turns, Weight: {3} lbs, Price: {4} coins".format(self.name, round((1 - self.damage_multiplier) * 100), self.buff_length, self.weight, self.price)
 
 class Weapon(Equipment): 
     """Weapons that the player and enemies can use to fight with. Each weapon has damage, range, weight, and price. Some weapons can have an armor piercing ability
@@ -137,6 +137,7 @@ class Weapon(Equipment):
     class_name = "Weapon"
     combat_item = True
     armor_piercing = False
+    ranged = False
     damage_bonus = 0
     range_bonus = 0
     
@@ -150,7 +151,8 @@ class Weapon(Equipment):
     def recalculate(self, place):
         """Recalculates the effective damage and range of the weapon, taking into account the bonuses of the weapon class, the player, and the current place."""
         self.eff_damage = int(max(self.damage * (1 + (self.damage_bonus + place.player.damage_bonus + place.damage_bonus)), 5)) #Prevents the weapons from becoming useless 
-        self.eff_range = int(max(self.range + self.range_bonus + place.player.range_bonus + place.range_bonus, 1)) #Range must be at least 1
+        if self.ranged:
+            self.eff_range = int(max(self.range + self.range_bonus + place.player.range_bonus + place.range_bonus, 1)) #Range must be at least 1 and only ranged weapons get a range bonus
 
     def combat_table(self, place):
         """Helper method for the action method for Weapons, showing the enemies sorted by distance and the current weapon's effective range."""
@@ -230,6 +232,7 @@ class Bow(Weapon):
     """Bows are long ranged weapons that are armor piercing and can hit enemies that are more than 1 unit away. Damage is weaker than melee weapons. The bow itself is light but the bundle of arrows makes them heavier than expected. Have a special volley attack that allows them to deal half
     damage to all enemies within range"""
     armor_piercing = True
+    ranged = True
     diana_bonus = False
 
     def __init__(self, damage, range, weight, price, name="Bow"):
@@ -262,6 +265,7 @@ class Bow(Weapon):
 class Rifle(Weapon):
     """Rifles are a powerful ranged weapon similar to bows but in exchange for their great power, each rifle has an accuracy rating that determines if the weapon hits the target or misses. Accuracy is a value between 0 and 100."""
     armor_piercing = True
+    ranged = True
     accuracy_bonus = 0
 
     def __init__(self, damage, range, accuracy, weight, price, name="Rifle"):
@@ -288,7 +292,8 @@ class Rifle(Weapon):
 class Shotgun(Weapon):
     """Shotguns are a powerful short ranged weapon that have no accuracy stat but have extremely limited range. In exchange, shotguns are damage machines. For every space closer to the player that the enemy is past the maximum range, the gun gains a damage bonus. Furthermore, a player is able
     to deal full damage to the selected enemy but then all other enemies on the same spot as that enemy are also hit by the spread of the pellets, causing reduced damage."""
-    
+    ranged = True
+
     def __init__(self, damage, range, spread_multiplier, cqc_bonus, weight, price, name="Shotgun"):
         Weapon.__init__(self, damage, range, weight, price, name)
         self.spread_multiplier = spread_multiplier
@@ -549,7 +554,7 @@ class Entity:
                 self.health -= diff
             else:
                 self.armor -= damage
-        print("{0} took {1} damage!".format(self.name, damage))
+        print("{0} took {1} {2}!".format(self.name, damage, ("armor piercing damage" if AP else "damage")))
         if self.health <= 0:
             print("")
             self.remove(place)
@@ -688,8 +693,8 @@ class Player(Entity):
         raise an error and also return None. If the player removes an item, remove the item from the backpack and return None."""
         self.show_backpack()
         print("")
-        choice = fixed_input(input("What would you like to do? Type 'Use' or 'Remove' followed by the number of the item or 'Close backpack' to go back. "))
-        if choice == "close backpack":
+        choice = fixed_input(input("What would you like to do? Type 'Use' or 'Remove' followed by the number of the item or 'Close' to go back. "))
+        if choice == "close":
             return None
         try:
             action, index = choice.split(" ", 1)[0], choice.split(" ", 1)[1]
@@ -867,17 +872,16 @@ class Enemy(Entity):
 
     def attack(self, place):
         """Method that calls the player's injure method to apply the normal damage"""
+        print("{0} attacks!".format(self.name))
+        print()
         place.player.injure(place, self.damage, self.armor_piercing)
 
     def take_turn(self, place):
         """The default take turn method for enemies. The enemy will either advance towards the player if the player is not in range or they will attack if the player is in range."""
+        print()
         if self.position - place.player.position <= self.range:
-            print("")
-            print("{0} attacks!".format(self.name))
-            print("")
             self.attack(place)
         else:
-            print("")
             self.move(place)
 
     def remove(self, place):
@@ -1046,19 +1050,21 @@ class Harpy(Enemy):
         self.default_range = range
         self.retreat = 2
         self.can_screech = True
-        self.screech_damage = 1.15
+        self.screech_damage = 1.50
         self.screech_length = 3
         self.screech_counter = 0
         self.range_debuff = 1 #Debuff is a positive number
 
     def screech(self, place):
-        """Screeches, causing all allies and itself to gain damage governed by the screech damage attribute, which is a multiplier for their damage. Their ranges are also lowered by the range debuff attribute. Sets the can screech attribute to False to prevent the same Harpy from 
-        screeching many times. The screech counter should then be calculated using the place turn count as these Harpy instances only show up in the specific battle."""
+        """Screeches, causing all allies and itself to gain damage governed by the screech damage attribute, which is a multiplier for their damage. Non Harpy Archer instances have their ranges also lowered by the range debuff attribute. Sets the can screech attribute to False to prevent 
+        the same Harpy from screeching many times. The screech counter should then be calculated using the place turn count as these Harpy instances only show up in the specific battle."""
         print(random.choice(self.battle_lines))
         print()
-        print("{0} screeches, increasing the damage of all allies and itself by {1}% but lowering their range by {2} units!".format(self.name, int(self.screech_damage * 100 - 100), self.range_debuff))
+        print("{0} screeches, increasing the damage of all allies and itself by {1}% but lowering their range by {2} units!".format(self.name, round(self.screech_damage * 100 - 100), self.range_debuff))
         for enemy in place.enemies:
-            enemy.damage, enemy.range = enemy.damage * self.screech_damage, max(enemy.range - self.range_debuff, 1) #Range will always be at least 1
+            enemy.damage = round(enemy.damage * self.screech_damage) #Range will always be at least 1
+            if isinstance(enemy, Harpy):
+                enemy.range = max(enemy.range - self.range_debuff, 1)
         self.screech_counter = place.turn_count + self.screech_length
         self.can_screech = False
 
@@ -1066,6 +1072,7 @@ class Harpy(Enemy):
         """The attack method for Harpies injures the player and then moves the Harpy back by the amount determined by the retreat attribute. This reflects the enemy swooping in and then retreating."""
         i = place.size - self.position
         print("{0} swoops in for an attack and then retreats {1} steps back!".format(self.name, min(i, self.retreat)))
+        print()
         place.player.injure(place, self.damage, self.armor_piercing)
         if i <= self.retreat:
             self.position = place.size
@@ -1076,7 +1083,7 @@ class Harpy(Enemy):
         """Harpies screech if no other ally has screeched, otherwise they will move towards the player if not in range. Once in range, they attack, causing them to retreat and have to move back towards the player."""
         print()
         dist = self.position - place.player.position
-        if sum([(1 if x.can_screech == True else 0) for x in place.enemies if isinstance(x, Harpy)]) < 2 and self.can_screech:
+        if sum([(1 if x.can_screech == False else 0) for x in place.enemies if isinstance(x, Harpy)]) < 2 and self.can_screech:
             self.screech(place)
         elif dist > self.range:
             self.move(place)
@@ -1085,9 +1092,11 @@ class Harpy(Enemy):
 
     def check(self, place):
         """If the screech effect is over, divide the enemy damage by the screech damage multiplier and increase their range. Range cannot become higher than their original range, stored in the default range attribute. Set the can screech attribute back to True."""
-        if place.turn == self.screech_counter:
+        if place.turn_count == self.screech_counter:
             for enemy in place.enemies:
-                enemy.damage, enemy.range = int(enemy.damage / self.screech_damage), min(enemy.range + self.range_debuff, enemy.default_range)
+                enemy.damage = round(enemy.damage / self.screech_damage)
+                if isinstance(enemy, Harpy):
+                    enemy.range = min(enemy.range + self.range_debuff, enemy.default_range)
             self.can_screech = True
 
 class Harpy_Archer(Enemy):
@@ -1130,13 +1139,13 @@ class Alpha_Harpy(Harpy):
     name = "Alpha Harpy"
     line_chance = 1
 
-    def __init__(self, health=150, armor=250, damage=25, range=4, move_speed=4):
+    def __init__(self, health=200, armor=250, damage=25, range=3, move_speed=6):
         Harpy.__init__(self, health, armor, damage, range, move_speed)
         self.can_beat = False
         self.beat_counter = 0
         self.cooldown = 3
         self.knockback = 1
-        self.gap = 2
+        self.gap = 1
 
     def wing_beat(self, place):
         """The Alpha beats her wings furiously, moving the player back a certain number of steps governed by the knockback attribute. Display a message for this move and then push the player back. Ensure to recalculate the counter for this move and also set the can beat attribute to False."""
@@ -1681,12 +1690,12 @@ def onward(player, place):
             place.possible_events.remove(place.event)
     while True:
         print("")
-        choice = fixed_input(input("Type 'Open backpack' to manage your backpack or 'Continue' to move forwards. "))
+        choice = fixed_input(input("Type 'Inventory' to manage your backpack or 'Continue' to move forwards. "))
         if choice == "continue":
             print("")
             print("You continue forwards")
             break
-        elif choice == "open backpack":
+        elif choice == "inventory":
             print("")
             player.sorting()
         else:
