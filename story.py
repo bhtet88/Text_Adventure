@@ -106,12 +106,33 @@ build this bridge. Perhaps the Romans know more than you expected. After all, th
 
 ### The Town ### 
 
-town_intro = """Reaching the opposite end of the bridge, you find youself at the edge of a town or city. You see a few large, multistory apartment buildings, the 'insula' if you remember your research correctly, that appear to be a bit worn, with cracks in their bricks and dirt and grim on the 
-walls. On the bottom floor, it appears that there are signs for shops, blacksmiths, armorers, and other services. On the upper levels, you see name plates, leading you to believe that those sections are the living quarters. In front of you, the road turns from a simple dust path to a well 
-made cobblestone lane. You can see places where the lane intersects with other cobblestone paths at 90 degree angles, perhaps making a city with perfectly square blocks. An organized city, that is something the Romans definately strived for. The other buildings in front of you also look like 
-more bars, shops, and services. They all looks like they have seen better days as well. Perhaps this is the poor section of the city, left at the edge of the frontier to serve as a buffer against enemy attacks. If your knowledge of Roman cities serves you right, there should be a main town 
-square or something of the like to help you orientate yourself. You see the residents of the city in front of you, going about their lives and not batting an eye to your presence. Since they don't seem to want you dead, perhaps you can use this time to rest and prepare your gear. You see a 
-few shops that you can go to for items and services and also a bar, where people are gathering. You can also use this time to talk to the locals, gathering information on the city and how to navigate it."""
+town_intro = """Reaching the opposite end of the bridge, you find youself at the edge of a town or city. You see a few large, multistory apartment buildings, the 'insula' if you remember your research correctly, that appear to be almost brand new. Their brick walls show almost no signs of wear 
+and there is barely any dust or grim on them. The color on the buildings is still there, creating a mixture of red, white, and gray buildings in front of you. On the bottom floor, it appears that there are signs for shops, blacksmiths, armorers, and other services. On the upper levels, you see 
+name plates, leading you to believe that those sections are the living quarters. In front of you, the road turns from a simple dust path to a well made cobblestone lane. You can see places where the lane intersects with other cobblestone paths at 90 degree angles, perhaps making a city with 
+perfectly square blocks. An organized city, that is something the Romans definately strived for. The other buildings in front of you also look like more bars, shops, and services. They all look perfectly maintained as well. For a lost city, the Romans are dead set on making this place look 
+perfect. If your knowledge of Roman cities serves you right, there should be a main town square or something of the like to help you orientate yourself. However, something disturbs you or rather, the lack of something disturbs you. Where is everyone? You'd think that for a mythical city, there 
+would be more people. Someone has to be maintaining these buildings otherwise dust and dirt would get on them or maybe even those bird-like creatures would have made their home here. You stay on your guard and decide to keep pressing onward. Navigating this city will be difficult and having 
+people to guide you would have been nice. Perhaps they all ran upon hearing of your impending arrival."""
+
+town_forum = """After what feels like hours of wandering, you make it to the town forum, a large open square near the heart of the city surrounded by various buildings. They all have a similar construction, brick or concrete walls painted white along with red roofs. Some of them are multiple 
+stories while others are only one. Once again, all these buildings look very well maintained, as if they were just built right before you arrived. What is even more disturbing is that you have yet to see a single person despite having weaved through multiple blocks of the city. The only sound 
+you've heard in the past eternity was your shoes on cobblestone. Off in the distance, you see a large palace, towering over all the other buildings. Next to it is another large building, though not as large, which has large, thick white pillars at the front. It looks like the typical Roman 
+building you saw in artist renditions of Rome: sloped roof, multiple white columns in the front, and an overall rectangular shape to the structure. On the columns, there seems to be large purple banners draped from the top of the columns, perhaps marking it as a site of importance to the city. 
+Perhaps that is where the treasure of this city are. You make a mental note of both of these locations and pick a road that appears to stretch in their direction. However, as you start moving, your sixth sense begins making you nervous."""
+
+town_ambush = """You look over your shoulder to find soldiers blocking the entrances to the forum behind you. You look forward, prepared to run, but then see more soldiers blocking your way forward. Some look like the Legionaries you faced in the forest but with more armor and polearms 
+instead of a shield/dagger loadout. At their feet are also the dogs you saw before but now with armor encasing their body and head. Furthermore, behind each group of infantry is a group of archers, wearing chainmail over a bright red tunic. All your foes have glowing red eyes, an unsettling 
+sight. Surrounded on all sides, you know you have to fight your way out. Quickly, you formulate a plan: pick the most weakly defended exit out of the forum, fight past the defenders, and lose the rest by using the city as a maze. You must escape as fast as possible. For whatever reason, 
+the Romans really want you dead. They also probably know this city like the back of their hand so this will be difficult."""
+
+town_chase_end = """You manage to sneak into an alley and hear the loud footsteps of your pursuers race past you. It appears like you can slip past them and head towards that gigantic palace. However, it is sort of odd isn't it? They have dogs at their disposal. Surely at least one of them 
+could sniff you out by now. You soon have your answer as you hear multiple explosions occur in the region of the town behind you, and then at the portion of the city in front of you. You peek out of the alley you're hiding in to find that the city you have been running through has been almost 
+demolished. The buildings have turned into large mounds of rubble, blocking the roads and being too tall for you to scale. In the other direction, a few blocks in front of you have had the same treatment, with rubble blocking your way once again. However, the rest of the city remains as 
+perfect as before, creating a noticeable divide between the ruins and the city. A street with a destroyed building on one side had a pristine one on the other. What were the Romans thinking? What kind of secrets are they hiding to justify the destruction of their own city, perhaps the last 
+Roman city left on Earth? There is something going on here, something more than just mere riches, fame, and fortune. It appears the Romans have retreated from the area at least so you can relax for a bit."""
+
+town_way_forward = """Moving out of the alley, you notice that there are two paths that remain unblocked by rubble, with the buildings on the edge of the road still standing despite everything else being destroyed. A sign at the intersection writes that the open path to your left goes to the 
+'Machine Labs' and the one to your right heads to the 'Mages' Den.'"""
 
 ### Event dialogues ###
 

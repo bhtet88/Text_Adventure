@@ -87,7 +87,7 @@ wall_decision(player)
 input()
 
 ### The Forest ###
-
+"""
 print(first_encounter_1)
 input("")
 print(random.choice(Legionary.battle_lines))
@@ -167,8 +167,7 @@ input()
 
 ### The Cliffs ###
 
-print("""You are now at the perilous cliffs. The cliffs are wide and open, allowing you to clearly see what is up ahead, giving you a range increase of {0} units. Since you are taking every step carefully, you can only take 1 step per turn and 
-cannot change this with item effects.""".format(Cliff_Place.range_bonus))
+
 input()
 print(cliffs_intro)
 times = random.randint(5, 6)
@@ -193,16 +192,44 @@ onward(player, boss2)
 input()
 print(boss2_end)
 input()
-
+"""
 ### The Town ###
 
 print(town_intro)
+input()
+print(town_forum)
+input()
+print(town_ambush)
+input()
+place = Town_Place([1, 0]) #First encounter in the town should be a fight, then moves onto random selection of fights and running
+onward(player, place)
+chase = 10
+while chase:
+    input()
+    place = Town_Place()
+    onward(player, place)
+    chase -= 1
+input()
+print(town_chase_end)
+input()
+print(town_way_forward)
+input()
+while True:
+    choice = fixed_input(input("Will you go left or right? "))
+    print()
+    if "left" in choice:
+        print("You go left to the Machine Labs")
+        break
+    elif "right" in choice:
+        print("You go right to the Mages' Den")
+        break
+    else:
+        print("Invalid input, try again")
+        print()
 
 ### The Machine Labs ###
 
 ### The Mage Dens ###
-
-### The College ###
 
 ### The Hospital ###
 

@@ -856,19 +856,14 @@ class Enemy(Entity):
         self.move_speed = move_speed
     
     def move(self, place, back=False):
-        """Default move method that advances the enemy towards the player unless the player is in front of them or they reach the end of the place. If the back argument is True, this function will move the enemy as far away as possible."""
-        steps, i = self.move_speed, 0
-        while steps:
-            if not back:
-                if self.position - 1 == place.player.position or self.position <= 0:
-                    break
-                self.position, steps = self.position - 1, steps - 1
-            elif back:
-                if self.position + 1 > place.size:
-                    break
-                self.position, steps = self.position + 1, steps - 1
-            i += 1
-        print("{0} moved {1} steps {2}!".format(self.name, i, ("towards you" if not back else "away from you")))
+        """Default move method that advances the enemy towards the player as much as possible unless the player is within range or they reach the end of the place. If the back argument is True, this function will move the enemy as far away as possible."""
+        if not back:
+            dist = self.position - (place.player.position + self.range)
+            self.position = self.position - min(dist, self.move_speed)
+        elif back:
+            dist = place.size - self.position
+            self.position = self.position + min(dist, self.move_speed)
+        print("{0} moved {1} steps {2}!".format(self.name, min(dist, self.move_speed), ("towards you" if not back else "away from you")))
 
     def attack(self, place):
         """Method that calls the player's injure method to apply the normal damage"""
@@ -1106,20 +1101,11 @@ class Harpy_Archer(Enemy):
     battle_lines = Harpy.battle_lines
     line_chance = Harpy.line_chance
     death_lines = Harpy.death_lines
+    armor_piercing = True
 
     def __init__(self, health=50, armor=30, damage=10, range=4, move_speed=4):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.gap = 2
-
-    def move(self, place, back=False):
-        """This move method lets the archer move forward as much as needed to get within range of the player. If the archer moves backwards, use the default method to move back as much as possible to maintain the gap."""
-        if back:
-            Enemy.move(self, place, True)
-        else:
-            dist = self.position - (place.player.position + self.range)
-            steps = min(dist, self.move_speed)
-            self.position = self.position - steps
-            print("{0} moved {1} steps towards you!".format(self.name, steps))
 
     def take_turn(self, place):
         """If the player is within range and the gap is maintained, then the Harpy archer attacks. If the player is not in range, then the Harpy archer moves until within range. If the desired gap between the player and the archer is not maintained, the archer moves back as much as it can to 
@@ -1166,6 +1152,47 @@ class Alpha_Harpy(Harpy):
         if place.turn_count == self.beat_counter:
             self.can_beat = True
         Harpy.check(self, place)
+
+class City_Guard(Legionary):
+    """The City Guard are essentially Legionaries with more armor, more health, and a range of 2 units due to their pole arms. Other than that, they function the exact same in combat as their Legion counterparts."""
+    name = "City Guard"
+    
+    def __init__(self, health=150, armor=200, damage=30, range=2, move_speed=1):
+        Legionary.__init__(self, health, armor, damage, range, move_speed)
+
+class Armored_Dog(Immortal_Dog):
+    """Armored Dogs operate the same as normal Immortal Dogs except that they have been granted additional armor, providing significant protection."""
+    name = "Armored Dog"
+
+    def __init__(self, health=50, armor=100, damage=15, range=1, move_speed=2):
+        Immortal_Dog.__init__(self, health, armor, damage, range, move_speed)
+
+class Roman_Archer(Enemy):
+    """Roman archers are braver than expected for people with bows. Instead of running away from the player to keep peppering with their arrows, they will engage in melee combat if the player is in front of them, holding their ground until death. Their melee attacks deal more 
+    damage than their bow's damage but they only have a range of 1 unit with them and unlike their bows, will not penetrate armor. They also have light armor and a medium move speed in exchange for low health. They move at the start of battle to get into range but afterwards will hold their 
+    position until death."""
+    name = "Roman Archer"
+    battle_lines = ["'Target spotted, let's get him!'", "'Show him the might of Roman archery!'", "'If you're in range, it's too late!'"]
+    death_lines = ["'AAAAAHHHHHH'", "'Show...no...mercy...comrades'", "'For the...Emperor!'"]
+    armor_piercing = True
+
+    def __init__(self, health=70, armor=50, damage=15, range=4, move_speed=3):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.melee_damage = 40
+        self.melee_range = 1
+
+    def melee(self, place):
+        """The archer goes into melee combat once the player is directly in front of them, which injures the player by the damage from the melee damage attribute. This attack is also not armor piercing as a trade off for the higher damage."""
+        place.player.injure(place, self.melee_damage, False)
+
+    def take_turn(self, place):
+        """If the player is not in range, the archer will move towards the player to close the gap and get in range. Afterwards, it will continue to attack the player with their normal bow attack, using the default attack method, until the player is within melee range. Once in melee range, 
+        the archer will switch to using their melee attack. If the player moves out of melee range, the archer will return to using their bow. If the player moves out of bow range, the archer will move to get back into range."""
+        if self.position - place.player.position <= self.melee_range:
+            print()
+            self.melee(place)
+        else:
+            Enemy.take_turn(self, place)
 
 ### Event Classes ###
 
@@ -1397,6 +1424,29 @@ class Dodge(Event):
         print(dodge_text)
         Tunnel_Place.possible_events.append(Dodge())
 
+class City_Navigation(Event):
+    """Event that occurs as the player is trying to escape the Romans in the city. The player is given the choice to either go left, right, or forward through an intersection. """
+
+    def __init__(self):
+        Event.__init__(self)
+    
+    def play(self, place):
+        """Player is allowed to go left, right, or forward through the intersections in the city"""
+        move = fixed_input(input("You are running through the town to escape the Romans! Will you go left, right, or forward at the intersection? "))
+        print()
+        if move == "left":
+            print("You go left at the intersection.")
+            Town_Place.possible_events.append(City_Navigation())
+        elif move == "right":
+            print("You go right at the intersection.")
+            Town_Place.possible_events.append(City_Navigation())
+        elif move == "forward":
+            print("You go forward through the intersection.")
+            Town_Place.possible_events.append(City_Navigation())
+        else:
+            print("Invalid input, try again")
+            self.play(place)
+
 ### Place Class ###
 
 class Place:
@@ -1409,6 +1459,7 @@ class Place:
     possible_sizes = [x for x in range(4, 6)]
     possible_enemies = ["Entity"] #Contains the possible types of enemies and events that the place can be populated with. The enemies list is filled with the name of the potential enemies, not classes
     possible_events = []
+    min_enemies = 1
     max_enemies = 3
     damage_bonus = 0
     range_bonus = 0
@@ -1436,7 +1487,7 @@ class Place:
     def fill(self):
         """Fills the place with either enemies or an event, depending on the type of the room."""
         if self.type == "Enemy" and self.possible_enemies:
-            number = random.randint(1, self.max_enemies)
+            number = random.randint(self.min_enemies, self.max_enemies)
             for x in range(number):
                 self.add_enemy(enemy_constructor(random.choice(self.possible_enemies)))
         elif self.type == "Event" and self.possible_events:
@@ -1481,7 +1532,7 @@ class Forest_Place(Place):
 class Tunnel_Place(Place):
     """Place class for locations within the tunnel after the forest. Each place is very small, forcing the player to fight almost instantly. Players get a range penalty again due to the darkness but have a chance to completely dodge an enemy encounter. The tunnels only have Legionaries 
     patrolling it There should be at most 3 enemies per encounter, making this an easy place. The only event is the Dodge event, which is what happens when the player dodges a fight."""
-    possible_sizes = [x for x in range(3, 4)]
+    possible_sizes = [x for x in range(3, 5)]
     possible_enemies = ["Legionary"]
     possible_events = [Dodge()]
     max_enemies = 2
@@ -1494,13 +1545,25 @@ class Tunnel_Place(Place):
 class Cliff_Place(Place):
     """The cliffs are located directly after the tunnel and give the player a range bonus. In exchange, the player's move speed is locked to 1 step per turn. Using an item that boosts movement speed will just waste the item. Each place is of medium length, allowing the player some 
     ranged combat options. There are no events for these places and the enemies are Harpy warriors, which quickly swoop down to attack the player and then retreat. Since Harpies attack in packs, up to 4 can attack the player at once."""
-    possible_sizes = [x for x in range(6, 7)]
+    possible_sizes = [x for x in range(6, 8)]
     possible_enemies = ["Harpy", "Harpy_Archer"]
     possible_events = []
     max_enemies = 4
     range_bonus = 2
 
     def __init__(self, type_weight=[1, 0]):
+        Place.__init__(self, type_weight)
+
+class Town_Place(Place):
+    """The town is located after the cliffs and these places contains medium to small sized places and provides no bonuses at all. Enemies encountered here consist of City Guard, which are Legionaries that are more heavily armed and armored, dealing more damage and having more survivability. 
+    Their dogs are also given an upgrade in the form of armor, giving them more protection. A new enemy is the Roman auxiliary archer, which has both a melee weapon and a bow. The archer doesn't retreat but instead switches to melee combat, dealing more damage but is not armor piercing."""
+    possible_sizes = [x for x in range(4, 7)]
+    possible_enemies = ["City_Guard", "Armored_Dog", "Roman_Archer"]
+    possible_events = [City_Navigation()]
+    min_enemies = 3
+    max_enemies = 4
+
+    def __init__(self, type_weight=[1, 1]):
         Place.__init__(self, type_weight)
 
 ### Store Class ###
@@ -1704,9 +1767,6 @@ def onward(player, place):
 
 def battle(place):
     """Facilitates the entire battle if a player is in an enemy place. Battles begin with the player at position 0 and the enemies at the opposite end. The player always makes the first turn, then all the enemies."""
-    openings = ["Hostiles in front of you, prepare to fight!", "Enemies ahead, stand your ground!", "Enemies approaching, here we go!", "Aggressive foes ahead, they want you dead!", "Get ready, these creatures live for death!"]
-    print(random.choice(openings))
-    print("")
     print(">>> Battle begin")
     def fight(): #Using this internal function to avoid writing a battle opening for every call of the function
         place.turn_count, Place.global_turns = place.turn_count + 1, Place.global_turns + 1
@@ -1735,7 +1795,7 @@ def battle(place):
         print("")
         print(">>> End of battle")
     fight()
-    
+
 def game_over():
     """Function that prints a game over message when the player dies and quits the program"""
     print("You have died! The lost treasure will remain hidden from the rest of the world. Perhaps this is for the better.")
