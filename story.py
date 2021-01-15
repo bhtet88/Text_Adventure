@@ -134,6 +134,15 @@ Roman city left on Earth? There is something going on here, something more than 
 town_way_forward = """Moving out of the alley, you notice that there are two paths that remain unblocked by rubble, with the buildings on the edge of the road still standing despite everything else being destroyed. A sign at the intersection writes that the open path to your left goes to the 
 'Machine Labs' and the one to your right heads to the 'Mages' Den.'"""
 
+### The Machine Labs ###
+
+labs_intro = """You arrive at the entrance to a large building with the words 'Machine Labs' above the front door in Latin. From the outside, the building is not very tall, but it is extremely long. It eventually turns right and continues to stretch down, eventually going into the part of the 
+city that was not destroyed. Machine Labs? What goes on in here and what warrents having a building that is this large? The Romans didn't have complex technology in ancient times so what could they be making here? Did they learn from the outside world? Maybe they saw how humanity was progressing 
+and using this knowledge, started experiementation and research on their own. There building itself has the same aesthetic as the rest of the city, with clean and polished white concrete walls with a sloped roof. You smell something that reminds you of oil or gasoline. The only way to figure out 
+what happens here is to go in."""
+
+### The Mages' Den ###
+
 ### Event dialogues ###
 
 # Dodge #

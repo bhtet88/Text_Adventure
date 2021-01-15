@@ -164,10 +164,12 @@ input()
 onward(player, boss_merchant)
 print(tunnel_end)
 input()
-
+"""
 ### The Cliffs ###
 
-
+print("""You are now at the perilous cliffs. The cliffs are wide and open, allowing you to clearly see what is up ahead, giving you a range increase of {0} units. Since you are taking every step carefully, you can only take 1 step per turn and 
+cannot change this with item effects.""".format(Cliff_Place.range_bonus))
+"""
 input()
 print(cliffs_intro)
 times = random.randint(5, 6)
@@ -192,7 +194,7 @@ onward(player, boss2)
 input()
 print(boss2_end)
 input()
-"""
+
 ### The Town ###
 
 print(town_intro)
@@ -213,23 +215,24 @@ input()
 print(town_chase_end)
 input()
 print(town_way_forward)
-input()
+input() """
 while True:
     choice = fixed_input(input("Will you go left or right? "))
     print()
     if "left" in choice:
-        print("You go left to the Machine Labs")
+        print("You go left to the Machine Labs") ### The Machine Labs ###
+        input()
+        print(labs_intro)
+        input()
+        print("""You have now entered the Machine Labs! There is likely interesting technology you can acquire here and you gain {0} move speed and {1}% damage boost. In exchange, the thick, heavy air makes it harder to breath, lowering your 
+        max health by {2} points""".format(Machine_Labs.range_bonus, round(Machine_Labs.damage_bonus * 100), abs(Machine_Labs.max_health_bonus)))
         break
     elif "right" in choice:
-        print("You go right to the Mages' Den")
+        print("You go right to the Mages' Den") ### The Mage Dens ###
         break
     else:
         print("Invalid input, try again")
         print()
-
-### The Machine Labs ###
-
-### The Mage Dens ###
 
 ### The Hospital ###
 

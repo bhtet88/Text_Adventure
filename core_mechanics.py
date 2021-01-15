@@ -1194,6 +1194,24 @@ class Roman_Archer(Enemy):
         else:
             Enemy.take_turn(self, place)
 
+class Engineer(Enemy):
+    """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health but high armor. They also fight with a wrench, a low damage and low 
+    range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Because they let the machines do the work, engineers try to keep their distance from the player as much as they can until there are no more 
+    machines left, leaving them to fend for themselves."""
+
+class Siege_Cannon(Enemy):
+    """The Siege Cannon is a powerful machine enemy found in the Machine Labs. It is a four legged machine with a powerful siege cannon on its back, making it a strong ranged enemy. Similar to an archer, it remains as far of the player as it can and retreats if the player gets too close. 
+    However, the cannon has limited movement speed due to the cannon's weight, meaning it has difficulty retreating. Also, while it does powerful damage, this enemy has low health for a machine type enemy."""
+
+class Ripper_Bot(Enemy):
+    """The Ripper Bot is a melee, humanoid looking machine enemy found in the Machine Labs that has a deadly sword on each of its arms. It is heavily armored and has high health but low mobility. To partially resolve the issue, the Romans added an emergency thruster to it, giving it a quick 
+    burst of speed and dash forwards. However, the Ripper is unable to move for a turn after this move is used to allow its movement mechanisms to cool down and function once again. Up close, this enemy does high damage but the motors for the arms overheat after an attack, preventing it from 
+    attacking again for a turn. This serves to give the player an opportunity to get the upper hand against them."""
+
+class Charger(Enemy):
+    """Chargers are machine enemies that are extremely simple. Designed as cheap and replaceable assets, these enemies move to their target as fast as they can and detonate themselves, effectively acting like suicide bombers. They have no concern for their own safety or that of their nearby 
+    allies. Upon death, they explode and deal damage to anyone, including allies, on the same tile as them. They have next to no armor and medium health combined with a high move speed."""
+
 ### Event Classes ###
 
 class Event:
@@ -1562,6 +1580,22 @@ class Town_Place(Place):
     possible_events = [City_Navigation()]
     min_enemies = 3
     max_enemies = 4
+
+    def __init__(self, type_weight=[1, 1]):
+        Place.__init__(self, type_weight)
+
+class Machine_Labs(Place):
+    """The Machine Labs are located in the town and the player gets to visit them if they choose the correct pathway in the story. The labs are perhaps the largest section of the game, having the most enemy variety and the most items the player can acquire. Enemies here are both man and 
+    machine, with each type having their own unique moves that work together to give the player a tough time. The final boss of the area is an experimental machine called 'Dominion' and will prove to be the player's toughest fight yet. This area gives the player a movement and damage bonus to 
+    assist them but due to the heavy air from all the industrial work, the player has reduced max health. Places are medium sized but there can be many enemies at a time, creating challenging situations."""
+    possible_sizes = [x for x in range(5, 10)]
+    possible_enemies = []
+    possible_events = []
+    min_enemies = 2
+    max_enemies = 5
+    move_bonus = 1
+    damage_bonus = 0.40
+    max_health_bonus = -30
 
     def __init__(self, type_weight=[1, 1]):
         Place.__init__(self, type_weight)
