@@ -1195,6 +1195,7 @@ class Engineer(Enemy):
     name = "Engineer"
     battle_lines = ["'Roman engineering is revolutionary!'", "'Fear the genius of Rome!'", "'I may be weak but my inventions are strong!'", "'With my technology, failure is impossible!'", "'Rome's greatest mind ready to kill you!'"]
     death_lines = ["'Impossible...success was...inevitable!'", "'Were my calculations...wrong?'", "'Man dies, machines live...forever!'", "'My inventions will avenge me!'"]
+    time_check = True
 
     def __init__(self, health=80, armor=200, damage=15, range=1, move_speed=5):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
@@ -1250,12 +1251,43 @@ class Engineer(Enemy):
             self.can_tune = True
 
 class Siege_Cannon(Enemy):
-    """The Siege Cannon is a powerful machine enemy found in the Machine Labs. It is a four legged machine with a powerful siege cannon on its back, making it a strong ranged enemy. Similar to an archer, it remains as far of the player as it can and retreats if the player gets too close. 
-    However, the cannon has limited movement speed due to the cannon's weight, meaning it has difficulty retreating. Also, while it does powerful damage, this enemy has low health for a machine type enemy."""
+    """The Siege Cannon is a powerful machine enemy found in the Machine Labs. It is a four legged machine with a powerful siege cannon on its back, making it a strong ranged enemy. Due to the complex machinary behind this enemy's weapon, it can only fire every other turn. Similar to an archer, 
+    it remains as far of the player as it can and retreats if the player gets too close. However, the cannon has limited movement speed due to the cannon's weight, meaning it has difficulty retreating. Also, while it does powerful damage, this enemy has low health for a machine type enemy."""
     name = "Siege Cannon"
-    battle_lines = []
-    death_lines = []
+    battle_lines = ["'Enemies spotted, moving to kill'", "'Cannon ready for battle'", "'Cannon entering combat'"]
+    death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Cannon offline'"]
     machine = True
+    time_check = True
+
+    def __init__(self, health=150, armor=50, damage=50, range=5, move_speed=1):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.can_attack = True
+        self.attack_counter = 0
+        self.gap = 2
+
+    def attack(self, place):
+        """Uses the default attack method but then calculates the attack counter and sets the can attack attribute to False."""
+        Enemy.attack(self, place)
+        self.can_attack, self.attack_counter = False, place.turn_count + 1
+
+    def take_turn(self, place):
+        """If the player is not in range, then the siege cannon will move towards the player until they are in range. Once in range, they will attack if they are able to or if not, will skip a turn. If the player is too close, the cannon attempts to retreat until it can not retreat anymore, 
+        where it will attempt to fight the player at close range."""
+        dist = self.position - place.player.position
+        print()
+        if dist <= self.gap and self.position < place.size:
+            self.move(place, True)
+        elif dist > self.range:
+            self.move(place)
+        elif self.can_attack:
+            self.attack(place)
+        else:
+            print("'Reloading cannon'")
+
+    def check(self, place):
+        """Checks if the reloading process is finished and if so, sets the can attack attribute to True."""
+        if place.turn_count == self.can_attack:
+            self.can_attack = True
 
 class Ripper_Bot(Enemy):
     """The Ripper Bot is a melee, humanoid looking machine enemy found in the Machine Labs that has a deadly sword on each of its arms. It is heavily armored and has high health but low mobility. To partially resolve the issue, the Romans added an emergency thruster to it, giving it a quick 
