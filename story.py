@@ -60,11 +60,96 @@ make it into a large, grassy field. The grass is incredibly green, as if it has 
 Despite have to fight for your life, you stand there and take in the scenery, relieved to be taking a pause on your journey. Suddenly, you see sections of grass being flattened, like something is moving through the field out of your sight! You hear the sound of something moving over
 dirt and rocks, producing a noticeable crunching noise. You get back on your guard, readying your weapons for whatever happens next. Then, the unexpected happens or perhaps maybe you should suspend your disbelief at this point."""
 
-boss2_intro2 = """A giant snake rises out of the grass in front of you, hissing loudly and rattling its tail. It's death tune makes you turn stone cold. The gigantic, pearl white fangs glisten in the sunlight and you can see drops of venom dripping of them to the ground. This is not like
+boss1_intro2 = """A giant snake rises out of the grass in front of you, hissing loudly and rattling its tail. It's death tune makes you turn stone cold. The gigantic, pearl white fangs glisten in the sunlight and you can see drops of venom dripping of them to the ground. This is not like
 the enemies you faced before. Should you run? No, its definately faster than you can even sprint. Maybe hide? No, it already sees you and can probably smell you out of the smallest corner. Before you can decide what you will do, the snake charges you. You narrowly dodge its strike by jumping
 to the side. This creature seems to want to eat your flesh by tearing you apart. If you're going to get to the lost city, you have no option. You will have to take this beast head on! You steel youself, ready for battle."""
 
+boss1_end = """The snake falls onto the ground dead. That was a tough fight and you can't believe you managed to slay that beast. You are tired but adrenaline is still surging through you. You take a large drink from your canteen, slowly allowing your mind to calm down and regain focus. After
+a few minutes, you decide it's time to continue forward. Going across to the other side of the field, you find what looks like skeletons and armor, dented and battered. This snake clearly didn't pick allegiances; both you and the Romans contain flesh. Moving a few feet past, you come across 
+what looks like an entrance to a cave or tunnel. No, it's definately a tunnel as you can barely make out the light at the other end, a tiny glowing speck. You take a bit more time to get your gear ready, take out a flashlight, and proceed into the darkness."""
+
+### The Tunnel ###
+
+tunnel_start = """The tunnel is an extremely dark place but you know you have to keep your wits about you. Someone or something hostile could appear anywhere and at anytime. You can barely make out that the walls of the tunnel are a cold, hard granite. It must have been an effort to construct
+this tunnel, both in hours and in manpower. The path itself seems more barebones, just a simple dirt path. Despite it being extremely dark, you think about how greatly the beam from your flashlight will give away your position and contemplate lowering its brightness."""
+
+light_lower = """You decide that it's best to dim your flashlight, reducing the beam's brightness to the point where you can just barely make out things two steps ahead. You also make a conscious effort to walk more quietly, taking light steps along the way. However, you start to hear a 
+cluster of noises up ahead."""
+
+light_same = """You decide that reducing your vision will only make you more prone to a surprise attack and keep it on its brightness, allowing the beam to carve a path through the darkness. After all, you can probably take on any enemy down here anyways so why put yourself at a disadvantage?
+You hear someone shout up ahead. 'Hey, you men see that light! Let's go check that out!' The voice is clearly Latin and you hear the clinking of armor quickly moving towards you. 'It's the adventurer, don't let him past!'"""
+
+tunnel_end = """Leaving the odd merchant behind, you finally reach the light at the end of the tunnel. You give your eyes time to adjust to the light and slowly reopen them. You find yourself at the edge of a cliff and looking down, you see a seemingly infinite drop. To your left, you see a
+narrow dirt path, at most a few feet wide. It is the only way for you to progress so you prepare yourself to move forward. While preparing, you wonder how those Legionaries knew about your arrival so soon. You managed to fend off all your attackers in the forest so no one could make it make
+to alert others. Maybe they are just used to slaying adventurers? Perhaps as you move further on, you will find out more about this topic. Taking a deep breath, you move towards the narrow path, taking each step with great care."""
+
+### The Cliffs ###
+
+cliffs_intro = """Trying not to look down, you slowly progress forward, step by step. Suddenly, you hear something that is best described as a love child between a screech and a bird's caw. You look up into the clear blue sky, the direction of the sound, and see multiple bird-like creatures
+surrounding you. Some have a bow and arrow while others have swords, knifes, or other melee weapons. They all look like female humans with claws for hands and feet and wings growing out of their backs. All of them have extremely long, black hair that complements the thick black feathers on 
+their wings. Most of them also appear to have armor on their torso and helmets. One of them dives down towards you but you manage to dodge the attack. Having missed, the creature flies back into the air, looking excited to strike again."""
+
+boss2_intro = """You turn a corner on the cliff path and see a bridge off in the distance ahead of you. On the other side of the bridge appears to be some sort of town. You can just barely make out some of the buildings from the background. Perhaps that is where you need to go next, even if 
+its just to rest and get more supplies. In front of you, the path gradually becomes wider and wider, growing to be twice its width. The floor is littered with bird feces and large, loose branches. However, the most noticeable feature in front of you are multiple large circular nests. These 
+nests are gigantic, at least twice your height in diameter and are as tall as your waist. Inside are equally large dull grey eggs, each of which are about as tall as you. The surface of the eggs are smooth and each nest has a cluster of them laying there. You also notice bones and worn 
+away Legionary armor next to the eggs clusters. It appears that you and the Romans have a common foe. Perhaps these creatures crave flesh from birth. You decide to quickly but quietly try to get past this area before any protective mothers come back. You almost make it across when a large 
+shadow flies over you and you hear an earpiercing shreek."""
+
+boss2_intro2 = """You look up to see another one of those bird-like creatures hovering over you. It is about twice as large as the other ones you encountered and its feathers are a bright white, glistening in the sunlight. Its talons look more like daggers, sharper than any blade in existance. 
+With every flap of its wings, you feel a gust of wind trying to move you back. It takes all of your might just to stand your ground. If there is anything about pack animals, it's that their leader is the embodiment of all the qualities of their kind. They are always the most fierce, the most 
+brave, the most cunning, and the most protective. It seems like this is the alpha for these creatures and you are invading their territory. You know that this will be a fight to the death. You can't outrun it nor hide from it. It is a battle between you, an adventurer trying to just move 
+past, and this beast, protecting what's left of its flock."""
+
+boss2_end = """With a final loud screech, the creature plummets down into the endless chasm below. Its feathers fly off of its wings, leaving a trail behind in the sky. Eventually, the body is too far down and vanishes from your sight. You progress forward and make it to the bridge you saw 
+earlier. Surprisingly, there is no one at the stone bridge. No guards. None of their crazed dogs. Nothing. You cross the bridge while still keeping your guard up. You look off to the side and take one more look at the endless drop below, wondering how much effort and engineering it took to 
+build this bridge. Perhaps the Romans know more than you expected. After all, they did have an amazing form of concrete that no historian or engineer has been able to replicate in the present day. Perhaps if you make it out alive, you can spread this knowledge back to the real world. """
+
+### The Town ### 
+
+town_intro = """Reaching the opposite end of the bridge, you find youself at the edge of a town or city. You see a few large, multistory apartment buildings, the 'insula' if you remember your research correctly, that appear to be almost brand new. Their brick walls show almost no signs of wear 
+and there is barely any dust or grim on them. The color on the buildings is still there, creating a mixture of red, white, and gray buildings in front of you. On the bottom floor, it appears that there are signs for shops, blacksmiths, armorers, and other services. On the upper levels, you see 
+name plates, leading you to believe that those sections are the living quarters. In front of you, the road turns from a simple dust path to a well made cobblestone lane. You can see places where the lane intersects with other cobblestone paths at 90 degree angles, perhaps making a city with 
+perfectly square blocks. An organized city, that is something the Romans definately strived for. The other buildings in front of you also look like more bars, shops, and services. They all look perfectly maintained as well. For a lost city, the Romans are dead set on making this place look 
+perfect. If your knowledge of Roman cities serves you right, there should be a main town square or something of the like to help you orientate yourself. However, something disturbs you or rather, the lack of something disturbs you. Where is everyone? You'd think that for a mythical city, there 
+would be more people. Someone has to be maintaining these buildings otherwise dust and dirt would get on them or maybe even those bird-like creatures would have made their home here. You stay on your guard and decide to keep pressing onward. Navigating this city will be difficult and having 
+people to guide you would have been nice. Perhaps they all ran upon hearing of your impending arrival."""
+
+town_forum = """After what feels like hours of wandering, you make it to the town forum, a large open square near the heart of the city surrounded by various buildings. They all have a similar construction, brick or concrete walls painted white along with red roofs. Some of them are multiple 
+stories while others are only one. Once again, all these buildings look very well maintained, as if they were just built right before you arrived. What is even more disturbing is that you have yet to see a single person despite having weaved through multiple blocks of the city. The only sound 
+you've heard in the past eternity was your shoes on cobblestone. Off in the distance, you see a large palace, towering over all the other buildings. Next to it is another large building, though not as large, which has large, thick white pillars at the front. It looks like the typical Roman 
+building you saw in artist renditions of Rome: sloped roof, multiple white columns in the front, and an overall rectangular shape to the structure. On the columns, there seems to be large purple banners draped from the top of the columns, perhaps marking it as a site of importance to the city. 
+Perhaps that is where the treasure of this city are. You make a mental note of both of these locations and pick a road that appears to stretch in their direction. However, as you start moving, your sixth sense begins making you nervous."""
+
+town_ambush = """You look over your shoulder to find soldiers blocking the entrances to the forum behind you. You look forward, prepared to run, but then see more soldiers blocking your way forward. Some look like the Legionaries you faced in the forest but with more armor and polearms 
+instead of a shield/dagger loadout. At their feet are also the dogs you saw before but now with armor encasing their body and head. Furthermore, behind each group of infantry is a group of archers, wearing chainmail over a bright red tunic. All your foes have glowing red eyes, an unsettling 
+sight. Surrounded on all sides, you know you have to fight your way out. Quickly, you formulate a plan: pick the most weakly defended exit out of the forum, fight past the defenders, and lose the rest by using the city as a maze. You must escape as fast as possible. For whatever reason, 
+the Romans really want you dead. They also probably know this city like the back of their hand so this will be difficult."""
+
+town_chase_end = """You manage to sneak into an alley and hear the loud footsteps of your pursuers race past you. It appears like you can slip past them and head towards that gigantic palace. However, it is sort of odd isn't it? They have dogs at their disposal. Surely at least one of them 
+could sniff you out by now. You soon have your answer as you hear multiple explosions occur in the region of the town behind you, and then at the portion of the city in front of you. You peek out of the alley you're hiding in to find that the city you have been running through has been almost 
+demolished. The buildings have turned into large mounds of rubble, blocking the roads and being too tall for you to scale. In the other direction, a few blocks in front of you have had the same treatment, with rubble blocking your way once again. However, the rest of the city remains as 
+perfect as before, creating a noticeable divide between the ruins and the city. A street with a destroyed building on one side had a pristine one on the other. What were the Romans thinking? What kind of secrets are they hiding to justify the destruction of their own city, perhaps the last 
+Roman city left on Earth? There is something going on here, something more than just mere riches, fame, and fortune. It appears the Romans have retreated from the area at least so you can relax for a bit."""
+
+town_way_forward = """Moving out of the alley, you notice that there are two paths that remain unblocked by rubble, with the buildings on the edge of the road still standing despite everything else being destroyed. A sign at the intersection writes that the open path to your left goes to the 
+'Machine Labs' and the one to your right heads to the 'Mages' Den.'"""
+
+### The Machine Labs ###
+
+labs_intro = """You arrive at the entrance to a large building with the words 'Machine Labs' above the front door in Latin. From the outside, the building is not very tall, but it is extremely long. It eventually turns right and continues to stretch down, eventually going into the part of the 
+city that was not destroyed. Machine Labs? What goes on in here and what warrents having a building that is this large? The Romans didn't have complex technology in ancient times so what could they be making here? Did they learn from the outside world? Maybe they saw how humanity was progressing 
+and using this knowledge, started experiementation and research on their own. There building itself has the same aesthetic as the rest of the city, with clean and polished white concrete walls with a sloped roof. You smell something that reminds you of oil or gasoline. The only way to figure out 
+what happens here is to go in."""
+
+### The Mages' Den ###
+
 ### Event dialogues ###
+
+# Dodge #
+
+dodge_text = """The tunnel is pitch black but you hear sounds approaching you and dive towards the darkest spot you can find. As the sounds come closer, you realize that it is the sound of Legionary armor clinking during motion. You slow down your breathing and cease to move, hiding as still 
+as a statue. No matter how nervous you have be, you must be quiet. Clinging to darkness, you patiently wait for the sounds to mvoe past you. All that is protecting you is the darkness of the tunnel. Every second feels like an hour but eventually, the sounds move past you and fade into the 
+distance. It is fortunate that their torches are not very bright. Perhaps luck is on yout side. You breath once more, slip out of the darkness, and continue on your path."""
 
 # Statues #
 
@@ -130,7 +215,7 @@ ghosts_battle_end = """You are encapsulated, continuing to watch the battle unfo
 and legacies. However, we are not mere raiders, bandits, or soldiers from a lesser empire. We are Romans! We are from the strongest empire backed by the Gods themselves! How can we let ourselves be defeated by people who have no dignity, no honor, no morals?! Assemble the shield wall and
 advance!' At that moment, the ranks behind the front line of Legionaries placed their shields above their heads, forming an inpenetrable fortess of Roman might. They unit slowly creeped towards the barbarians, their shields fending off the arrows. On their flanks, their auxilliary archers
 peppered the enemy. When they clashed with the barbarian warriors, the Legionaries showed their skill and strength, cutting down their foes and whittling the enemy's numbers. A charge from their cavalry finished off the survivors, leaving the Romans the victors. You are in awe of their
-might and shocked by their determination. The vision fades away and you are left in an empty place. It's a shame that you have to go against these powerful foes. No wonder they were a legendary fighting force. This event left no evidence but left a lasting memory inside you."""
+might and shocked by their determination. The vision fades away and you are left in an empty place. It's a shame that you have to go against these powerful foes. No wonder they were a legendary fighting force. The event left no evidence but left a lasting memory inside you."""
 
 ghosts_run = """Fear has a vice grip on you and your heart is beating as hard as it can. Adrenaline surges through you and your leg muscles are bursting with energy. Whatever is happening, it's best to get out of there! Good or bad or whatever, you don't care enough to find out. But, but, but,
 you were here to push on, to move towards the treasure. You summon up all your courage and run through this paranormal scene as fast as you can, dashing out of the room until its exit was out of your sight. Exhausted from that sprint, you lean back on a rock and catch your breath, collecting
@@ -142,3 +227,16 @@ merchant_intro = """You come across a mysterious figure standing inside in what 
 over their head. The inside of the shop is extremely dark as well, allowing you to only see the merchant leaning over the front counter. Even though there's light all around you, it's as if the light is averted once it attempts to enter the shop. Despite the peculiar nature of this shop, 
 the likes of which you've never seem before, the merchant notices your presence and gestures for you to come over. 'Weeeeeelcome traveler, needs some...wares?' said a gruff, crackled voice. Even the way this merchant spoke sounds like someone trying to lure you into a back alley to rob
 you. But this may also be the only chance you have to resupply on your travels, especially in a place so removed from normal civilization."""
+
+# Encounters #
+
+abandoned_village = """You come across a small collection of worn down houses. It is eerily quiet, not even the sound of the wind could be heard. You guess that this place is some sort of village or encampment. However, the most defining feature of a place like this was missing: the people.
+There is not a soul in sight. Not even any of the bizzare enemies or creatures you have encountered, if those even have a soul in the first place. The buildings seem to be made of a bricks made from mud, some of which had visible cracks and were crumbling. They were all an extremely dull
+gray-brown, adding to your uneasiness. However, you are an adventurer and explorer so your curiosity gets the better of you and you slowly explore the buildings, one by one. You remain on guard, ready for anything that could happen. However, you slowly become more and more relieved. There 
+really is no one here. However, the homes look lived in, very well lived in. There is food, cooking equipment, tables, beds, and anything else you'd expect. In one of the houses, you find food that is still warm but you don't dare try to eat it. Whoever was here left this place in a hurry 
+and very recently too. Was this the encampment of those Romans you were fighting? Or maybe this was home to civilians who recieved word of your impending arrival and ran away? There is no sign of violence either, making you believe that their departure probably wasn't due to a local or 
+domestic problem. Regardless, you leave everything as it was and prepare to move on."""
+
+water = """You come across a river, with crystal clear water, clear enough to where you can perfectly see the pebbles at the bottom. The water is very calm, slowly flowing past you. After all you have been through, refreshing water is what you need. You cup water into your hands and wash your
+face and body, trying to rinse off the grim, dirt, and blood on you. You eagerly fill up your canteen and then take massive glups from it, enjoying the slightly sweet water rejuvinating your body and mind. You take this time to quickly wash your dirty equipment too, especially your weapons. 
+Once satisfied with your break, you get back on your feet and prepare to move on."""

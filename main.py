@@ -3,10 +3,9 @@ from story import *
 import random
 
 ### Creating player character ###
-
 name = input("You are an adventurer and just arrived at the airport of a little known European city. What is your name adventurer? ")
 player = Player(name)
-generic_place = Place("Tutorial")
+generic_place = Place([0, 1])
 player.place, generic_place.player = generic_place, player
 
 print("\n" + opening.format(player.name))
@@ -18,7 +17,7 @@ input("")
 store = Store()
 store.add_inventory(store_list) ### Implement list of store items once the specific items are created
 
-buying(player, store)
+store.buying(player)
 
 ### Start of journey ###
 
@@ -96,46 +95,144 @@ input("")
 print(first_encounter_2)
 input()
 
-tut_place = Forest_Place("Tutorial", 4)
+tut_place = Forest_Place([1, 0])
+tut_place.enemies = []
+tut_place.add_enemy(enemy_constructor("Legionary"))
 onward(player, tut_place)
 
 print("")
 print(first_encounter_end)
 print("")
-print("You have just begun your journey in the forest. The forest is very dense, decreasing your range by {0} unit but your determination to survive also gives you an extra {1}% points of damage.".format(Forest_Place.range_bonus, int(Forest_Place.damage_bonus * 100)))
+print("You have just begun your journey in the forest. The forest is very dense, decreasing your range by {0} units but your determination to survive also gives you an extra {1}% points of damage.".format(abs(Forest_Place.range_bonus), int(Forest_Place.damage_bonus * 100)))
 
-times = random.randint(5, 7)
+times = 1
 while times:
     input()
     place = Forest_Place()
     onward(player, place)
     times -= 1
-"""
-boss_merchant = Forest_Place("Event")
+
+boss_merchant = Forest_Place([0, 1])
 boss_merchant.event = Merchant()
+input()
 onward(player, boss_merchant)
 
-print("")
+print()
 print(boss1_intro1)
 input()
-print(boss2_intro2)
+print(boss1_intro2)
 input()
 
-boss1 = Forest_Place("Boss", 11)
-boss1.add_enemy(enemy_constructor(Giant_Snake.name))
+boss1 = Forest_Place([1, 0])
+boss1.size, boss1.enemies = 11, []
+boss1.add_enemy(enemy_constructor("Giant_Snake"))
 onward(player, boss1)
+
+print(boss1_end)
+input()
 
 ### The Caves ###
 
+print("You have made it to the tunnels. The tunnels are very dark, decreasing your range by {0} units. However, due to the darkness of the tunnels, you have a {1}% chance to evade encounters entirely.".format(abs(Tunnel_Place.range_bonus), Tunnel_Place.dodge_chance))
+input()
+print(tunnel_start)
+while True:
+    print()
+    decision = fixed_input(input("Will you reduce the beam of your flashlight? "))
+    print()
+    if decision == "yes":
+        print(light_lower)
+        tunnel_1 = Tunnel_Place([0, 1])
+        break
+    elif decision == "no":
+        print(light_same)
+        tunnel_1 = Tunnel_Place([1, 0])
+        break
+    else:
+        print("Invalid input, try again")
+input()
+onward(player, tunnel_1)
+times = 6
+while times:
+    input()
+    place = Tunnel_Place()
+    onward(player, place)
+    times -= 1
+boss_merchant = Tunnel_Place([0, 1])
+boss_merchant.event = Merchant()
+input()
+onward(player, boss_merchant)
+print(tunnel_end)
+input()
+"""
 ### The Cliffs ###
+
+print("""You are now at the perilous cliffs. The cliffs are wide and open, allowing you to clearly see what is up ahead, giving you a range increase of {0} units. Since you are taking every step carefully, you can only take 1 step per turn and 
+cannot change this with item effects.""".format(Cliff_Place.range_bonus))
+"""
+input()
+print(cliffs_intro)
+times = random.randint(5, 6)
+while times:
+    input()
+    place = Cliff_Place()
+    onward(player, place)
+    times -= 1
+boss_merchant = Cliff_Place([0, 1])
+boss_merchant.event = Merchant()
+input()
+onward(player, boss_merchant)
+input()
+print(boss2_intro)
+input()
+print(boss2_intro2)
+input()
+boss2 = Cliff_Place([1, 0])
+boss2.size, boss2.enemies = 14, []
+boss2.add_enemy(enemy_constructor("Alpha_Harpy"))
+onward(player, boss2)
+input()
+print(boss2_end)
+input()
 
 ### The Town ###
 
-### The Machine Labs ###
-
-### The Mage Dens ###
-
-### The College ###
+print(town_intro)
+input()
+print(town_forum)
+input()
+print(town_ambush)
+input()
+place = Town_Place([1, 0]) #First encounter in the town should be a fight, then moves onto random selection of fights and running
+onward(player, place)
+chase = 10
+while chase:
+    input()
+    place = Town_Place()
+    onward(player, place)
+    chase -= 1
+input()
+print(town_chase_end)
+input()
+print(town_way_forward)
+input() """
+while True:
+    choice = fixed_input(input("Will you go left or right? "))
+    print()
+    if "left" in choice:
+        print("You go left to the Machine Labs") ### The Machine Labs ###
+        input()
+        print(labs_intro)
+        input()
+        print("""You have now entered the Machine Labs! There is likely interesting technology you can acquire here and you gain {0} move speed and {1}% damage boost. In exchange, the thick, heavy air makes it harder to breath, lowering your 
+        max health by {2} points""".format(Machine_Labs.range_bonus, round(Machine_Labs.damage_bonus * 100), abs(Machine_Labs.max_health_bonus)))
+        break
+    elif "right" in choice:
+        print("You go right to the Mages' Den") ### The Mage Dens ###
+        break
+    else:
+        print("Invalid input, try again")
+        print()
 
 ### The Hospital ###
 
