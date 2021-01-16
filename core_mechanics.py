@@ -845,12 +845,13 @@ class Enemy(Entity):
     name = "Enemy"
     battle_lines = [""]
     death_lines = [""]
-    line_chance = 1
     armor_piercing = False
+    machine = False
     charmable = True
 
     def __init__(self, health, armor, damage, range, move_speed):
         Entity.__init__(self, health, armor)
+        self.default_health = health
         self.damage = damage
         self.range = range
         self.move_speed = move_speed
@@ -901,7 +902,6 @@ class Legionary(Enemy):
     """
     name = "Legionary"
     battle_lines = ["'Rome will prevail!'", "'You cannot run from the might of Rome!'", "'Another soul attempting to steal our treasure, you'll die like the rest!'", "'I'll enjoy watching you squirm at the end of my blade!'"]
-    line_chance = 3
     death_lines = ["'How could I perish to a mere human?'", "'No...I will...not...fall!'", "'I may be dead, but my comrades will avenge me!'", "'You will never get past the rest!'"]
 
     def __init__(self, health=100, armor=50, damage=25, range=1, move_speed=1):
@@ -917,7 +917,6 @@ class Immortal_Dog(Enemy):
     """
     name = "Immortal Dog"
     battle_lines = ["'GRRRRRRRR!'"]
-    line_chance = 1
     death_lines = ["'Whimpers'"]
 
     def __init__(self, health=50, armor=0, damage=15, range=1, move_speed=2):
@@ -929,7 +928,6 @@ class Feral_Monkey(Enemy):
 
     name = "Feral Monkey"
     battle_lines = ["'OOOO OOOO AAHH AAHH'"]
-    line_chance = 1
     death_lines = ["'Whimpers'"]
 
     def __init__(self, health=70, armor=0, damage=30, range=1, move_speed=2):
@@ -963,7 +961,6 @@ class Giant_Snake(Enemy):
     Can be charmed."""
     name = "Giant Snake"
     battle_lines = ["'SSSSSSSSSSSS'"]
-    line_chance = 1
     death_lines = ["'SSSS...SSSS...SS...S'"]
     time_check = True
 
@@ -1035,8 +1032,7 @@ class Harpy(Enemy):
     additional protection. However, they are intrinsically frail and have low health. Harpies can also screech to give a damage bonus to all allies and themselves in exchange for lowering their range."""
 
     name = "Harpy"
-    battle_lines = ["'SCREEECH!'", "'CAAAAA CAAAAAW!'", "'CAW CAW CAW'"]
-    line_chance = 3
+    battle_lines = ["'SCREEECH!'", "'CAAAAA CAAAAAW!'", "'CAW CAW CAW!'"]
     death_lines = ["'AAAAAAAA'"]
     time_check = True
 
@@ -1099,7 +1095,6 @@ class Harpy_Archer(Enemy):
     move method that allows it to advance until the player is within range instead of merely the full move speed."""
     name = "Harpy Archer"
     battle_lines = Harpy.battle_lines
-    line_chance = Harpy.line_chance
     death_lines = Harpy.death_lines
     armor_piercing = True
 
@@ -1123,7 +1118,6 @@ class Alpha_Harpy(Harpy):
     """The Alpha Harpy is a Harpy that also has a wing beat move that uses its powerful wings to push the player backwards a certain amount of spaces if the player is too close to the enemy. This move has a cooldown period as well. On top of this, the Alpha still retains all the moves of a 
     regular Harpy except it has more move speed and range."""
     name = "Alpha Harpy"
-    line_chance = 1
 
     def __init__(self, health=200, armor=250, damage=25, range=3, move_speed=6):
         Harpy.__init__(self, health, armor, damage, range, move_speed)
@@ -1173,7 +1167,7 @@ class Roman_Archer(Enemy):
     position until death."""
     name = "Roman Archer"
     battle_lines = ["'Target spotted, let's get him!'", "'Show him the might of Roman archery!'", "'If you're in range, it's too late!'"]
-    death_lines = ["'AAAAAHHHHHH'", "'Show...no...mercy...comrades'", "'For the...Emperor!'"]
+    death_lines = ["'AAAAAHHHHHH!'", "'Show...no...mercy...comrades!'", "'For the...Emperor!'"]
     armor_piercing = True
 
     def __init__(self, health=70, armor=50, damage=15, range=4, move_speed=3):
@@ -1196,12 +1190,72 @@ class Roman_Archer(Enemy):
 
 class Engineer(Enemy):
     """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health but high armor. They also fight with a wrench, a low damage and low 
-    range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Because they let the machines do the work, engineers try to keep their distance from the player as much as they can until there are no more 
-    machines left, leaving them to fend for themselves."""
+    range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Furthermore, any machine on the same spot as an engineer gains a health bonus and this bonus can stack with multiple engineers. Finally, 
+    engineers have a repair ability, where they pick the lowest health machine ally and increase their health by a certain amount. Repairing has no cooldown and can be used repeatedly."""
+    name = "Engineer"
+    battle_lines = ["'Roman engineering is revolutionary!'", "'Fear the genius of Rome!'", "'I may be weak but my inventions are strong!'", "'With my technology, failure is impossible!'", "'Rome's greatest mind ready to kill you!'"]
+    death_lines = ["'Impossible...success was...inevitable!'", "'Were my calculations...wrong?'", "'Man dies, machines live...forever!'", "'My inventions will avenge me!'"]
+
+    def __init__(self, health=80, armor=200, damage=15, range=1, move_speed=5):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.damage_boost = 1.2
+        self.repair_threshold = 0.30
+        self.repair_amount = 50
+        self.move_boost = 1
+        self.can_tune = True
+        self.cooldown = 2
+        self.tune_counter = 0
+        self.gap = 2
+
+    def tune_up(self, place):
+        """The tune up move boosts all machine type allies by multiplying their damage by the damage multiplier and by increasing their move speed by the move boost. Then, the can tune attribute is set to False and the tune counter is set to the next turn when the move's cooldown is over. """
+        print("{0} does a tune up on all machine type allies, granting them a {1}% damage boost and an additional {2} units of move speed!".format(self.name, round((self.damage_boost * 100) - 100), self.move_boost))
+        for enemy in place.enemies:
+            if enemy.machine:
+                enemy.damage, enemy.move_speed = enemy.damage * self.damage_boost, enemy.move_speed + self.move_boost
+        self.can_tune, self.tune_counter = False, place.turn_count + self.cooldown
+
+    def repair(self, place, target):
+        """The engineer directly adds health to the target, which is a specific machine ally. This is only done when the machine is at a certain percentage of their base health and this move has no cooldown."""
+        print("{0} repairs {1} for {2} health".format(self.name, target.name, self.repair_amount))
+        target.health = min(target.health + self.repair_amount, target.default_health)
+
+    def take_turn(self, place):
+        """The engineer's first priority is staying away from combat as much as possible, meaning that it will retreat if the player is within the gap and the engineer is not at the end of the place. If there are machine allies, the engineer will prioritize repairing any below a certain 
+        health percentage, otherwise it tune up its machine allies if they are on the field. If the player is directly in front of the engineer, they will attempt to retreat if they can or else they will attempt to fight. If none of these conditions are met, then the engineer will skip a turn. 
+        If there are no machine allies left, the engineer will advance towards the player and attempt to attack them."""
+        dist, place_machines = self.position - place.player.position, [x for x in place.enemies if x.machine]
+        if place_machines:
+            print()
+            if dist <= self.gap and self.position < place.size:
+                self.move(place, True)
+            elif dist <= self.range:
+                self.attack(place)
+            elif min(place_machines, key=lambda x: x.health / x.default_health) <= self.repair_threshold:
+                self.repair(place, min(place_machines, key=lambda x: x.health / x.default_health))
+            elif self.can_tune:
+                self.tune_up(place)
+            else:
+                print("{0} does nothing this turn.".format(self.name))
+        else:
+            Enemy.take_turn(self, place)
+
+    def check(self, place):
+        """The check method just haves to check if the cooldown for the tune up move is over. If so, each machine type ally on the field has its damage divided by the damage boost and has its move speed lowered by the move boost. Ensure that the move speed never goes below 1. Also, 
+        set the can tune attribute back to True."""
+        if place.turn_count == self.tune_counter:
+            for enemy in place.enemies:
+                if enemy.machine:
+                    enemy.damage, enemy.move_speed = round(enemy.damage / self.damage_boost), max(enemy.move_speed - self.move_boost, 1)
+            self.can_tune = True
 
 class Siege_Cannon(Enemy):
     """The Siege Cannon is a powerful machine enemy found in the Machine Labs. It is a four legged machine with a powerful siege cannon on its back, making it a strong ranged enemy. Similar to an archer, it remains as far of the player as it can and retreats if the player gets too close. 
     However, the cannon has limited movement speed due to the cannon's weight, meaning it has difficulty retreating. Also, while it does powerful damage, this enemy has low health for a machine type enemy."""
+    name = "Siege Cannon"
+    battle_lines = []
+    death_lines = []
+    machine = True
 
 class Ripper_Bot(Enemy):
     """The Ripper Bot is a melee, humanoid looking machine enemy found in the Machine Labs that has a deadly sword on each of its arms. It is heavily armored and has high health but low mobility. To partially resolve the issue, the Romans added an emergency thruster to it, giving it a quick 
@@ -1804,19 +1858,18 @@ def battle(place):
     print(">>> Battle begin")
     def fight(): #Using this internal function to avoid writing a battle opening for every call of the function
         place.turn_count, Place.global_turns = place.turn_count + 1, Place.global_turns + 1
-        print("")
+        print()
         print("TURN {0}".format(place.turn_count))
-        print("")
+        print()
         print(">>> {0}'s Turn".format(place.player.name))
-        print("")
+        print()
         place.player.take_turn(place)
         for enemy in place.enemies:
             time.sleep(1.5)
-            print("")
+            print()
             print(">>> {0}'s Turn".format(enemy.name))
-            if random.randint(1, enemy.line_chance) == 1:
-                print("")
-                print(random.choice(enemy.battle_lines))
+            print()
+            print(random.choice(enemy.battle_lines))
             enemy.take_turn(place)
         for item in Place.current_time_items: #Checking to see if any time limited effects for items and enemies need to be removed before continuing to the next turn
             item.check(place)
@@ -1826,7 +1879,7 @@ def battle(place):
         if place.enemies:
             time.sleep(1.5)
             return fight()
-        print("")
+        print()
         print(">>> End of battle")
     fight()
 
