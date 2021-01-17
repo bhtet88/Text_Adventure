@@ -150,9 +150,9 @@ class Weapon(Equipment):
     
     def recalculate(self, place):
         """Recalculates the effective damage and range of the weapon, taking into account the bonuses of the weapon class, the player, and the current place."""
-        self.eff_damage = int(max(self.damage * (1 + (self.damage_bonus + place.player.damage_bonus + place.damage_bonus)), 5)) #Prevents the weapons from becoming useless 
+        self.eff_damage = int(max(self.damage * (1 + (self.damage_bonus + place.player.damage_bonus)), 5)) #Prevents the weapons from becoming useless 
         if self.ranged:
-            self.eff_range = int(max(self.range + self.range_bonus + place.player.range_bonus + place.range_bonus, 1)) #Range must be at least 1 and only ranged weapons get a range bonus
+            self.eff_range = int(max(self.range + self.range_bonus + place.player.range_bonus, 1)) #Range must be at least 1 and only ranged weapons get a range bonus
 
     def combat_table(self, place):
         """Helper method for the action method for Weapons, showing the enemies sorted by distance and the current weapon's effective range."""
@@ -276,7 +276,7 @@ class Rifle(Weapon):
     def recalculate(self, place):
         """Uses the normal weapon class recalculation plus recalculates the effective accuracy attribute."""
         Weapon.recalculate(self, place)
-        self.eff_accuracy = int(max(min(self.accuracy + self.accuracy_bonus + place.accuracy_bonus, 100), 30)) #Ensures that accuracy will never surpass 100 but will also always be at least 40
+        self.eff_accuracy = int(max(min(self.accuracy + self.accuracy_bonus, 100), 30)) #Ensures that accuracy will never surpass 100 but will also always be at least 40
 
     def attack(self, place, target):
         """Rifles have to perform a random roll to see if they hit their target or not."""
@@ -428,8 +428,8 @@ class Healing_Tool(Equipment):
 
     def recalculate(self, place):
         """Recalculates the effective healing of a healing item by taking into account the base heal amount, heal bonus of the class, heal bonus of the player, and heal bonus of the place."""
-        self.eff_heal = int(max(self.heal_amount + self.heal_bonus + place.player.heal_bonus + place.heal_bonus, 5)) #Prevents item from being completely useless
-        self.eff_uses = int(max(self.uses + self.uses_bonus + place.player.uses_bonus + place.uses_bonus, 0))
+        self.eff_heal = int(max(self.heal_amount + self.heal_bonus + place.player.heal_bonus, 5)) #Prevents item from being completely useless
+        self.eff_uses = int(max(self.uses + self.uses_bonus + place.player.uses_bonus, 0))
 
     def effect(self, place, amount):
         """Method that performs the intended effects of a healing item. The default is to heal the player by a specified amount and then remove the item from their backpack if it's out of uses."""
@@ -593,7 +593,7 @@ class Player(Entity):
         self.name = name
         self.move_speed = move_speed
         self.eff_move = move_speed 
-        self.backpack = []
+        self.backpack = [Weapon(20, 1, 0, 0, "Fists")]
         self.current_weight = 0
         self.weight_limit = 50
         self.max_health = 100
@@ -603,11 +603,8 @@ class Player(Entity):
     
     def recalculate(self, place):
         """The player recalculate method recalculates their move speed stat and all the items in their inventory."""
-        if isinstance(place, Cliff_Place):
-            self.eff_move = 1
-        else:
-            self.eff_move = int(max(self.move_speed + self.move_bonus + place.move_bonus, 1)) #Player will always move at least one unit
-        self.eff_max_health = int(max(50, self.max_health + place.max_health_bonus)) #Player max health will always be at least 50 points
+        self.eff_move = int(max(self.move_speed + self.move_bonus, 1)) #Player will always move at least one unit
+        self.eff_max_health = int(max(50, self.max_health)) #Player max health will always be at least 50 points
         if self.health > self.eff_max_health:
             self.health = self.eff_max_health
         for item in self.backpack:
@@ -643,7 +640,7 @@ class Player(Entity):
         >>> player.backpack 
         []
         """
-        permanent = ["knife", "rope"]
+        permanent = ["fists"]
         if item.name.lower() in permanent:
             print("Cannot remove this item from your backpack")
         elif item in self.backpack:
@@ -889,22 +886,14 @@ class Enemy(Entity):
     def __str__(self):
         return "{0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.name, self.health, self.armor, self.damage, self.range, self.move_speed)
 
-class Legionary(Enemy):
-    """First enemies that the player encounters: Undead Legionaries kept alive by a successful experiment with magic, with the side effect of making them accelerate mental degredation. They have no special abilities,
-    only a dagger and shield. Follow the default take turn method where they either move towards the player if they aren't in range or they attack if the player is in range.
-    >>> x = Legionary(100, 50, 20, 1, 1)
-    >>> x.damage 
-    20
-    >>> x
-    Legionary
-    >>> print(x)
-    Legionary, Health: 100, Armor: 50, Damage: 20, Range: 1 units, Move Speed: 1 units per turn
-    """
-    name = "Legionary"
-    battle_lines = ["'Rome will prevail!'", "'You cannot run from the might of Rome!'", "'Another soul attempting to steal our treasure, you'll die like the rest!'", "'I'll enjoy watching you squirm at the end of my blade!'"]
-    death_lines = ["'How could I perish to a mere human?'", "'No...I will...not...fall!'", "'I may be dead, but my comrades will avenge me!'", "'You will never get past the rest!'"]
+class Baton_Guard(Enemy):
+    """Baton Guards are the first enemy the player encounters in the game, being the weakest prison guards. Poorly trained and poorly armored, these guards serve as the prison's cheap way to enforce peace. They are armed with a stun baton, which acts as a normal melee weapon and deals low 
+    damage with each hit. They also have a low movement, low health, and low armor."""
+    name = "Baton Guard"
+    battle_lines = ["'Come on prisoner, I'll make you regret this!'", "'Don't let the prisoner escape!'", "'I can't wait to kill you!'", "'It was a mistake letting you alive!'", "'We should have killed you when we first found you!'"]
+    death_lines = ["'How could I die to filth?'", "'Comrades...kill this...bitch!'", "'You will never get past the rest!'", "'AAAHHHHH!'"]
 
-    def __init__(self, health=100, armor=50, damage=25, range=1, move_speed=1):
+    def __init__(self, health=70, armor=50, damage=20, range=1, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
 class Immortal_Dog(Enemy):
@@ -1147,20 +1136,6 @@ class Alpha_Harpy(Harpy):
             self.can_beat = True
         Harpy.check(self, place)
 
-class City_Guard(Legionary):
-    """The City Guard are essentially Legionaries with more armor, more health, and a range of 2 units due to their pole arms. Other than that, they function the exact same in combat as their Legion counterparts."""
-    name = "City Guard"
-    
-    def __init__(self, health=150, armor=200, damage=30, range=2, move_speed=1):
-        Legionary.__init__(self, health, armor, damage, range, move_speed)
-
-class Armored_Dog(Immortal_Dog):
-    """Armored Dogs operate the same as normal Immortal Dogs except that they have been granted additional armor, providing significant protection."""
-    name = "Armored Dog"
-
-    def __init__(self, health=50, armor=100, damage=15, range=1, move_speed=2):
-        Immortal_Dog.__init__(self, health, armor, damage, range, move_speed)
-
 class Roman_Archer(Enemy):
     """Roman archers are braver than expected for people with bows. Instead of running away from the player to keep peppering with their arrows, they will engage in melee combat if the player is in front of them, holding their ground until death. Their melee attacks deal more 
     damage than their bow's damage but they only have a range of 1 unit with them and unlike their bows, will not penetrate armor. They also have light armor and a medium move speed in exchange for low health. They move at the start of battle to get into range but afterwards will hold their 
@@ -1259,7 +1234,7 @@ class Siege_Cannon(Enemy):
     machine = True
     time_check = True
 
-    def __init__(self, health=150, armor=50, damage=50, range=5, move_speed=1):
+    def __init__(self, health=100, armor=50, damage=50, range=5, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.can_attack = True
         self.attack_counter = 0
@@ -1289,14 +1264,85 @@ class Siege_Cannon(Enemy):
         if place.turn_count == self.can_attack:
             self.can_attack = True
 
-class Ripper_Bot(Enemy):
-    """The Ripper Bot is a melee, humanoid looking machine enemy found in the Machine Labs that has a deadly sword on each of its arms. It is heavily armored and has high health but low mobility. To partially resolve the issue, the Romans added an emergency thruster to it, giving it a quick 
+class Ripper(Enemy):
+    """The Ripper is a melee, humanoid looking machine enemy found in the Machine Labs that has a deadly sword on each of its arms. It is heavily armored and has high health but low mobility. To partially resolve the issue, the Romans added an emergency thruster to it, giving it a quick 
     burst of speed and dash forwards. However, the Ripper is unable to move for a turn after this move is used to allow its movement mechanisms to cool down and function once again. Up close, this enemy does high damage but the motors for the arms overheat after an attack, preventing it from 
     attacking again for a turn. This serves to give the player an opportunity to get the upper hand against them."""
+    name = "Ripper"
+    battle_lines = ["'Rip and tear'", "'Ripper entering combat'", "'Hydraulic blades functional'", "'Proceeding to eliminate enemies of Rome'", "'All systems ready for battle'"]
+    death_lines = Siege_Cannon.death_lines
+    machine = True
+    time_check = True
 
+    def __init__(self, health=150, armor=200, damage=35, range=1, move_speed=1):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.can_move = True
+        self.dash_speed = 4
+        self.dash_counter = 0
+        self.can_attack = True
+        self.attack_counter = 0
+
+    def dash(self, place):
+        """Dashes the Ripper forward towards the player as far as the dash speed allows or until it reaches the player. Then, the can dash attribute is set to False and the dash counter is recalculated so that the Ripper cannot move for a turn."""
+        steps = min(self.dash, self.position - (place.player.position + 1))
+        self.position, self.dash_counter = self.position - steps, place.turn_count + 1
+        self.can_move = False
+        print("{0} uses its thrusters to dash forward {1} units!".format(self.name, steps))
+
+    def attack(self, place):
+        """The Ripper uses the default attack method but after attacking, is unable to attack for a turn. Set the can attack to False and calculate the attack counter attribute."""
+        Enemy.attack(self, place)
+        self.can_attack, self.attack_counter = False, place.turn_count + 1
+
+    def take_turn(self, place):
+        """The Ripper will dash into combat if it is able to and the distance between it and the player is greater than its move speed. Otherwise, it will use its normal movement to get into range. If the player is not in range and it can't move, the Ripper will skip a turn. Once in range, 
+        the ripper will attack if it is able to or if not, will display a message and skip a turn."""
+        dist = self.position - (place.player.position + 1)
+        if dist > self.range:
+            print()
+            if dist > self.move_speed and self.can_move:
+                self.dash(place)
+            elif dist <= self.move_speed and self.can_move:
+                self.move(place)
+            else:
+                print("'Movement motors on cooldown. standby'")
+        else:
+            if self.can_attack:
+                self.attack(place)
+            else:
+                print()
+                print("'Attacking motors on cooldown, standby'")
+
+    def check(self, place):
+        """Checks if the dash and attack cooldowns are done and if so, sets their respective booleans to True."""
+        if place.turn_count == self.attack_counter:
+            self.can_attack = True
+        if place.turn_count == self.dash_counter:
+            self.can_move = True
+            
 class Charger(Enemy):
     """Chargers are machine enemies that are extremely simple. Designed as cheap and replaceable assets, these enemies move to their target as fast as they can and detonate themselves, effectively acting like suicide bombers. They have no concern for their own safety or that of their nearby 
-    allies. Upon death, they explode and deal damage to anyone, including allies, on the same tile as them. They have next to no armor and medium health combined with a high move speed."""
+    allies. Upon death, they explode and deal damage to anyone, including allies, on the same tile as them. They have next to no armor and medium health combined with a high move speed. Uses the default take turn method of the Enemy class, moving towards the player or attacking if they are 
+    in range."""
+    name = "Charger"
+    battle_lines = ["'Enemy sighted, arming detonation device'", "'Explosives primed'", "'Charging opponent'", "'Attention all units, Charger entering combat'", "'Keep your distance, Charger armed'"]
+    death_lines = ["'Detonating device'", "'No one can survive this explosion'", "'All allies, Charger explosion imminent'"]
+    machine = True
+
+    def __init__(self, health=170, armor=0, damage=60, range=1, move_speed=4):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+
+    def attack(self, place):
+        """The Charger explodes, dealing non armor piercing damage to the player. All allies are also damaged by the same amount. Finally, the Charger's own injure method is called, eliminating it from the field."""
+        print("{0} explodes, dealing {1} points of damage to everyone near it!".format(self.name, self.damage))
+        print()
+        place.player.injure(place, self.damage, False)
+        allies = [x for x in place.enemies if x.position == self.position]
+        for ally in allies:
+            print()
+            ally.injure(place, self.damage, False)
+        print()
+        self.injure(place, self.health, True)
 
 ### Event Classes ###
 
@@ -1518,38 +1564,29 @@ class Encounter(Event):
         """Randomly show a text message from the encounters list. No player input or any changes to the game itself."""
         print(random.choice(self.encounters))
 
-class Dodge(Event):
-    """Dialogue only event where the player, if chance is in their favor, can evade an enemy encounter, essentially giving themselves a free pass through the tunnel. This event only occurs in the tunnel."""
+class Lab_Files(Event):
+    """Event that occurs in the labs, where the player can choose to read a file that contains information on the enemies they are fighting."""
+    files = []
 
     def __init__(self):
         Event.__init__(self)
-    
-    def play(self, place):
-        print(dodge_text)
-        Tunnel_Place.possible_events.append(Dodge())
 
-class City_Navigation(Event):
-    """Event that occurs as the player is trying to escape the Romans in the city. The player is given the choice to either go left, right, or forward through an intersection. """
-
-    def __init__(self):
-        Event.__init__(self)
-    
     def play(self, place):
-        """Player is allowed to go left, right, or forward through the intersections in the city"""
-        move = fixed_input(input("You are running through the town to escape the Romans! Will you go left, right, or forward at the intersection? "))
+        """The player is given the option to read a randomly chosen file. If they choose to, then the file's content is shown. Otherwise, they will put the file down and continue on their way."""
+        print(files_intro)
         print()
-        if move == "left":
-            print("You go left at the intersection.")
-            Town_Place.possible_events.append(City_Navigation())
-        elif move == "right":
-            print("You go right at the intersection.")
-            Town_Place.possible_events.append(City_Navigation())
-        elif move == "forward":
-            print("You go forward through the intersection.")
-            Town_Place.possible_events.append(City_Navigation())
+        choice = fixed_input(input("Will you read the file? "))
+        print()
+        if "yes" in choice:
+            print(random.choice(self.files))
+            input()
+        elif "no" in choice:
+            print("You put the file down and continue through the labs.")
+            input()
         else:
-            print("Invalid input, try again")
-            self.play(place)
+            print("Invalid input, try again") 
+            print()
+            return self.play(place) 
 
 ### Place Class ###
 
@@ -1565,14 +1602,6 @@ class Place:
     possible_events = []
     min_enemies = 1
     max_enemies = 3
-    damage_bonus = 0
-    range_bonus = 0
-    move_bonus = 0
-    max_health_bonus = 0
-    heal_bonus = 0
-    move_bonus = 0
-    uses_bonus = 0
-    accuracy_bonus = 0
 
     def __init__(self, type_weight=[1, 1]):
         self.size = random.choice(self.possible_sizes) #Picks random size based off of the possible sizes
@@ -1621,53 +1650,14 @@ class Place:
     def __str__(self):
         return "{0} Place, Size: {1}".format(self.type, self.size)
 
-class Forest_Place(Place):
-    """Place class for locations in the forest. Small length places that can have Legionaries, Immortal Dogs, and Feral Monkeys. The final fight of the jungle section is a large snake.
-    """
-    possible_sizes = [x for x in range(3, 6)]
-    possible_enemies = ["Legionary", "Immortal_Dog", "Feral_Monkey"]
-    possible_events = [Encounter(), Encounter(), Encounter(), Encounter()]
-    range_bonus = -1
-    damage_bonus = 0.20
-
-    def __init__(self, type_weight=[4, 1]):
-        Place.__init__(self, type_weight)
-
-class Tunnel_Place(Place):
-    """Place class for locations within the tunnel after the forest. Each place is very small, forcing the player to fight almost instantly. Players get a range penalty again due to the darkness but have a chance to completely dodge an enemy encounter. The tunnels only have Legionaries 
-    patrolling it There should be at most 3 enemies per encounter, making this an easy place. The only event is the Dodge event, which is what happens when the player dodges a fight."""
-    possible_sizes = [x for x in range(3, 5)]
-    possible_enemies = ["Legionary"]
-    possible_events = [Dodge()]
-    max_enemies = 2
-    range_bonus = -2
-    dodge_chance = 40
-
-    def __init__(self, type_weight=[6, 4]):
-        Place.__init__(self, type_weight)
-
-class Cliff_Place(Place):
-    """The cliffs are located directly after the tunnel and give the player a range bonus. In exchange, the player's move speed is locked to 1 step per turn. Using an item that boosts movement speed will just waste the item. Each place is of medium length, allowing the player some 
-    ranged combat options. There are no events for these places and the enemies are Harpy warriors, which quickly swoop down to attack the player and then retreat. Since Harpies attack in packs, up to 4 can attack the player at once."""
-    possible_sizes = [x for x in range(6, 8)]
-    possible_enemies = ["Harpy", "Harpy_Archer"]
+class Cell(Place):
+    """Place class for the player's cell at the beginning of the game. The cell is very small and serves as the first place the player can fight in."""
+    possible_sizes = [4]
+    possible_enemies = ["Baton_Guard"]
     possible_events = []
-    max_enemies = 4
-    range_bonus = 2
+    max_enemies = 1
 
     def __init__(self, type_weight=[1, 0]):
-        Place.__init__(self, type_weight)
-
-class Town_Place(Place):
-    """The town is located after the cliffs and these places contains medium to small sized places and provides no bonuses at all. Enemies encountered here consist of City Guard, which are Legionaries that are more heavily armed and armored, dealing more damage and having more survivability. 
-    Their dogs are also given an upgrade in the form of armor, giving them more protection. A new enemy is the Roman auxiliary archer, which has both a melee weapon and a bow. The archer doesn't retreat but instead switches to melee combat, dealing more damage but is not armor piercing."""
-    possible_sizes = [x for x in range(4, 7)]
-    possible_enemies = ["City_Guard", "Armored_Dog", "Roman_Archer"]
-    possible_events = [City_Navigation()]
-    min_enemies = 3
-    max_enemies = 4
-
-    def __init__(self, type_weight=[1, 1]):
         Place.__init__(self, type_weight)
 
 class Machine_Labs(Place):
@@ -1679,9 +1669,6 @@ class Machine_Labs(Place):
     possible_events = []
     min_enemies = 2
     max_enemies = 5
-    move_bonus = 1
-    damage_bonus = 0.40
-    max_health_bonus = -30
 
     def __init__(self, type_weight=[1, 1]):
         Place.__init__(self, type_weight)
@@ -1859,6 +1846,23 @@ def enemy_constructor(name):
     True
     """
     return eval(name + "()")
+
+def choices(lst, header):
+    """Shows a list of choices the player can make at the time, each with a number for the player to type in if so they can select it. The player can then input a value and then the function will return their selection. lst is a list of strings while the header is the prompt the player is 
+    being asked as a string."""
+    print("*** " + header + " ***") 
+    i = 0
+    for x in lst:
+        print("[{0}] ".format(i) + x)
+        i += 1
+    print()
+    selection = fixed_input(input("Type in the number of the choice you will make. "))
+    if not selection.isnumeric() or int(selection) > len(lst) - 1 or int(selection) < 0:
+        print()
+        print("Invalid input, ensure input is a valid number.")
+        print()
+        return choices(lst, header)
+    return int(selection)
 
 def onward(player, place):
     """Moves the player onto a new place, where if the place is an enemy place, a battle will begin and if the place is an event place, the event will be played"""

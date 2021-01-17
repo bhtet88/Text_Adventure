@@ -1,138 +1,49 @@
 ### Backstory ###
 
-opening = """{0}, you have worked long and hard, preparing countless months for this journey. You know you are close to the heart of the ancient yet mysterious city of Seduco. 
-Countless adventurers have lost their lives attempting to reach the treasure of the city. Legend says that thousands of years ago the Romans experimented with sorcery and alchemy 
-in an attempt to find an elixer for immortality. Ancient scriptures say that in they invented divine weapons and technology during this pursuit, inventions lost in time. You have no idea
-what this journey will entail or if you will even manage to come back alive. However, you know that if you find even just one of the treasures of Seduco, you will be set for life. You don't
-expect to find anyone else on your journey to help you. It is just up to you, your equipment, and your wits."""
+opening = """{0}, you look around the cell that you are in. Getting up from the dirty floor, you see that on your left is a row of tall, thick metal bars with narrow spacing, preventing you from leaving. You look in between the bars, angling your head to maximize how much you can see. You see 
+an entire row of prison cells directly across from you, streching for at least 10 cells as far as you can see in your limited perspective. Reasonably, you assume that there is an equally long row of cells on your side as well. The hallways in the middle is dimmly lit by lights that create a 
+light blue hue to the entire area. The walls of both your cell and the hallway are made of large, white tiles that, when combined with the light, create a turquoise colored environment. Despite it being a prison, you see that there is next to no trash or litter or dirt or any other kind of 
+filth anywhere. The hall and the cells are immaculate. Even the uniform you are wearing and that of your fellow prisoners is spotless. A clean, orange jumpsuit combined with a white T shirt below it. On the opposite side of the bars, to your right, is a small window that lets in a small ounce 
+of natural light. It is impossible to see out of it so you end up sitting on the cold, hard stone bench, likely a sad excuse for a bed. The only other thing in your cell is a white toilet. You continue to look out into the hallway as footsteps approach."""
 
-store_intro = """Before you embark on your adventure and leave the comforts of civilization, you head to the local store in order to purchase and finalize your gear. You have a backpack that can carry up to {0} lbs and
-a wallet of {1} coins. Prepare wisely adventurer! Who knows when's the next time you can buy what you want?"""
+footsteps = """Every step produces a loud, heavy sound, exactly that of boots moving on a hard floor. The sound is getting closer and closer and you can tell it is coming from the left of your cell."""
 
-### Village ### 
+first_options = ["Stop looking into the hall before someone comes", "Continue looking at the hallway"]
 
-village_arrive = """After getting your supplies, you take a bus to a small, quiet village in the rural outskirts of the city. It's a quiet place with the villagers living simple but contentful lives. You see animals grazing off in the distance as farmers watch over them.
-A group of children are playing games in the village square. Some friendly dogs join in their game, eagerly wanting to have their share of the fun as well. People are walking around the small village, going about their daily lives and ignoring your humble presence."""
+stop_looking = """You lie down on the bench and roll over so you are facing the wall, pretending to be asleep. The footsteps move past your cell and you slowly roll over so you can observe the hallway when you hear something like a whimper or a moan a few cells away. Right away, this is followed 
+by two loud bangs, as if something was being hit hard on metal. Then a loud {0} voice penetrates the silence of the prison. 
 
-village_depart = """No matter. You have everything you need for your journey. After talking with some of the locals about the legends of the ancient city, they point you to a well-trodden dirt road leading out of the village. Their eyes always widen with fear when you mention your intentions.
-Many travelers have gone down this path yet none have returned. The village priest whispers his prayers for your safe return and the village elder gives you a final farewell before you trek down this path. The elder also hands you a knife and a sturdy rope, just in case."""
+'Hey! Shut up!' 
 
-early_end = """You've come this far but as you look down at the village, you think about what kind of terrors previous adventurers faced. How many ran out of food and water, dying a slow and painful death? Who knows what perils are up ahead? A hostile people? Wild, aggressive animals? 
-Deadly traps created by unknown people? Just thinking about these dangers makes your heart race. Life is too precious to risk your life to acquire treasures based upon mere legend. Maybe it exists, maybe it doesn't. It doesn't matter. You turn around and get back on the bus to the airport.
-It's time to go home and end this chapter of your life."""
+Another voice, a soft and weak one, responds, 'I'm sorry officer. I feel so weak. I haven't been given food for days.' 
 
-moving_forward = """Thinking about how much of your life you spent dedicated to this journey, about the fame and fortune you can get if you succeed, you turn your back on the village and move onwards. The only thing on your mind is the way forward. The air is cool and you
-are excited for what awaits you. The dirt path is packed tightly, beaten down from the adventurers before you. The slight breeze causes the trees to whistle a small tune to accompany the beat of your footsteps."""
+'I didn't ask why you opened your damn mouth! Shut up and be thankful you are even breathing! Next time you do this, I will make you sorry!'
 
-### The Wall ###
+The footsteps continue and you assume the guard continues their patrol."""
 
-the_wall = """After about an hour and a half of walking, taking light breaks along the way, you see a misty wall in front of you. It is a very pale grey and towers over you. The only noise is that of the wind. Moving forward seems like the right option but 
-you also can't help feel anxiety overcome you. Is this wall the reason why adventurers before you never came back? Is there even a way for you return once you cross this mystical shroud? You stand there in wonder, thinking about what to do next."""
+guard_description = """You continue to look at the hall and see a person enter your field of view. They are wearing sleek, black armor with red accents on the sides and the shoulder pads. Underneath their body armor is a black undershirt, again with red accents along the length of the arm that 
+creates a nearly seemless transition between the armor and the sleeves of the undershirt. The armor has a belt with multiple yet seemingly empty pouches. At the waist is a utility belt with many pouches attached to it, the most noticeable one having a gray baton sitting inside of it. Their 
+pants continue the aesthetic trend, being black with red accents along the side of the leg. At the bottom of their legs are large, black boots. Their elbows and knees are covered with elbow and knee pads, respectively. On the hands are black gloves with more red accents. Their head is fully 
+enclosed in a large black helmet that has some reflectivity in the light. One side of the helmet has a mounted flashlight. On the helmet's facepiece is a dark visor, one that is tinted so that you cannot see the person on the other side. The guard looks to their left, the cell opposite to 
+yours, and then to their right, your cell."""
 
-wall_boomerang = """Using your mighty arms, you throw the boomerang through the mist. It glistens as the moisture engulfs it and then, it disappears. A few seconds go by, only for the boomerang to emerge from the mist. Having completed it's mission, it safely returns to your hands. You wipe
-off the moisture on it but other than that, it looks just like how it did before you threw it. You then put it back into your backpack, still pondering what to do next."""
+caught_looking = """'What are you looking at?! Yea you, I'm talking about you 74456! Why are your sorry eyes looking at a hallway you will never walk in again?! You are here for a reason! It's people like you, poor scum, the filth of society, rioting and looting and opposing our glorious 
+government! The same god damn government that feeds you and gave you a home! People like you are the reason why our nation will never become perfect, why society will never become perfect! So enjoy your new home, you'll rot away here like the rest of your kind!'"""
 
-wall_rope = """The rope is nice, sturdy, and very long. You pull out a long section of rope and throw it into the mist, then drag it back out. Aside from some moisture on the parts of the rope that went into the wall, there is no damage to the rope at all. You coil the rope back up and put it
-back into your backpack, contemplating what to do next."""
+caught_looking_options = ["Do nothing", "Look away", "Turn around and stop looking", "'I'm sorry, I will never do this again'", "'Fuck you, you pathetic piece of shit'"]
 
-wall_end = """Sadly, all these thoughts are too much for you to take. The stress of being an adventurer is overbearing. If you can't muster up the strength to take a step through this shroud, how can you make it past harder obstacles? Perhaps this mist was a blessing, stopping you from 
-making such a foolish mistake. You slowly walk back to the village and board a bus back to the airport. It's a sad thought to have spent so much time planning and preparing for this trip, just to turn around when the adventure just began. At least you have a home to look forward to, something
-many adventurers can never say again."""
+guard_submit = """'Yea that's right, roll over like a damn dog and accept how pathetic you really are. If more of your kind did so, all of our lives would be easier!' With that line, the guard walks away. So this is how the Federation treats its prisoners. You've heard rumors about how its 
+like but no one has ever been able to provide evidence or eye witness accounts of it. It is believed that once you are taken away by Federation officers, you will never return to society. However, this doesn't mean you won't try, not at all. It is not a hard decision to decide if it is 
+better to be complacent and live here the rest of your miserable existance, or to try escaping and perish that way. There isn't even a choice."""
 
-wall_onwards = """Mustering up your courage, you slowly walk towards the mist. You've made up your mind. There is no more turning back anymore! You place your right foot through the mist, then your left. Nothing feels abnormal so far. Continuing to move forwards, the mist feels 
-refreshing on your skin, cleansing you of all the sweat accumulated on your trek. A few more steps and then, daylight. You feel the same as before and the forest around you looks the same as that before the wall. What was the purpose of this? How has no one discovered this before? 
-Or did they discover it and perish before spreading the news? You move onwards, unaware of the perils up ahead."""
+guard_offend = """'Do you not know your place?! After I'm done with you, you will wish you never stepped out of line!' The guard quickly unlocks the gate to your cell and leaves it open. They then reach over to a holster on their belt and whip out the baton, pressing a button on it that 
+causes the front end of the weapon to spark. You see pulses of electricity travel from the front end of the baton down a metal post and then disappear at the cross guard, where the guard is holding the weapon."""
 
-### The Forest ###
+punish_choices = ["Fight the guard", "Do nothing", "'My apologies officer! I didn't mean it!'"]
 
-first_encounter_1 = """The bushes on your right rustle violently and you hear a distinct clinking noise coupled with the sound of footsteps on packed dirt. Slowly, a gleaming figure walks out in front of you. Clad in armor and a helmet adorned with a feather crown, he stands before you, dagger
-in one hand, a massive shield in the other. Golden engravings are beautifully etched into the armor. He has a stern face but you notice something odd, very odd. This man has red eyes that pierce right through you. Before you can think about what to do, he raises right arm up into the sky."""
-
-first_encounter_2 = """He starts moving towards you, covering himself with his shield. It's clear what this man's -- no, he's not a mere man -- Legionary's, intentions are. You said there is no turning back after crossing the mist so it's time to hold your ground and fend off this assailant."""
-
-first_encounter_end = """The Legionary falls, his corpse making a heavy landing on the ground and kicking up small clouds of dust. Shaking, you slowly make your way to his body and examine this being. Why is there a Legionary out of all things here? Yeah sure, you are searching for ancient
-Roman treasure but the Western Roman empire's army is a thing of the past. His glowing red eyes have now changed to just look like the eyes of any normal human. All over his skin are scars and features that can be best described as shallow cracks, looking like the cracks in the ground when 
-there is extreme heat and no water. Aside from all this, he looks like a normal person. If this guy was so bent on killing you, there has to be something up ahead, some sort of secret, maybe even treasure! You take a few deep breaths and collect yourself together. If this was any indicator,
-getting to the lost city is going to be a challenge. This forest that you are in also doesn't help. It's so dense that you find it difficult to see things that are far away. However, you walk forward with a hardened resolve, ready to take on what's up ahead. Looks like the game begins now."""
-
-boss1_intro1 = """After fighting through many enemies, you come into an incredibly dense part of the forest, denser than any region you've previously been in. Branches upon branches cause you to pause and move them out of their way. Eventually, you push past all of the vegetation and 
-make it into a large, grassy field. The grass is incredibly green, as if it has been well maintained daily by the care of a professonal gardener. The wind sweeps through the field, causing the blades of grass to dance in unison. There are even some colorful flowers popping out of the ground. 
-Despite have to fight for your life, you stand there and take in the scenery, relieved to be taking a pause on your journey. Suddenly, you see sections of grass being flattened, like something is moving through the field out of your sight! You hear the sound of something moving over
-dirt and rocks, producing a noticeable crunching noise. You get back on your guard, readying your weapons for whatever happens next. Then, the unexpected happens or perhaps maybe you should suspend your disbelief at this point."""
-
-boss1_intro2 = """A giant snake rises out of the grass in front of you, hissing loudly and rattling its tail. It's death tune makes you turn stone cold. The gigantic, pearl white fangs glisten in the sunlight and you can see drops of venom dripping of them to the ground. This is not like
-the enemies you faced before. Should you run? No, its definately faster than you can even sprint. Maybe hide? No, it already sees you and can probably smell you out of the smallest corner. Before you can decide what you will do, the snake charges you. You narrowly dodge its strike by jumping
-to the side. This creature seems to want to eat your flesh by tearing you apart. If you're going to get to the lost city, you have no option. You will have to take this beast head on! You steel youself, ready for battle."""
-
-boss1_end = """The snake falls onto the ground dead. That was a tough fight and you can't believe you managed to slay that beast. You are tired but adrenaline is still surging through you. You take a large drink from your canteen, slowly allowing your mind to calm down and regain focus. After
-a few minutes, you decide it's time to continue forward. Going across to the other side of the field, you find what looks like skeletons and armor, dented and battered. This snake clearly didn't pick allegiances; both you and the Romans contain flesh. Moving a few feet past, you come across 
-what looks like an entrance to a cave or tunnel. No, it's definately a tunnel as you can barely make out the light at the other end, a tiny glowing speck. You take a bit more time to get your gear ready, take out a flashlight, and proceed into the darkness."""
-
-### The Tunnel ###
-
-tunnel_start = """The tunnel is an extremely dark place but you know you have to keep your wits about you. Someone or something hostile could appear anywhere and at anytime. You can barely make out that the walls of the tunnel are a cold, hard granite. It must have been an effort to construct
-this tunnel, both in hours and in manpower. The path itself seems more barebones, just a simple dirt path. Despite it being extremely dark, you think about how greatly the beam from your flashlight will give away your position and contemplate lowering its brightness."""
-
-light_lower = """You decide that it's best to dim your flashlight, reducing the beam's brightness to the point where you can just barely make out things two steps ahead. You also make a conscious effort to walk more quietly, taking light steps along the way. However, you start to hear a 
-cluster of noises up ahead."""
-
-light_same = """You decide that reducing your vision will only make you more prone to a surprise attack and keep it on its brightness, allowing the beam to carve a path through the darkness. After all, you can probably take on any enemy down here anyways so why put yourself at a disadvantage?
-You hear someone shout up ahead. 'Hey, you men see that light! Let's go check that out!' The voice is clearly Latin and you hear the clinking of armor quickly moving towards you. 'It's the adventurer, don't let him past!'"""
-
-tunnel_end = """Leaving the odd merchant behind, you finally reach the light at the end of the tunnel. You give your eyes time to adjust to the light and slowly reopen them. You find yourself at the edge of a cliff and looking down, you see a seemingly infinite drop. To your left, you see a
-narrow dirt path, at most a few feet wide. It is the only way for you to progress so you prepare yourself to move forward. While preparing, you wonder how those Legionaries knew about your arrival so soon. You managed to fend off all your attackers in the forest so no one could make it make
-to alert others. Maybe they are just used to slaying adventurers? Perhaps as you move further on, you will find out more about this topic. Taking a deep breath, you move towards the narrow path, taking each step with great care."""
-
-### The Cliffs ###
-
-cliffs_intro = """Trying not to look down, you slowly progress forward, step by step. Suddenly, you hear something that is best described as a love child between a screech and a bird's caw. You look up into the clear blue sky, the direction of the sound, and see multiple bird-like creatures
-surrounding you. Some have a bow and arrow while others have swords, knifes, or other melee weapons. They all look like female humans with claws for hands and feet and wings growing out of their backs. All of them have extremely long, black hair that complements the thick black feathers on 
-their wings. Most of them also appear to have armor on their torso and helmets. One of them dives down towards you but you manage to dodge the attack. Having missed, the creature flies back into the air, looking excited to strike again."""
-
-boss2_intro = """You turn a corner on the cliff path and see a bridge off in the distance ahead of you. On the other side of the bridge appears to be some sort of town. You can just barely make out some of the buildings from the background. Perhaps that is where you need to go next, even if 
-its just to rest and get more supplies. In front of you, the path gradually becomes wider and wider, growing to be twice its width. The floor is littered with bird feces and large, loose branches. However, the most noticeable feature in front of you are multiple large circular nests. These 
-nests are gigantic, at least twice your height in diameter and are as tall as your waist. Inside are equally large dull grey eggs, each of which are about as tall as you. The surface of the eggs are smooth and each nest has a cluster of them laying there. You also notice bones and worn 
-away Legionary armor next to the eggs clusters. It appears that you and the Romans have a common foe. Perhaps these creatures crave flesh from birth. You decide to quickly but quietly try to get past this area before any protective mothers come back. You almost make it across when a large 
-shadow flies over you and you hear an earpiercing shreek."""
-
-boss2_intro2 = """You look up to see another one of those bird-like creatures hovering over you. It is about twice as large as the other ones you encountered and its feathers are a bright white, glistening in the sunlight. Its talons look more like daggers, sharper than any blade in existance. 
-With every flap of its wings, you feel a gust of wind trying to move you back. It takes all of your might just to stand your ground. If there is anything about pack animals, it's that their leader is the embodiment of all the qualities of their kind. They are always the most fierce, the most 
-brave, the most cunning, and the most protective. It seems like this is the alpha for these creatures and you are invading their territory. You know that this will be a fight to the death. You can't outrun it nor hide from it. It is a battle between you, an adventurer trying to just move 
-past, and this beast, protecting what's left of its flock."""
-
-boss2_end = """With a final loud screech, the creature plummets down into the endless chasm below. Its feathers fly off of its wings, leaving a trail behind in the sky. Eventually, the body is too far down and vanishes from your sight. You progress forward and make it to the bridge you saw 
-earlier. Surprisingly, there is no one at the stone bridge. No guards. None of their crazed dogs. Nothing. You cross the bridge while still keeping your guard up. You look off to the side and take one more look at the endless drop below, wondering how much effort and engineering it took to 
-build this bridge. Perhaps the Romans know more than you expected. After all, they did have an amazing form of concrete that no historian or engineer has been able to replicate in the present day. Perhaps if you make it out alive, you can spread this knowledge back to the real world. """
-
-### The Town ### 
-
-town_intro = """Reaching the opposite end of the bridge, you find youself at the edge of a town or city. You see a few large, multistory apartment buildings, the 'insula' if you remember your research correctly, that appear to be almost brand new. Their brick walls show almost no signs of wear 
-and there is barely any dust or grim on them. The color on the buildings is still there, creating a mixture of red, white, and gray buildings in front of you. On the bottom floor, it appears that there are signs for shops, blacksmiths, armorers, and other services. On the upper levels, you see 
-name plates, leading you to believe that those sections are the living quarters. In front of you, the road turns from a simple dust path to a well made cobblestone lane. You can see places where the lane intersects with other cobblestone paths at 90 degree angles, perhaps making a city with 
-perfectly square blocks. An organized city, that is something the Romans definately strived for. The other buildings in front of you also look like more bars, shops, and services. They all look perfectly maintained as well. For a lost city, the Romans are dead set on making this place look 
-perfect. If your knowledge of Roman cities serves you right, there should be a main town square or something of the like to help you orientate yourself. However, something disturbs you or rather, the lack of something disturbs you. Where is everyone? You'd think that for a mythical city, there 
-would be more people. Someone has to be maintaining these buildings otherwise dust and dirt would get on them or maybe even those bird-like creatures would have made their home here. You stay on your guard and decide to keep pressing onward. Navigating this city will be difficult and having 
-people to guide you would have been nice. Perhaps they all ran upon hearing of your impending arrival."""
-
-town_forum = """After what feels like hours of wandering, you make it to the town forum, a large open square near the heart of the city surrounded by various buildings. They all have a similar construction, brick or concrete walls painted white along with red roofs. Some of them are multiple 
-stories while others are only one. Once again, all these buildings look very well maintained, as if they were just built right before you arrived. What is even more disturbing is that you have yet to see a single person despite having weaved through multiple blocks of the city. The only sound 
-you've heard in the past eternity was your shoes on cobblestone. Off in the distance, you see a large palace, towering over all the other buildings. Next to it is another large building, though not as large, which has large, thick white pillars at the front. It looks like the typical Roman 
-building you saw in artist renditions of Rome: sloped roof, multiple white columns in the front, and an overall rectangular shape to the structure. On the columns, there seems to be large purple banners draped from the top of the columns, perhaps marking it as a site of importance to the city. 
-Perhaps that is where the treasure of this city are. You make a mental note of both of these locations and pick a road that appears to stretch in their direction. However, as you start moving, your sixth sense begins making you nervous."""
-
-town_ambush = """You look over your shoulder to find soldiers blocking the entrances to the forum behind you. You look forward, prepared to run, but then see more soldiers blocking your way forward. Some look like the Legionaries you faced in the forest but with more armor and polearms 
-instead of a shield/dagger loadout. At their feet are also the dogs you saw before but now with armor encasing their body and head. Furthermore, behind each group of infantry is a group of archers, wearing chainmail over a bright red tunic. All your foes have glowing red eyes, an unsettling 
-sight. Surrounded on all sides, you know you have to fight your way out. Quickly, you formulate a plan: pick the most weakly defended exit out of the forum, fight past the defenders, and lose the rest by using the city as a maze. You must escape as fast as possible. For whatever reason, 
-the Romans really want you dead. They also probably know this city like the back of their hand so this will be difficult."""
-
-town_chase_end = """You manage to sneak into an alley and hear the loud footsteps of your pursuers race past you. It appears like you can slip past them and head towards that gigantic palace. However, it is sort of odd isn't it? They have dogs at their disposal. Surely at least one of them 
-could sniff you out by now. You soon have your answer as you hear multiple explosions occur in the region of the town behind you, and then at the portion of the city in front of you. You peek out of the alley you're hiding in to find that the city you have been running through has been almost 
-demolished. The buildings have turned into large mounds of rubble, blocking the roads and being too tall for you to scale. In the other direction, a few blocks in front of you have had the same treatment, with rubble blocking your way once again. However, the rest of the city remains as 
-perfect as before, creating a noticeable divide between the ruins and the city. A street with a destroyed building on one side had a pristine one on the other. What were the Romans thinking? What kind of secrets are they hiding to justify the destruction of their own city, perhaps the last 
-Roman city left on Earth? There is something going on here, something more than just mere riches, fame, and fortune. It appears the Romans have retreated from the area at least so you can relax for a bit."""
-
-town_way_forward = """Moving out of the alley, you notice that there are two paths that remain unblocked by rubble, with the buildings on the edge of the road still standing despite everything else being destroyed. A sign at the intersection writes that the open path to your left goes to the 
-'Machine Labs' and the one to your right heads to the 'Mages' Den.'"""
+guard_punish = """The guard raises their baton and repeatedly strikes you, with each blow filling you with regret. It hurts badly, so badly, and each hit is accompanied with an electric shock that attacks your very spirit. After hitting you multiple times, the guard leaves your cell 
+satisfied. You are left alone on the floor of your cell beaten and bruised badly. Every movement hurts and you don't know if something's been broken or not. Next time, you figure that it is best to keep your anger in check, at least for now. However, you have to find your way out of this place 
+once you feel more recovered."""
 
 ### The Machine Labs ###
 
@@ -240,3 +151,18 @@ domestic problem. Regardless, you leave everything as it was and prepare to move
 water = """You come across a river, with crystal clear water, clear enough to where you can perfectly see the pebbles at the bottom. The water is very calm, slowly flowing past you. After all you have been through, refreshing water is what you need. You cup water into your hands and wash your
 face and body, trying to rinse off the grim, dirt, and blood on you. You eagerly fill up your canteen and then take massive glups from it, enjoying the slightly sweet water rejuvinating your body and mind. You take this time to quickly wash your dirty equipment too, especially your weapons. 
 Once satisfied with your break, you get back on your feet and prepare to move on."""
+
+# Files #
+
+files_intro = """You come across an empty place and prepare to take a breather and prepare your gear for the future encounters. As you are doing so, you notice that there is a table with many papers on it. A lot of them are sketches and drawings of inventions that you cannot understand at all 
+but there is a file that you see on the table. At a quick glance, you see that it is a page of writing in Latin, which you can read."""
+
+charger_file = """The Charger is the first combat machine developed in the Labs, the first iteration of a long line of machine research. It arose from the need to field quick, disposable support for frontline troops and for riot control purposes. Chief Researcher Otto developed the concept of 
+a suicide robot powered by a small diesel engine. Upon getting close to a target, the machine's software overrides all safety and cooling systems for the engine. By allowing the engine to reach an extremely high internal pressure and by preventing the escape of air inside of it, the engine 
+becomes a miniture explosive which is then detonated by a small spark. The legs of the machine have been given powerful motors to allow it to close the distance between it and the opposition as fast as it can before detonation. However, multiple trials showed that maximum speed could only be 
+achieved by removing almost all the armor on it, making it weak against a trained opponent and when there is a large distance to cover. Fortunately, the production of this machine is cheap and well within the allocated budget of Project Charger, making mass production very practical. The 
+major concern on the current version of the Charger is its simplistic AI. It has no regard for the safety of anyone nearby, ally or enemy, and prioritizes killing its target over protecting its allies. Therefore, all allied personnel must run away from the Charger once the unit is activated. 
+
+Addition: Government agents have reviewed the specifications, blueprints, and documentation. Our concerns about the safety of allied personnel was raised by the agents reassured us that our concerns were unnecessary. Crushing opposition is always a priority. Our design for Project Charger has 
+been given the green light to proceed.
+"""
