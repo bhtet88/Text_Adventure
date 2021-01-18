@@ -857,15 +857,15 @@ class Baton_Guard(Enemy):
     def __init__(self, health=70, armor=50, damage=20, range=1, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
-class Immortal_Dog(Enemy):
-    """Using the same magic that keeping the Legionaries alive, these dogs are loyal to their undead human allies. Can move up to 2 steps per turn but deal very little damage. 
-    >>> x = Immortal_Dog(75, 0, 10, 1, 2)
+class Dog(Enemy):
+    """Loyal prison guard dogs, they fight alongside their human masters. They have lower health and no armor but move faster than baton guards. Deal low damage and serve as a means to quickly lower the player's health to assist the guards. 
+    >>> x = Dog(75, 0, 10, 1, 2)
     >>> print(x)
-    Immortal Dog, Health: 75, Armor: 0, Damage: 10, Range: 1 units, Move Speed: 2 units per turn
+    Dog, Health: 75, Armor: 0, Damage: 10, Range: 1 units, Move Speed: 2 units per turn
     >>> x
-    Immortal Dog
+    Dog
     """
-    name = "Immortal Dog"
+    name = "Dog"
     battle_lines = ["'GRRRRRRRR!'"]
     death_lines = ["'Whimpers'"]
 
@@ -1486,6 +1486,17 @@ class Cell(Place):
     possible_enemies = ["Baton_Guard"]
     possible_events = []
     max_enemies = 1
+
+    def __init__(self, type_weight=[1, 0]):
+        Place.__init__(self, type_weight)
+
+class Lower_Prison(Place):
+    """Place class for the Lower Prison. The Lower Prison is where prisoners from the lowest rungs of society are kept with little regard for their health or safety. Guards do the bare minimum to keep prisoners alive but can kill them at any time they wish. These places are very close quarters 
+    as the player will be using mainly melee weapons anyway. Enemies for this area include guards with stun batons and their loyal dogs."""
+    possible_sizes = [x for x in range(3, 5)]
+    possible_enemies = ["Baton_Guard", "Dog"]
+    possible_events = []
+    max_enemies = 3
 
     def __init__(self, type_weight=[1, 0]):
         Place.__init__(self, type_weight)

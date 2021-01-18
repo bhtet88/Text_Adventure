@@ -90,6 +90,16 @@ first_fight = """The guard swipes the key card on the scanner and enters your ce
 escape = """You know for a fact that your little victory is going to be short lived. Your shuffle made a lot of noise and the second guard must have heard something. Hearing a second set of footsteps rushing towards you, you quickly try to put on the first guard's armor and ditch your shank 
 in favor of the stun baton."""
 
+### Lower Levels ###
+
+spotted = """The second guard falls over, beaten senseless by your fighting skills. No other guards are in your vicinity and you attempt to try taking our outfit to sneak your weak out of here. However, out of the corner of your eye, you see the blinking light of a security camera staring right 
+at you over two motionless bodies. Then, you hear microphone feedback followed by a loud booming voice over the PA system."""
+
+pa_voice = """'Attention all personnel! A prisoner on Level D, Wing 8 is escaping their cell and has overpowered both guards of the section! All units are to respond immediately and subdue the prisoner for execution! Remember, these people are here because they are a stain on the bright future 
+of our Federation and its mission for humanity! Do not let the prisoner escape and corrupt the rest of society! For the glory of the Federation! Prisoner, you have made a grave mistake!'"""
+
+alarm_sounded = """An alarm then starts blaring all throughout the hallway and you can hear many footsteps approaching the only door leading into your wing of the prison, Wing 8. You prepare yourself for the fight up ahead. These guards will not rest until you have been brutally subdued!"""
+
 ### The Machine Labs ###
 
 labs_intro = """You arrive at the entrance to a large building with the words 'Machine Labs' above the front door in Latin. From the outside, the building is not very tall, but it is extremely long. It eventually turns right and continues to stretch down, eventually going into the part of the 

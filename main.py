@@ -106,6 +106,8 @@ elif first_choice == 1: #Player continues to look at the hallway
 input() #Getting out of the cell and facing the second guard
 print(escape)
 input()
+player.inventory_remove(shank)
+print()
 player.inventory_add(Weapon(40, 1, 2, "Stun Baton"))
 print()
 player.inventory_add(Armor_Piece(50, 1, "Guard Vest"))
@@ -114,3 +116,14 @@ Baton_Guard.can_drop = True
 cell = Cell()
 onward(player, cell)
 input()
+print(spotted)
+input()
+print(pa_voice)
+input()
+print(alarm_sounded)
+encounters = 5
+while encounters:
+    input()
+    place = Lower_Prison()
+    onward(player, place)
+    encounters -= 1
