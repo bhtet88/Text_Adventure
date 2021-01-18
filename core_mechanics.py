@@ -19,9 +19,8 @@ class Equipment:
     class_name = "Equipment"
     combat_item = False
     
-    def __init__(self, weight, price, name="Equipment"):
+    def __init__(self, weight, name="Equipment"):
         self.weight = weight
-        self.price = price
         self.name = name
 
     def recalculate(self, place):
@@ -36,27 +35,7 @@ class Equipment:
         return self.name
     
     def __str__(self):
-        return "{0}, Weight: {1} lbs, Price: {2} coins".format(self.name, self.weight, self.price)
-
-class Lyre(Equipment):
-    """The lyre is a unique piece of equipment, only obtainable in a playthrough if the player gets the gift of Apollo. It is a supportive, combat usable item that allows the player to serenade all enemies except those that can't be charmed. Serenaded enemies have their damage reduced for the
-    remainder of battle.
-    """
-    attack_debuff = 0.80
-    min_attack = 10
-    combat_item = True
-
-    def __init__(self, weight=3, price=0, name="Lyre"):
-        Equipment.__init__(self, weight, price, name)
-
-    def action(self, place):
-        """The Lyre lowers the attack of all enemies on the field by the attack debuff attribute. Enemies cannot go less than the min attack attribute."""
-        for enemy in place.enemies:
-            if enemy.charmable:
-                if self.min_attack >= int(self.attack_debuff * enemy.attack):
-                    enemy.damage = self.min_attack
-                else:
-                    enemy.damage = int(enemy.damage * self.attack_debuff)
+        return "{0}, Weight: {1} lbs".format(self.name, self.weight)
 
 class Armor_Piece(Equipment):
     """Armor pieces are equipment that the player can get to add to their armor value, protecting their health from non armor piercing attacks. Armor pieces have to be used first, so their action method is what adds to the player's armor, not just the act
@@ -64,19 +43,19 @@ class Armor_Piece(Equipment):
     """
     combat_item = True
 
-    def __init__(self, armor, weight, price, name="Armor Piece"):
-        Equipment.__init__(self, weight, price, name)
+    def __init__(self, armor, weight, name="Armor Piece"):
+        Equipment.__init__(self, weight, name)
         self.armor = armor
 
     def action(self, place):
-        """The action method simply adds armor to the player's armor stat and then are removed from their backpack."""
+        """The action method simply adds armor to the player's armor stat and then are removed from their inventory."""
         place.player.armor += self.armor
         print("Added {0} points of armor".format(self.armor))
         print("")
-        place.player.backpack_remove(self)
+        place.player.inventory_remove(self)
 
     def __str__(self):
-        return "{0}, Armor: {1} Weight: {2} lbs, Price: {3} coins".format(self.name, self.armor, self.weight, self.price)
+        return "{0}, Armor: {1} Weight: {2} lbs".format(self.name, self.armor, self.weight)
 
 class Shield(Equipment):
     """Shields are a piece of equipment that the player can choose to use during battle, reducing damage by a certain amount for a certain number of turns. It does this by directly lowering the enemy's damage as long as the effect lasts. Damage reduction is written as the percentage of damage
@@ -84,8 +63,8 @@ class Shield(Equipment):
 
     combat_item = True
 
-    def __init__(self, damage_multiplier, buff_length, weight, price, name="Shield"):
-        Equipment.__init__(self, weight, price, name)
+    def __init__(self, damage_multiplier, buff_length, weight, name="Shield"):
+        Equipment.__init__(self, weight, name)
         self.damage_multiplier = damage_multiplier
         self.buff_length = buff_length
         self.buff_counter = 0
@@ -114,7 +93,7 @@ class Shield(Equipment):
             self.used = False
 
     def __str__(self):
-        return "{0}, Damage Reduction: {1}%, Block Duration: {2} turns, Weight: {3} lbs, Price: {4} coins".format(self.name, round((1 - self.damage_multiplier) * 100), self.buff_length, self.weight, self.price)
+        return "{0}, Damage Reduction: {1}%, Block Duration: {2} turns, Weight: {3} lbs".format(self.name, round((1 - self.damage_multiplier) * 100), self.buff_length, self.weight)
 
 class Weapon(Equipment): 
     """Weapons that the player and enemies can use to fight with. Each weapon has damage, range, weight, and price. Some weapons can have an armor piercing ability
@@ -141,8 +120,8 @@ class Weapon(Equipment):
     damage_bonus = 0
     range_bonus = 0
     
-    def __init__(self, damage, range, weight, price, name="Weapon"):
-        Equipment.__init__(self, weight, price, name)
+    def __init__(self, damage, range, weight, name="Weapon"):
+        Equipment.__init__(self, weight, name)
         self.damage = damage
         self.range = range
         self.eff_damage = damage
@@ -195,7 +174,7 @@ class Weapon(Equipment):
         self.attack(place, target)
 
     def __str__(self):
-        return "{0}, Damage: {1}, Range: {2} units, Weight: {3} lbs, Armor Piercing: {4}, Price: {5} coins".format(self.name, self.eff_damage, self.eff_range, self.weight, self.armor_piercing, self.price)
+        return "{0}, Damage: {1}, Range: {2} units, Weight: {3} lbs, Armor Piercing: {4}".format(self.name, self.eff_damage, self.eff_range, self.weight, self.armor_piercing)
 
 class AP_Weapon(Weapon):
     """Exact same as the Weapon class but armor piercing is turned on."""
@@ -204,8 +183,8 @@ class AP_Weapon(Weapon):
 class Polearm(Weapon):
     """Polearms are melee weapons that have a special sweep attack, allowing them to hit all enemies in directly in front of the player for reduced damage."""
 
-    def __init__(self, damage, sweep_multiplier, range, weight, price, name="Polearm"):
-        Weapon.__init__(self, damage, range, weight, price, name)
+    def __init__(self, damage, sweep_multiplier, range, weight, name="Polearm"):
+        Weapon.__init__(self, damage, range, weight, name)
         self.sweep_multiplier = sweep_multiplier
 
     def sweep(self, place):
@@ -233,34 +212,30 @@ class Bow(Weapon):
     damage to all enemies within range"""
     armor_piercing = True
     ranged = True
-    diana_bonus = False
 
-    def __init__(self, damage, range, weight, price, name="Bow"):
-        Weapon.__init__(self, damage, range, weight, price, name)
+    def __init__(self, damage, range, weight, name="Bow"):
+        Weapon.__init__(self, damage, range, weight, name)
 
     def volley_shot(self, place):
-        """The volley shot deals half of the bow's effective damage (damage after all buffs and debuffs are applied) to all enemies within range by summoning the might of Diana."""
+        """The volley shot deals half of the bow's effective damage (damage after all buffs and debuffs are applied) to all enemies within range."""
         targets = [enemy for enemy in place.enemies if enemy.position - place.player.position <= self.eff_range]
         for target in targets:
             target.injure(place, self.eff_damage // 2, self.armor_piercing)
 
     def action(self, place):
-        """The action method for bows allows the player to decide if they want to use the normal attack or use the volley shot method if they have the gift of Diana. Each decision will call the proper method."""
-        if self.diana_bonus:
-            attack = fixed_input(input("What attack will you use? Type 'Normal' or 'Volley Shot' to attack or 'Back' to choose a different action. "))
-            print()
-            if attack == "back":
-                return place.player.take_turn(place)
-            elif attack == "normal":
-                Weapon.action(self, place)
-            elif attack == "volley shot":
-                self.volley_shot(place)
-            else:
-                print("Invalid input, try again")
-                print()
-                return self.action(place)
-        else:
+        """The action method for bows allows the player to decide if they want to use the normal attack or use the volley shot method. Each decision will call the proper method."""
+        attack = fixed_input(input("What attack will you use? Type 'Normal' or 'Volley Shot' to attack or 'Back' to choose a different action. "))
+        print()
+        if attack == "back":
+            return place.player.take_turn(place)
+        elif attack == "normal":
             Weapon.action(self, place)
+        elif attack == "volley shot":
+            self.volley_shot(place)
+        else:
+            print("Invalid input, try again")
+            print()
+            return self.action(place)
 
 class Rifle(Weapon):
     """Rifles are a powerful ranged weapon similar to bows but in exchange for their great power, each rifle has an accuracy rating that determines if the weapon hits the target or misses. Accuracy is a value between 0 and 100."""
@@ -268,8 +243,8 @@ class Rifle(Weapon):
     ranged = True
     accuracy_bonus = 0
 
-    def __init__(self, damage, range, accuracy, weight, price, name="Rifle"):
-        Weapon.__init__(self, damage, range, weight, price, name)
+    def __init__(self, damage, range, accuracy, weight, name="Rifle"):
+        Weapon.__init__(self, damage, range, weight, name)
         self.accuracy = accuracy
         self.eff_accuracy = accuracy
 
@@ -287,15 +262,15 @@ class Rifle(Weapon):
             print("You missed!")
         
     def __str__(self):
-        return "{0}, Damage: {1}, Range: {2} units, Accuracy: {3}, Weight: {4} lbs, Armor Piercing: {5}, Price: {6} coins".format(self.name, self.eff_damage, self.eff_range, self.eff_accuracy, self.weight, self.armor_piercing, self.price)
+        return "{0}, Damage: {1}, Range: {2} units, Accuracy: {3}, Weight: {4} lbs, Armor Piercing: {5}".format(self.name, self.eff_damage, self.eff_range, self.eff_accuracy, self.weight, self.armor_piercing)
 
 class Shotgun(Weapon):
     """Shotguns are a powerful short ranged weapon that have no accuracy stat but have extremely limited range. In exchange, shotguns are damage machines. For every space closer to the player that the enemy is past the maximum range, the gun gains a damage bonus. Furthermore, a player is able
     to deal full damage to the selected enemy but then all other enemies on the same spot as that enemy are also hit by the spread of the pellets, causing reduced damage."""
     ranged = True
 
-    def __init__(self, damage, range, spread_multiplier, cqc_bonus, weight, price, name="Shotgun"):
-        Weapon.__init__(self, damage, range, weight, price, name)
+    def __init__(self, damage, range, spread_multiplier, cqc_bonus, weight, name="Shotgun"):
+        Weapon.__init__(self, damage, range, weight, name)
         self.spread_multiplier = spread_multiplier
         self.cqc_bonus = cqc_bonus
 
@@ -314,8 +289,8 @@ class Flamethrower(Weapon):
     The player still has to pick a target so use the default action method. Enemies hit by the flamethrower also are lit on fire, causing them to have burn damage for a few turns. Burn damage cannot be changed by any bonuses. This weapon is not armor piercing, in order to remain balanced, 
     and has a limited range."""
 
-    def __init__(self, damage, burn_damage, burn_length, range, weight, price, name="Flamethrower"):
-        Weapon.__init__(self, damage, range, weight, price, name)
+    def __init__(self, damage, burn_damage, burn_length, range, weight, name="Flamethrower"):
+        Weapon.__init__(self, damage, range, weight, name)
         self.burn_damage = burn_damage
         self.burn_length = burn_length
 
@@ -348,18 +323,18 @@ class Flamethrower(Weapon):
                 Place.current_time_items.remove(self)
 
     def __str__(self):
-        return "{0}, Damage: {1}, Burn Damage: {2}, Burn Length: {3} turns, Range: {4} units, Weight: {5} lbs, Armor Piercing: {6}, Price: {7} coins".format(self.name, self.eff_damage, self.burn_damage, self.burn_length, self.eff_range, self.weight, self.armor_piercing, self.price)
+        return "{0}, Damage: {1}, Burn Damage: {2}, Burn Length: {3} turns, Range: {4} units, Weight: {5} lbs, Armor Piercing: {6}".format(self.name, self.eff_damage, self.burn_damage, self.burn_length, self.eff_range, self.weight, self.armor_piercing)
 
 class Explosive(Weapon):
     """Explosives are weapons that are thrown and do damage to all enemies on the same place as the targeted enemy and all enemies in places within the blast radius. Explosives have a limited amount of uses that cannot be changed by any bonuses nor can be refilled."""
 
-    def __init__(self, damage, blast_radius, range, uses, weight, price, name="Explosive"):
-        Weapon.__init__(self, damage, range, weight, price, name)
+    def __init__(self, damage, blast_radius, range, uses, weight, name="Explosive"):
+        Weapon.__init__(self, damage, range, weight, name)
         self.blast_radius = blast_radius
         self.uses = uses
 
     def attack(self, place, position):
-        """Attack method damages all enemies on the same place as the chosen location and also all enemies on positions within the blast radius. If the player is within the blast radius, injure them as well with the same damage. If the item runs out of uses, remove it from the backpack."""
+        """Attack method damages all enemies on the same place as the chosen location and also all enemies on positions within the blast radius. If the player is within the blast radius, injure them as well with the same damage. If the item runs out of uses, remove it from the inventory."""
         for enemy in place.enemies:
             if enemy.position >= position - self.blast_radius and enemy.position <= position + self.blast_radius:
                 enemy.injure(place, self.damage, self.armor_piercing)
@@ -370,7 +345,7 @@ class Explosive(Weapon):
             place.player.injure(place, self.damage, self.armor_piercing)
         self.uses -= 1
         if not self.uses:
-            place.player.backpack_remove(self)
+            place.player.inventory_remove(self)
 
     def action(self, place):
         """Instead of picking an enemy to attack, the player picks a certain position to attack in front of them, meaning this action method has to show valid positions instead of valid targets."""
@@ -396,7 +371,7 @@ class Explosive(Weapon):
         self.attack(place, choice - 1)
 
     def __str__(self):
-        return "{0}, Damage: {1}, Blast Radius: {2} units, Range: {3} units, Uses: {4}, Weight: {5} lbs, Armor Piercing: {6}, Price: {7} coins".format(self.name, self.eff_damage, self.blast_radius, self.eff_range, self.uses, self.weight, self.armor_piercing, self.price)
+        return "{0}, Damage: {1}, Blast Radius: {2} units, Range: {3} units, Uses: {4}, Weight: {5} lbs, Armor Piercing: {6}".format(self.name, self.eff_damage, self.blast_radius, self.eff_range, self.uses, self.weight, self.armor_piercing)
 
 class Healing_Tool(Equipment):
     """Healing equipment for the player to regain health. Each healing equipment has healing amount, number of uses, weight, and price
@@ -419,8 +394,8 @@ class Healing_Tool(Equipment):
     heal_bonus = 0
     uses_bonus = 0
 
-    def __init__(self, heal_amount, uses, weight, price, name = "Healing Equipment"):
-        Equipment.__init__(self, weight, price, name)
+    def __init__(self, heal_amount, uses, weight, name = "Healing Equipment"):
+        Equipment.__init__(self, weight, name)
         self.heal_amount = heal_amount
         self.eff_heal = heal_amount
         self.uses = uses
@@ -432,17 +407,17 @@ class Healing_Tool(Equipment):
         self.eff_uses = int(max(self.uses + self.uses_bonus + place.player.uses_bonus, 0))
 
     def effect(self, place, amount):
-        """Method that performs the intended effects of a healing item. The default is to heal the player by a specified amount and then remove the item from their backpack if it's out of uses."""
+        """Method that performs the intended effects of a healing item. The default is to heal the player by a specified amount and then remove the item from their inventory if it's out of uses."""
         place.player.health += amount
         self.uses -= 1
         print("Healed for {0} HP, {1} uses remaining".format(amount, self.uses))
         self.recalculate(place)
         if not self.eff_uses:
             print("")
-            place.player.backpack_remove(self)
+            place.player.inventory_remove(self)
 
     def action(self, place):
-        """The default action method for healing items is to heal the player, with the heal amount determined by their heal amount attribute. Players cannot go over their maximum health. Remove the healing item from backpack if it is out of uses. If the player is already at max health, \
+        """The default action method for healing items is to heal the player, with the heal amount determined by their heal amount attribute. Players cannot go over their maximum health. Remove the healing item from inventory if it is out of uses. If the player is already at max health, \
         then display a message and let the player try another action. Almost all healing items will use the same action method."""
         diff = place.player.eff_max_health - place.player.health
         if diff == 0:
@@ -455,13 +430,13 @@ class Healing_Tool(Equipment):
             self.effect(place, self.eff_heal)
 
     def __str__(self):
-        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Weight: {3} lbs, Price: {4} coins".format(self.name, self.eff_heal, self.eff_uses, self.weight, self.price)
+        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Weight: {3} lbs".format(self.name, self.eff_heal, self.eff_uses, self.weight)
 
 class Adrenaline(Healing_Tool):
     """Adrenaline shots heal the player but also give a temporary damage boost for a certain amount of turns."""
 
-    def __init__(self, heal_amount, damage_bonus, bonus_length, uses, weight, price, name="Adrenaline"):
-        Healing_Tool.__init__(self, heal_amount, uses, weight, price, name)
+    def __init__(self, heal_amount, damage_bonus, bonus_length, uses, weight, name="Adrenaline"):
+        Healing_Tool.__init__(self, heal_amount, uses, weight, name)
         self.damage_bonus = damage_bonus
         self.in_effect = False
         self.bonus_counter = 0
@@ -492,32 +467,11 @@ class Adrenaline(Healing_Tool):
             print("Adrenaline damage bonus has worn off")
 
     def __str__(self):
-        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Damage Bonus: {3}, Bonus Length {4} turns, Weight: {5} lbs, Price: {6} coins".format(self.name, self.eff_heal, self.eff_uses, self.damage_bonus, self.bonus_length, self.weight, self.price)
+        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Damage Bonus: {3}, Bonus Length {4} turns, Weight: {5} lbs".format(self.name, self.eff_heal, self.eff_uses, self.damage_bonus, self.bonus_length, self.weight)
 
 ### In-Game Items ###
 
-armor_plate = Armor_Piece(25, 7, 50, "Armor Plate")
-bandages = Healing_Tool(20, 1, 0.5, 75, "Bandages")
-bow = Bow(30, 4, 12, 75, "Bow")
-spear = Weapon(45, 1, 10, 100, "Spear") 
-rifle = Rifle(70, 4, 60, 15, 200, "Rifle")
-trench_gun = Shotgun(60, 3, 0.4, 0.2, 10, 250, "Trench Gun")
-adrenaline = Adrenaline(20, 0.25, 1, 1, 0.5, 10, "Adrenaline")
-adrenaline_2 = Adrenaline(20, 0.25, 4, 1, 0.5, 10, "Adrenaline")
-polearm = Polearm(55, 0.4, 1, 10, 175, "Polearm")
-dynamite = Explosive(35, 1, 3, 1, 4, 100, "Dynamite")
-flamethrower = Flamethrower(200, 10, 2, 6, 15, 500, "Flamethrower")
-shield = Shield(0.8, 1, 7, 90, "Shield")
-
-heavy_spear = Weapon(65, 1, 15, 150, "Heavy Spear")
-longbow = Bow(45, 6, 18, 250, "Longbow")
-padded_jacket = Armor_Piece(45, 10.5, 200, "Padded Jacket")
-healing_syringe = Healing_Tool(40, 4, 1, 200, "Healing Syringe")
-
-store_list = [spear, bandages, bow, rifle, armor_plate, dynamite, polearm, trench_gun, shield, flamethrower]
-
-knife = Weapon(40, 1, 0, 0, "Knife")
-rope = Equipment(0, 0, "Rope")
+shank = Weapon(35, 1, 0.5, "Shank")
 
 ### Creature Class ###
 
@@ -571,9 +525,9 @@ class Entity:
 
 class Player(Entity):
     """Class for the player of the game, which is able to do certain actions that enemies cannot do. Unlike the enemies, the player is able to pick a weapon to attack with.
-    Has a backpack with a certain weight capacity
+    Has an inventory with a certain weight capacity
     >>> x = Player("Dave")
-    >>> x.backpack
+    >>> x.inventory
     []
     >>> x.current_weight 
     0
@@ -593,12 +547,11 @@ class Player(Entity):
         self.name = name
         self.move_speed = move_speed
         self.eff_move = move_speed 
-        self.backpack = [Weapon(20, 1, 0, 0, "Fists")]
+        self.inventory = [Weapon(25, 1, 0, "Fists")]
         self.current_weight = 0
         self.weight_limit = 50
         self.max_health = 100
         self.eff_max_health = self.max_health
-        self.wallet = 1000
         self.place = None
     
     def recalculate(self, place):
@@ -607,55 +560,55 @@ class Player(Entity):
         self.eff_max_health = int(max(50, self.max_health)) #Player max health will always be at least 50 points
         if self.health > self.eff_max_health:
             self.health = self.eff_max_health
-        for item in self.backpack:
+        for item in self.inventory:
             item.recalculate(place)
 
-    def backpack_add(self, item):
-        """Adds item to the player's backpack as long as adding the weight of the item does not cause the current weight to exceed the weight_limit.
+    def inventory_add(self, item):
+        """Adds item to the player's inventory as long as adding the weight of the item does not cause the current weight to exceed the weight_limit.
         >>> player = Player("Dan")
         >>> x = Weapon(20, 1, 5, 50)
-        >>> player.backpack_add(x)
-        Added Weapon to backpack
+        >>> player.inventory_add(x)
+        Added Weapon to inventory
         >>> z = Weapon(20, 1, 75, 50)
-        >>> player.backpack_add(z)
+        >>> player.inventory_add(z)
         Weight limit exceeded. Remove items to add this
         """
         if self.weight_limit - self.current_weight >= item.weight:
-            self.backpack.append(item)
-            self.current_weight = sum([x.weight for x in self.backpack])
-            print("Added {0} to backpack".format(item.name))
+            self.inventory.append(item)
+            self.current_weight = sum([x.weight for x in self.inventory])
+            print("Added {0} to inventory".format(item.name))
         else:
             print("Weight limit exceeded. Remove items to add this")
 
-    def backpack_remove(self, item):
-        """Allows for the removal of an item from the player's backpack.
+    def inventory_remove(self, item):
+        """Allows for the removal of an item from the player's inventory.
         >>> spear = Weapon(20, 1, 1, 100, "Spear")
         >>> player = Player("Dan")
-        >>> player.backpack_add(spear)
-        Added Spear to backpack
-        >>> player.backpack
+        >>> player.inventory_add(spear)
+        Added Spear to inventory
+        >>> player.inventory
         [Spear]
-        >>> player.backpack_remove(spear)
-        Spear removed from backpack
-        >>> player.backpack 
+        >>> player.inventory_remove(spear)
+        Spear removed from inventory
+        >>> player.inventory 
         []
         """
         permanent = ["fists"]
         if item.name.lower() in permanent:
-            print("Cannot remove this item from your backpack")
-        elif item in self.backpack:
-            self.backpack.remove(item)
-            self.current_weight = sum([x.weight for x in self.backpack])
-            print("{0} removed from backpack".format(item.name))
+            print("Cannot remove this item from your inventory")
+        elif item in self.inventory:
+            self.inventory.remove(item)
+            self.current_weight = sum([x.weight for x in self.inventory])
+            print("{0} removed from inventory".format(item.name))
         else:
-           print("Equipment not in backpack")
+           print("Equipment not in inventory")
 
-    def show_backpack(self):
-        """Displays all the items in the player's backpack, with one item on each line."""
+    def show_inventory(self):
+        """Displays all the items in the player's inventory, with one item on each line."""
         self.recalculate(self.place)
-        print("*** Backpack (Weight: {0} / {1}) ***".format(self.current_weight, self.weight_limit))
+        print("*** Inventory (Weight: {0} / {1}) ***".format(self.current_weight, self.weight_limit))
         i = 0
-        for x in self.backpack:
+        for x in self.inventory:
             print("[{0}] ".format(i) + str(x))
             i += 1
 
@@ -663,13 +616,13 @@ class Player(Entity):
         """Displays all the weapons that the player is carrying."""
         self.recalculate(self.place)
         print("*** Weapons ***")
-        weapons, i = [x for x in self.backpack if isinstance(x, Weapon)], 0
+        weapons, i = [x for x in self.inventory if isinstance(x, Weapon)], 0
         for item in sorted(weapons, key=lambda x: x.range, reverse=True): 
             print("[{0}] ".format(i) + str(item))
             i += 1
 
     def use_weapon(self):
-        """Allows the player to select a weapon from their inventory and return the weapon object for them to use. Returns None if the weapon isn't in the backpack"""
+        """Allows the player to select a weapon from their inventory and return the weapon object for them to use. Returns None if the weapon isn't in the inventory"""
         self.show_weapons()
         print("")
         index = fixed_input(input("What weapon will you use? Type the name of the number of it or 'None' to select nothing and perform a different action. ")) #There will be no weapon with a name of 'None'
@@ -679,16 +632,16 @@ class Player(Entity):
             print("")
             print("Not a valid numerical input")
             return None
-        index, weapons = int(index), sorted([x for x in self.backpack if isinstance(x, Weapon)], key=lambda x: x.range, reverse=True)
+        index, weapons = int(index), sorted([x for x in self.inventory if isinstance(x, Weapon)], key=lambda x: x.range, reverse=True)
         if index in range(len(weapons)):
             return weapons[index]
         print("")
-        print("Weapon not in backpack")
+        print("Weapon not in inventory")
 
-    def use_backpack(self):
-        """Allows the player to access their backpack and select an item to use. This method returns the item object so the game can see what item the player wants to use. If the player closes the backpack, return None. If the player gives an invalid input,
-        raise an error and also return None. If the player removes an item, remove the item from the backpack and return None."""
-        self.show_backpack()
+    def use_inventory(self):
+        """Allows the player to access their inventory and select an item to use. This method returns the item object so the game can see what item the player wants to use. If the player closes the inventory, return None. If the player gives an invalid input,
+        raise an error and also return None. If the player removes an item, remove the item from the inventory and return None."""
+        self.show_inventory()
         print("")
         choice = fixed_input(input("What would you like to do? Type 'Use' or 'Remove' followed by the number of the item or 'Close' to go back. "))
         if choice == "close":
@@ -705,25 +658,25 @@ class Player(Entity):
             return None
         index = int(index)
         if action == "use":
-            if index in range(len(self.backpack)):
-                return self.backpack[index]
+            if index in range(len(self.inventory)):
+                return self.inventory[index]
             print("")
-            print("Equipment not in backpack")
+            print("Equipment not in inventory")
             return None
         elif action == "remove":
-            if index in range(len(self.backpack)):
+            if index in range(len(self.inventory)):
                 print("")
-                return self.backpack_remove(self.backpack[index])
+                return self.inventory_remove(self.inventory[index])
             print("")
-            print("Equipment not in backpack")
+            print("Equipment not in inventory")
             return None
         else:
             print("")
             print("Invalid command")
 
     def sorting(self):
-        """Allows the player to sort their items when OUT OF COMBAT. Used at the end of a battle or event. Essentially a modified version of the use_backpack method that prevents the player from using a healing item at max health or a weapon, as that can cause a game breaking infinite turn."""
-        item = self.use_backpack()
+        """Allows the player to sort their items when OUT OF COMBAT. Used at the end of a battle or event. Essentially a modified version of the use_inventory method that prevents the player from using a healing item at max health or a weapon, as that can cause a game breaking infinite turn."""
+        item = self.use_inventory()
         if isinstance(item, Weapon):
             print("")
             print("There's no point using a weapon when not in combat")
@@ -777,7 +730,7 @@ class Player(Entity):
         print("{0} moved {1} steps {2}".format(self.name, count, "forward" if direction >= 0 else "backwards"))
 
     def take_turn(self, place):
-        """Method that allows the player to take their turn during combat. Players can either attack, move, or use an item in their backpack. If the player puts in an invalid input, allow them to try again. If the enemy is out of a weapon's range, 
+        """Method that allows the player to take their turn during combat. Players can either attack, move, or use an item in their inventory. If the player puts in an invalid input, allow them to try again. If the enemy is out of a weapon's range, 
         display a message saying so and let the player try again. If the player chooses an piece of equipment that isn't combat oriented, display a message and try again.
         """
         place.player.recalculate(place)
@@ -788,7 +741,7 @@ class Player(Entity):
         print("")
         place.show_enemies()
         print("")
-        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Open backpack' to look at and use something in your backpack. "))
+        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Open inventory' to look at and use something in your inventory. "))
         print("")
         if action == "attack": #Attack decision
             weapon = self.use_weapon()
@@ -799,8 +752,8 @@ class Player(Entity):
             weapon.action(place)
         elif action == "move": #Movement decision
             self.move(place)
-        elif action == "open backpack": #Item usage decision
-            item = self.use_backpack()
+        elif action == "open inventory": #Item usage decision
+            item = self.use_inventory()
             print("")
             if not item:
                 return self.take_turn(place)
@@ -1361,198 +1314,6 @@ class Event:
     def __repr__(self):
         return self.name
 
-class Three_Perks(Event):
-    """This type of event consists of the player finding three statues of three Roman gods with worn away etchings. The player is able to read a 'Place your hand here to...' message, giving the player the choice to stand in front of any of the three statues for a potential permanent bonus.
-    The three statues are randomly picked and the player also has the option to skip out on the bonuses entirely. Some statues give a light bonus but others give a strong bonus with a drawback."""
-
-    statues = ["Mercury", "Mars", "Diana", "Vejovis", "Apollo"]
-
-    def __init__(self):
-        Event.__init__(self)
-
-    def play(self, place):
-        """The player can decide to get a bonus from one of the statues or they can just choose to leave without any bonus."""
-        rand_gods = random.sample(self.statues, 3)
-        rand_gods_lower = [x.lower() for x in rand_gods]
-        print(statues_intro.format(rand_gods[0], rand_gods[1], rand_gods[2]))
-        input()
-        choice = fixed_input(input("What will you do? If you just want to leave, type 'Leave'. "))
-        if choice == "leave":
-            print("")
-            print("You decide that the risk is not worth it and decide to continue your journey, leaving the room untouched and its guests unamused.")
-        elif any([x in choice for x in rand_gods_lower]):
-            god = None
-            for z in rand_gods_lower:
-                if z in choice:
-                    god = z
-                    break
-            print("")
-            eval("self." + god + "(self, place)")
-            print("")
-            print(statues_exit) 
-        else:
-            print("")
-            print("Invalid input, try again")
-            print("")
-            return self.play(place)
-
-    def mercury(self, place):
-        """Mercury's gift gives the player a permanent movement bonus."""
-        print(mercury)
-        input()
-        speed_boost = 1
-        place.player.move_speed += speed_boost
-        print("The gift of Mercury has been acquired! Your max movement speed has been increased by {0} units permanently.".format(speed_boost))
-
-    def mars(self, place):
-        """Mars's gift gives players an overall damage bonus in exchange for a decreased max health."""
-        print(mars)
-        input()
-        damage_boost, health_decrease = 0.25, 15
-        place.player.damage_bonus += damage_boost
-        place.player.max_health -= health_decrease
-        place.player.recalculate()
-        print("The gift of Mars has been acquired! You now deal an extra {0}% more damage with each attack but your max health decreases by {1} points.".format(int(damage_boost * 100), health_decrease))
-
-    def diana(self, place):
-        """Diana's gift boosts the player's use of bows, giving a range and damage bonus and the ability to use the volley shot attack."""
-        print(diana)
-        input()
-        damage_boost, range_bonus = 0.2, 1
-        Bow.damage_bonus, Bow.range_bonus = damage_boost + Weapon.damage_bonus, range_bonus + Weapon.range_bonus
-        Bow.diana_bonus = True
-        print("The gift of Diana has been acquired! You now deal an extra {0}% more damage with bows and their range has been increased by {1} units. Can now use the volley shot attack that attacks all enemies within range for half damage".format(damage_boost * 100, range_bonus))
-
-    def vejovis(self, place):
-        """Vejovis's gift gives the player a healing boost to all healing items and an additional use for each item."""
-        print(vejovis)
-        input()
-        heal_boost, use_boost = 10, 1
-        place.player.heal_bonus += heal_boost
-        place.player.use_bonus += use_boost
-        print("The gift of Vejovis has been acquired! All healing items now heal {0} more health points and have {1} more use.".format(heal_boost, use_boost))
-    
-    def apollo(self, place):
-        """Apollo's gift is the only way for the player to obtain the Lyre, which allows them to seranade most enemies and lower their damage."""
-        lyre = Lyre()
-        print(apollo)
-        input()
-        while True:
-            answer = fixed_input(input("Will you add the Lyre to your backpack? Type 'Open backpack' to manage your backpack. "))
-            if answer == "open backpack":
-                print("")
-                place.player.sorting()
-            elif answer == "yes" and place.player.weight_limit - place.player.current_weight < lyre.weight:
-                print("")
-                print("Not enough room in your backpack, remove items to make space")
-            elif answer == "yes":
-                print("")
-                place.player.backpack_add(lyre)
-                print("The gift of Apollo has been acquired! The Lyre allows you to seranade all enemies on the field with Apollo's help, lowering their attacks by {0} points each".format(Lyre.attack_debuff))
-                break
-            elif answer == "no":
-                print("")
-                print("You decide to leave behind the Lyre for your own reasons.")
-                break
-            else: 
-                print("")
-                print("Invalid input, try again")
-            print("")
-
-class Legendary_Item(Event):
-    """The legendary item event is when the player comes across a skeleton of a long dead adventurer like them. This skeleton has a powerful item that can aid the player in their travels. The item can be a supportive item, a weapon, or a healing item."""
-
-    possible_items = {Rifle(50, 5, 85, 10, 500, "Ross Rifle"): ross_rifle_text}
-
-    def __init__(self):
-        Event.__init__(self)
-
-    def play(self, place):
-        """Player comes across a room, text plays to describe the room and the item found. Player has the choice to either pick up the item or to not, assuming they can carry it."""
-        print(legit_intro)
-        input()
-        loot = random.choice(list(self.possible_items.keys()))
-        print(self.possible_items[loot])
-        input()
-        print(loot)
-        while True:
-            print("")
-            choice = fixed_input(input("Will you take the {0} with you? Type 'Open backpack' to manage your backpack. ".format(loot.name)))
-            if choice == "no":
-                print("")
-                print("You decide to leave this legendary item with its original owner, certain you will find even greater things the more you push onwards. However, you do take the 500 coins that were in a puse in the coat pocket.")
-                place.player.wallet += 500
-                break
-            elif choice == "open backpack":
-                print("")
-                place.player.sorting()
-            elif choice == "yes" and place.player.weight_limit - place.player.current_weight < loot.weight:
-                print("")
-                print("Not enough room in your backpack, remove items to make space")
-            elif choice == "yes":
-                print("")
-                place.player.backpack_add(loot)
-                print("")
-                print("You also take the 500 coins that were in a purse in the coat pocket")
-                place.player.wallet += 500
-                break
-            else:
-                print("")
-                print("Invalid input, try again")
-
-class Ghostly_Vision(Event):
-    """Event where the player sees a ghostly vision. The player has the choice to either run away or stay and keep watching. The choice doesn't change anything as the this is a purely dialogue event."""
-    possible_scenes = {ghosts_banquet: ghosts_banquet_end, ghosts_battle: ghosts_battle_end}
-    
-    def __init__(self):
-        Event.__init__(self)
-
-    def play(self, place):
-        """This event plays a random vision scene and asks if the player wants to continue watching. Regardless of what they do, it plays the appropriate dialogue and ends without any changes to the player and no new items."""
-        scene = random.choice(list(self.possible_scenes.keys()))
-        print(scene)
-        input()
-        while True:
-            choice = fixed_input(input("Will you run away or stay and watch what happens next? "))
-            print("")
-            if "run" in choice:
-                print(ghosts_run)
-                break
-            elif "stay" in choice or "watch" in choice:
-                print(self.possible_scenes[scene])
-                break
-            else:
-                print("Invalid input, try again")
-                print("")
-
-class Merchant(Event):
-    """Event where the player finds an ancient Roman merchant who serves as a shop for the player. Player is allowed to buy things, just like from the store at the beginning of the game. Merchant sells powerful yet expensive weapons and strong healing items. Player has the choice to 
-    skip this event."""
-
-    possible_items = [heavy_spear, longbow, padded_jacket, healing_syringe, rifle, armor_plate, bandages]
-
-    def __init__(self):
-        Event.__init__(self)
-
-    def play(self, place):
-        """The merchant is like any other store, except that they carry much better items than normally expected and the store is randomly generated from a list of possible items. Players also have the option to skip the store."""
-        merchant, goods = Store(), random.sample(self.possible_items, 5)
-        merchant.add_inventory(goods)
-        print(merchant_intro)
-        input()
-        while True:
-            choice = fixed_input(input("Will you buy items from this person or continue onwards? "))
-            print("")
-            if "yes" in choice or "buy" in choice:
-                merchant.buying(place.player)
-                break
-            elif "no" in choice or "continue" in choice:
-                print("For your own reasons, you decide to keep going and not stop here.")
-                break
-            else:
-                print("Invalid input, try again")
-                print("")
-
 class Encounter(Event):
     """The encounter events are purely dialogue based. A piece of dialogue plays and then the player goes on their way. These serve as a way to describe more about the world and their environment to the player"""
     encounters = [abandoned_village, water]
@@ -1738,7 +1499,7 @@ class Store:
         >>> store.add_inventory([spear, expensive_weapon, heavy_weapon])
         >>> store.purchase(player, spear)
         Purchased Spear for 100 coins
-        Added Spear to backpack
+        Added Spear to inventory
         Wallet: 900
         >>> store.purchase(player, expensive_weapon)
         Not enough money
@@ -1756,7 +1517,7 @@ class Store:
             return
         else:
             print("Purchased {0} for {1} coins".format(item.name, item.price))
-            player.backpack_add(item)
+            player.inventory_add(item)
             self.remove_inventory(item)
             player.wallet -= item.price
             print("Wallet: {0}".format(player.wallet))
@@ -1766,23 +1527,23 @@ class Store:
         >>> spear = Weapon(20, 1, 1, 100, "Spear")
         >>> store = Store()
         >>> player = Player("Dan")
-        >>> player.backpack_add(spear)
-        Added Spear to backpack
+        >>> player.inventory_add(spear)
+        Added Spear to inventory
         >>> store.refund(player, spear)
-        Spear removed from backpack
+        Spear removed from inventory
         Spear refunded for 100 coins
         Wallet: 1100
         >>> player.wallet
         1100
         """
-        if item in player.backpack:
+        if item in player.inventory:
             self.add_inventory([item])
-            player.backpack_remove(item)
+            player.inventory_remove(item)
             print("{0} refunded for {1} coins".format(item.name, item.price))
             player.wallet += item.price
             print("Wallet: {0}".format(player.wallet))
         else:
-            print("Item does not exist in backpack")
+            print("Item does not exist in inventory")
     
     def buying(self, player):
         """Function that allows the player to purchase items from the store. Player can either buy an item, refund an item, or type "Done" to finalize their purchase and start their adventure. Raises an Invalid Input message if the input is one word that is not 'Done' 
@@ -1791,7 +1552,7 @@ class Store:
         while True:
             self.show_inventory()
             print()
-            player.show_backpack()
+            player.show_inventory()
             print()
             command = fixed_input(input("What do you want to do? Type 'Buy' or 'Refund' followed by the number of the item or type 'Done' to leave the store. "))
             action = command.split(" ", 1)[0]
@@ -1805,9 +1566,9 @@ class Store:
                         print()
                         self.purchase(player, self.inventory[index])
                         print()
-                    elif action == "refund" and index in range(len(player.backpack)):
+                    elif action == "refund" and index in range(len(player.inventory)):
                         print()
-                        self.refund(player, player.backpack[index])
+                        self.refund(player, player.inventory[index])
                         print()
                     else:
                         print()
@@ -1877,7 +1638,7 @@ def onward(player, place):
             place.possible_events.remove(place.event)
     while True:
         print("")
-        choice = fixed_input(input("Type 'Inventory' to manage your backpack or 'Continue' to move forwards. "))
+        choice = fixed_input(input("Type 'Inventory' to manage your inventory or 'Continue' to move forwards. "))
         if choice == "continue":
             print("")
             print("You continue forwards")
@@ -1921,5 +1682,6 @@ def battle(place):
 
 def game_over():
     """Function that prints a game over message when the player dies and quits the program"""
-    print("You have died! The lost treasure will remain hidden from the rest of the world. Perhaps this is for the better.")
+    print("You take one last look at your surroundings as Federation forces close in on your body. Your death proves that the prison is inescapable. You die, having never recieved freedom again.")
+    input()
     quit()

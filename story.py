@@ -1,4 +1,4 @@
-### Backstory ###
+### Escape ###
 
 opening = """{0}, you look around the cell that you are in. Getting up from the dirty floor, you see that on your left is a row of tall, thick metal bars with narrow spacing, preventing you from leaving. You look in between the bars, angling your head to maximize how much you can see. You see 
 an entire row of prison cells directly across from you, streching for at least 10 cells as far as you can see in your limited perspective. Reasonably, you assume that there is an equally long row of cells on your side as well. The hallways in the middle is dimmly lit by lights that create a 
@@ -27,7 +27,7 @@ pants continue the aesthetic trend, being black with red accents along the side 
 enclosed in a large black helmet that has some reflectivity in the light. One side of the helmet has a mounted flashlight. On the helmet's facepiece is a dark visor, one that is tinted so that you cannot see the person on the other side. The guard looks to their left, the cell opposite to 
 yours, and then to their right, your cell."""
 
-caught_looking = """'What are you looking at?! Yea you, I'm talking about you 74456! Why are your sorry eyes looking at a hallway you will never walk in again?! You are here for a reason! It's people like you, poor scum, the filth of society, rioting and looting and opposing our glorious 
+caught_looking = """'What are you looking at?! Yea you, I'm talking about you {0}! Why are your sorry eyes looking at a hallway you will never walk in again?! You are here for a reason! It's people like you, poor scum, the filth of society, rioting and looting and opposing our glorious 
 government! The same god damn government that feeds you and gave you a home! People like you are the reason why our nation will never become perfect, why society will never become perfect! So enjoy your new home, you'll rot away here like the rest of your kind!'"""
 
 caught_looking_options = ["Do nothing", "Look away", "Turn around and stop looking", "'I'm sorry, I will never do this again'", "'Fuck you, you pathetic piece of shit'"]
@@ -39,11 +39,56 @@ better to be complacent and live here the rest of your miserable existance, or t
 guard_offend = """'Do you not know your place?! After I'm done with you, you will wish you never stepped out of line!' The guard quickly unlocks the gate to your cell and leaves it open. They then reach over to a holster on their belt and whip out the baton, pressing a button on it that 
 causes the front end of the weapon to spark. You see pulses of electricity travel from the front end of the baton down a metal post and then disappear at the cross guard, where the guard is holding the weapon."""
 
-punish_choices = ["Fight the guard", "Do nothing", "'My apologies officer! I didn't mean it!'"]
+punish_choices = ["Do nothing", "'My apologies officer! I didn't mean it!'", "Fight the guard"]
 
 guard_punish = """The guard raises their baton and repeatedly strikes you, with each blow filling you with regret. It hurts badly, so badly, and each hit is accompanied with an electric shock that attacks your very spirit. After hitting you multiple times, the guard leaves your cell 
 satisfied. You are left alone on the floor of your cell beaten and bruised badly. Every movement hurts and you don't know if something's been broken or not. Next time, you figure that it is best to keep your anger in check, at least for now. However, you have to find your way out of this place 
 once you feel more recovered."""
+
+planning = """Days after the incident with the guard, you take time to plan your risky escape, taking time to assess your surroundings. From your meticulous observations of your cell and the part of the prison that you can see, you learn that the door to your cell is controlled by a key card 
+reader. After noticing the guards only carry a single key card when they open a cell to torture prisoners, it appears that all the doors are controlled by a single key card. You have also noticed that at most, there are two guards patrolling this part of the prison and it is always the 
+exact same people. The guards despise the prisoners and will jump on the opportunity to berate or threaten them, even for the most inconsequential sounds or actions. Occasionally, you see the guards drag prisoners out of their cells but they never return. This happened to the prisoner 
+across from you and their cell is still empty after several days. The walls of your cell are very well built and there is no way you would be able to break the tiles or dig through them or anything of that sort. A sad excuse for food is given twice a day via some gloop in a can. Guards 
+do not open the cells to deliver food. They merely throw the cans through the spacing between the bars. No spoons or utensils either so you look like a homeless dog trying to lick every morsel of food they can find."""
+
+planning_choices = ["Inspect the toilet", "Inspect the cans of food when it is meal time", "Make a loud noise", "Insult the guard as they walk by"]
+
+inspect_toilet = """The toilet is surprisingly clean and works like a charm. It has no issues so far. You lift the top off of the tank and find nothing out of the ordinary. The components inside the tank are securely screw in and the pipes behind the toilet are impossible to remove as well. 
+You replace the tank's lid back on."""
+
+toilet_clog = """While the guards are not by your cell, you gradually add more and more toilet paper into the toilet bowl, eventually preventing the water from escaping when you flush it. You flush the toilet multiple times, causing the water to overflow from the bowl and eventually cover 
+the floor with a thin layer of water. Due to the tile flooring, you find that the floor is now slippery, almost falling over youself. A guard takes notice of the water flowing out of your cell and rushing on over. 'What the fuck are you doing? Taking a massive shit? I'm going to make 
+you regret that!' The guard swipes the key card on the reader and takes out their baton and presses a button, causing the front half of the weapon to pulse with electricity. However, as they approach you, the guard slips on the floor and lands head first on the ground."""
+
+throw_water = """As disgusting as the thought of it is, it beats a future of suffering in this hell hole. You wait for a guard to pass by your cell on their patrol, quickly cup your hands inside the bowl, scoop out some water, and throw it on the guard. 'What the...! I'm going to beat your 
+sorry ass and drown you in that toilet myself!' The guard swipes the key card on the reader and takes out their baton and presses a button, causing the front half of the weapon to pulse with electricity. However, as they approach you, the guard slips on the floor and lands head first on 
+the ground."""
+
+guard_beat = """You jump on top of the guard and repeatedly pummel your fists into the guard's chest and neck. They attempt to fight back and block your strikes but your time on the streets of New Hope has taught you how to fight better than any classroom training. Over and over, you slam 
+your fists into the guard and finally, put your hands around their throat and tightly squeeze on it. Slowly, the guard stops trying to defend themselves, eventually giving a final sigh before ceasing to move."""
+
+guard_smash = """While the guard is down, you quickly rip off the face piece of the helmet and then take off the rest of the helmet entirely. The guard attempts to shrug you off but your time on the streets of New Hope has allowed you to hone your skills in hand to hand fighting. You proceed 
+to grab the guard by the next, lift their head up high, and then use all your strength to smash their head on the stone bench. Blood runs down the large gash on the guard's forehead and there is a large pool of red on the bench. The guard ceases to move or say anything. Did you really just 
+kill them? Honestly, why should you even care at this point?"""
+
+inspect_food = """Since trash disposal only occurs once a week, you have many cans of food lying around in your cell. You look at one and find that it is nothing more than an ordinary rectangular tin can with a pull back top for easy opening. However, the sides of the lid are still sharp, 
+sharp enough that you've almost cut your hand on it one time. There are still bits of 'food' in the can but you would rather avoid eating any more of that stuff than you need."""
+
+food_lid = """You take off the sharpest lid of a can and when the guards are not nearby, try to sharpen it on the edges of other cans in your cell. You eventually get one side sharp enough to where you believe you may cut yourself if you just simply touch the edge. You hide this 
+weapon in your cell in a location where you can quickly access it."""
+
+act_insane = """You go up to one of your cell's walls and start punching it while screaming gibberish loudly. You stand there, trashing your body around and looking like a maniac who lost all cognitive ability. Then, you start running around your cell erratically, continuing to make as much 
+noise as possbile. A guard runs up to your cell."""
+
+moaning = """You lie down on your bench, turn to face the wall, and start making a loud moaning noise as if you had a very dull pain. You slowly increase the sound of your moans until you hear footsteps quickly approaching your cell. 'Hey, shut up! No one gives a damn what you are feeling!' 
+Upon hearing those words, you roll around to face the guard, directly look at them, and moan once more. 'Ok that's it! You think it's funny to act like that to me? I'll show you what's funny! You'll be moaning more than you ever wanted after I'm done with you!'"""
+
+guard_insult = """The guard comes rushing over to your cell. 'You think you are funny you piece of shit?! I'll show you how funny it is when every bone is your body is turned to dust!'"""
+
+first_fight = """The guard swipes the key card on the scanner and enters your cell. Once they step foot inside, they take out a baton and press a button, causing the front half of the weapon to have pulses of electricity. You prepare to fight. 'What the... You really think you can kill me?!'"""
+
+escape = """You know for a fact that your little victory is going to be short lived. Your shuffle made a lot of noise and the second guard must have heard something. Hearing a second set of footsteps rushing towards you, you quickly try to put on the first guard's armor and ditch your shank 
+in favor of the stun baton."""
 
 ### The Machine Labs ###
 
