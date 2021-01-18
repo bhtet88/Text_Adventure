@@ -2,7 +2,7 @@ from core_mechanics import *
 from story import *
 import random
 
-### Creating player character and escaping the cell###
+### Creating player character and escaping the cell ###
 
 def escaping(player):
     """Function that is played only when the player takes any of the non-fighting situations. The player is given a few options but regardless of what they choose, they will eventually have to fight a guard and then escape their cell, where all pathways meet back up again."""
@@ -103,5 +103,14 @@ elif first_choice == 1: #Player continues to look at the hallway
             input()
             escaping(player)
 
-input()
+input() #Getting out of the cell and facing the second guard
 print(escape)
+input()
+player.inventory_add(Weapon(40, 1, 2, "Stun Baton"))
+print()
+player.inventory_add(Armor_Piece(50, 1, "Guard Vest"))
+input()
+Baton_Guard.can_drop = True
+cell = Cell()
+onward(player, cell)
+input()

@@ -549,7 +549,7 @@ class Player(Entity):
         self.eff_move = move_speed 
         self.inventory = [Weapon(25, 1, 0, "Fists")]
         self.current_weight = 0
-        self.weight_limit = 50
+        self.weight_limit = 10
         self.max_health = 100
         self.eff_max_health = self.max_health
         self.place = None
@@ -628,7 +628,7 @@ class Player(Entity):
         index = fixed_input(input("What weapon will you use? Type the name of the number of it or 'None' to select nothing and perform a different action. ")) #There will be no weapon with a name of 'None'
         if index == 'none':
             return None
-        elif not index.isnumeric():
+        elif not index.isnumeric() or int(index) not in range(len([x for x in self.inventory if isinstance(x, Weapon)])):
             print("")
             print("Not a valid numerical input")
             return None
@@ -741,7 +741,7 @@ class Player(Entity):
         print("")
         place.show_enemies()
         print("")
-        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Open inventory' to look at and use something in your inventory. "))
+        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Inventory' to look at and use something in your inventory. "))
         print("")
         if action == "attack": #Attack decision
             weapon = self.use_weapon()
@@ -752,7 +752,7 @@ class Player(Entity):
             weapon.action(place)
         elif action == "move": #Movement decision
             self.move(place)
-        elif action == "open inventory": #Item usage decision
+        elif action == "inventory": #Item usage decision
             item = self.use_inventory()
             print("")
             if not item:
@@ -795,6 +795,9 @@ class Enemy(Entity):
     name = "Enemy"
     battle_lines = [""]
     death_lines = [""]
+    possible_loot = []
+    drop_chance = 1
+    can_drop = True
     armor_piercing = False
     machine = False
     charmable = True
@@ -835,6 +838,8 @@ class Enemy(Entity):
         print(random.choice(self.death_lines))
         print("{0} eliminated!".format(self.name))
         Entity.remove(self, place)
+        if self.possible_loot and self.can_drop and random.randint(1, self.drop_chance) == 1:
+            place.loot.append(eval(random.choice(self.possible_loot)))
 
     def __str__(self):
         return "{0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.name, self.health, self.armor, self.damage, self.range, self.move_speed)
@@ -845,6 +850,9 @@ class Baton_Guard(Enemy):
     name = "Baton Guard"
     battle_lines = ["'Come on prisoner, I'll make you regret this!'", "'Don't let the prisoner escape!'", "'I can't wait to kill you!'", "'It was a mistake letting you alive!'", "'We should have killed you when we first found you!'"]
     death_lines = ["'How could I die to filth?'", "'Comrades...kill this...bitch!'", "'You will never get past the rest!'", "'AAAHHHHH!'"]
+    possible_loot = ["Weapon(40, 1, 2, 'Stun Baton')", "Armor_Piece(50, 1, 'Guard Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
+    drop_chance = 4
+    can_drop = False
 
     def __init__(self, health=70, armor=50, damage=20, range=1, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
@@ -1368,6 +1376,7 @@ class Place:
         self.size = random.choice(self.possible_sizes) #Picks random size based off of the possible sizes
         self.type = random.choices(["Enemy", "Event"], weights=type_weight)[0] #Picks a random type based off of the type_weight
         self.enemies = []
+        self.loot = []
         self.event = Event()
         self.player = None
         self.turn_count = 0
@@ -1404,6 +1413,66 @@ class Place:
                 spots[enemy.position] += " / " + enemy.name
         separator = ", "
         print("[ " + separator.join(spots) + " ]")
+
+    def show_loot(self):
+        """Shows the place's loot by printing out, with each item on a different line"""
+        print("*** Loot ***")
+        i = 0
+        for x in self.loot:
+            print("[{0}] ".format(i) + str(x))
+            i += 1
+
+    def add_loot(self, player, item):
+        """Allows for the player to pick up a piece of loot. Must check to see if the player can carry an item."""
+        if player.weight_limit - player.current_weight < item.weight:
+            print("Adding item would go over the weight limit")
+            return
+        else:
+            player.inventory_add(item)
+            self.loot.remove(item)
+
+    def drop_loot(self, player, item): 
+        """Allows for the player to drop a piece of loot, placing that item back into the place's loot list and adding the price of the item back to the player's wallet."""
+        if item.name != "fists":
+            self.loot.append(item)
+        player.inventory_remove(item)
+        
+    def looting(self):
+        """Function that allows the player to loot items after a battle. Player can either pick up an item, drop an item, or type "Done" to finish looting. Raises an Invalid Input message if the input is one word that is not 'Done' or if it's multiple words that are not a valid command. 
+        The except case handles the first issue and the else case handles the second issue."""
+        while True:
+            self.show_loot()
+            print()
+            self.player.show_inventory()
+            print()
+            command = fixed_input(input("Type 'Take' or 'Drop' followed by the number of the item or type 'Done' to finish looting. "))
+            action = command.split(" ", 1)[0]
+            if action == "done":
+                    break
+            try:
+                index = command.split(" ", 1)[1]
+                if index.isnumeric():
+                    index = int(index)
+                    if action == "take" and index in range(len(self.loot)):
+                        print()
+                        self.add_loot(self.player, self.loot[index])
+                        print()
+                    elif action == "drop" and index in range(len(self.player.inventory)):
+                        print()
+                        self.drop_loot(self.player, self.player.inventory[index])
+                        print()
+                    else:
+                        print()
+                        print("Invalid input, ensure you have a valid numerical input")
+                        print()
+                else:
+                    print()
+                    print("Invalid input, ensure you have a valid numerical input")
+                    print()
+            except:
+                print()
+                print("Invalid input. If buying or refunding, make sure to type in the action followed by the number of the item")
+                print()
 
     def __repr__(self):
         return "Place"
@@ -1637,17 +1706,17 @@ def onward(player, place):
         if place.event in place.possible_events:
             place.possible_events.remove(place.event)
     while True:
-        print("")
+        print()
         choice = fixed_input(input("Type 'Inventory' to manage your inventory or 'Continue' to move forwards. "))
         if choice == "continue":
-            print("")
+            print()
             print("You continue forwards")
             break
         elif choice == "inventory":
-            print("")
+            print()
             player.sorting()
         else:
-            print("")
+            print()
             print("Invalid input, try again")
 
 def battle(place):
@@ -1678,6 +1747,9 @@ def battle(place):
             return fight()
         print()
         print(">>> End of battle")
+        input()
+        if place.loot:
+            place.looting()
     fight()
 
 def game_over():
