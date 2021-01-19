@@ -175,4 +175,5 @@ while fights:
     place = Main_Prison()
     onward(player, place)
     fights -= 1
+input()
 

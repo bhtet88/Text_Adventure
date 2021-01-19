@@ -277,12 +277,12 @@ class Shotgun(Weapon):
     def attack(self, place, target):
         """For every 1 unit the enemy is closer to the player after the max range of the shotgun, the player gets a damage addition determined by the CQC bonus attribte. When the player picks a target to attack, the other enemies on that same place as get hit with reduced damage, which is
         determined by the spread multiplier attribute."""
-        dmg = int(self.eff_damage * (1 + (self.cqc_bonus * (self.eff_range - (target.position - place.player.position)))))
+        dmg = round(self.eff_damage * (1 + (self.cqc_bonus * (self.eff_range - (target.position - place.player.position)))))
         target.injure(place, dmg, self.armor_piercing)
         for enemy in place.enemies:
             if enemy.position == target.position and enemy is not target:
                 print()
-                enemy.injure(place, int(dmg * self.spread_multiplier), self.armor_piercing)
+                enemy.injure(place, round(dmg * self.spread_multiplier), self.armor_piercing)
 
 class Flamethrower(Weapon):
     """Harnessing the power of fire, the flamethrower is a devestating weapon the player can get in the late game. It shoots an intense stream of fire, damaging all enemies in the spots between the player and the selected target, including all enemies in the same position as the target. 
@@ -887,11 +887,11 @@ class Federation_Rifleman(Enemy):
     name = "Rifleman"
     battle_lines = ["'Federation's best about to kick your ass!', 'Ok, the fun's over!', 'You'll wish you were never born!'", "'Moving in for the kill!'", "'OOO RAA!'"]
     death_lines = ["'I may be gone but so will you very soon!", "'Help! I need assi...'", "'Fuck, they got me!'", "'Finish them off comrades!'", "'Nooooo...how could...this...happen?'"]
-    possible_loot = ["Firearm(40, 3, 75, 8, False, 'LR2047-7 Laser Rifle')", "Explosive(55, 1, 5, 1, 2, 'PG-2039 Plasma Grenade')", "Armor_Piece(60, 5, 'Ballistic Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
+    possible_loot = ["Firearm(40, 4, 70, 8, False, 'LR2047-7 Laser Rifle')", "Explosive(55, 1, 5, 1, 2, 'PG-2039 Plasma Grenade')", "Armor_Piece(60, 5, 'Ballistic Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
     drop_chance = 6
     time_check = True
 
-    def __init__(self, health=100, armor=80, damage=40, range=3, move_speed=1):
+    def __init__(self, health=100, armor=80, damage=40, range=4, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.grenades = 2
         self.grenade_damage = 55
@@ -928,12 +928,12 @@ class Federation_Marksman(Enemy):
     name = "Marksman"
     battle_lines = ["'Marksman in position'", "'Ready to hunt'", "'This will be just like at the 2041 Riots'", "'Enemy in my sites'", "'In position, engaging targets'", "'Targets spotted, engaging from a distance'"]
     death_lines = ["'Marksman down, I repeat, marksman down!'", "'All units, you lost your marksman!'", "'Shit, I'm out of the fight!'", "'Good luck guys, I'm not going to make it!'"]
-    possible_loot = ["Firearm(70, 5, 85, 15, True, 'LR2050-SR Precision Laser Rifle')", "Armor_Piece(45, 2, 'Marskman Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
+    possible_loot = ["Firearm(70, 6, 85, 15, True, 'LR2050-SR Precision Laser Rifle')", "Armor_Piece(45, 2, 'Marskman Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
     drop_chance = 5
     armor_piercing = True
     time_check = True
 
-    def __init__(self, health=80, armor=50, damage=70, range=5, move_speed=3):
+    def __init__(self, health=80, armor=50, damage=70, range=6, move_speed=3):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.default_range = range
         self.range_boost = 1
@@ -948,8 +948,12 @@ class Federation_Marksman(Enemy):
 
     def take_turn(self, place):
         """First priority is to maintain the gap so if the player is too close and the marksman can retreat, the marksman retreats. If the player is not in range, the marksman advances until they are in range. If the marksman is in range and can attack, they attack. Otherwise, the marksman 
-        skips their turn."""
+        skips their turn. At the start of their turn, they get a range boost if they have allies in front of them."""
         print()
+        if any([x.position < self.position for x in place.enemies if x is not self]):
+            self.range = self.default_range + self.range_boost
+        else:
+            self.range = self.default_range
         dist = self.position - place.player.position
         if dist <= self.gap and self.position < place.size:
             self.move(place, True)
@@ -963,6 +967,48 @@ class Federation_Marksman(Enemy):
     def check(self, place):
         if self.attack_counter == place.turn_count:
             self.can_attack = True
+        if any([x.position < self.position for x in place.enemies if x is not self]):
+            self.range = self.default_range + self.range_boost
+        else:
+            self.range = self.default_range
+
+class Federation_Enforcer(Enemy):
+    """Federation enforcers are close quarters battle specialists, equipped with higher tier armor and powerful shotguns. Enforcers deal high damage at close range but have a very short range. They follow the default take turn and attack methods, with the only thing special about them 
+    being their stats. They can drop adrenaline as well but don't use in battle because they don't view prisoners worthy enough to use it on."""
+    name = "Enforcer"
+    battle_lines = ["'Enforcer, closing the distance!'", "'I'll fill you full of laser beams!'", "'This shotty will melt your insides!'", "'I'm going to love seeing you squirm!'", "'Die! That's all your kind is good for!'", "'Moving in for the kill!'"]
+    death_lines = ["'No way...they got me!'", "'AAAA AAAAA HELP ME!'", "'NOOOO, IT'S NOT OVER!'", "'DEATH WAS ON MY SIDE!'", "'HELP ME DAMN IT!'"]
+    possible_loot = ["Shotgun(80, 2, 0.7, 50, 12, 'CQC-2034L Laser Shotgun')", "Armor_Piece(75, 7, 'Heavy Armor')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')", "Adrenaline(70, 40, 2, 1, 1)"]
+    drop_chance = 8
+
+    def __init__(self, health=120, armor=100, damage=80, range=2, move_speed=1):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+
+class Federation_Shielder(Enemy):
+    """Federation shielders are the government's main riot control units, deployed to any situations that require crowds to be dispersed or eliminated, there is no difference to the Federation. While not having more health than a typical Federation rifleman, shielders are dressed in heavy duty 
+    riot control armor. They also have a large riot shield as their main staple. Because of this, they have a special injure method that reduces incoming damage by a certain percentage. Furthermore, if two or more shielders stand together on the same place, this damage reduction is increased. 
+    Shielders carry a laser pistol and fire it at the player when in range. They will move towards the player at the start of battle and hold their ground till death."""
+    name = "Riot Shielder"
+    battle_lines = ["'Shield incoming, I have your backs!'", "'Shielder coming through!'", "'Stay behind me boys, I'll cover you!'", "'I'll draw their attention, you kill them!'", "'Stick together y'all, we can do this!'", "'Stay strong, use me for cover!'"]
+    death_lines = ["'I'm sorry guys...they were too much...'", "'Impressive...they got...me...'", "'Don't worry about me guys, it's too late'", "'Honor fight with you all, go kick their ass'", "'You can win...without...me...'"]
+    possible_loot = ["Firearm(40, 3, 95, 5, False, 'LP-2066 Laser Pistol')", "Shield(0.50, 3, 14, 'Riot Shield')", "Armor_Piece(100, 12, 'Riot Armor')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
+    drop_chance = 10
+
+    def __init__(self, health=100, armor=180, damage=40, range=2, move_speed=1):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.damage_reduction = 0.20
+        self.team_damage_reduction = 0.30
+
+    def injure(self, place, damage, AP):
+        """Unique injure method that first reduces the incoming damage by the correct damage reduction percentage and then uses the default Entity injure method."""
+        if any([x.position == self.position for x in place.enemies if isinstance(x, Federation_Shielder)]):
+            print("Damage reduced by {0}%".format(round(self.team_damage_reduction * 100)))
+            damage = damage * (1 - self.team_damage_reduction)
+        else:
+            print("Damage reduced by {0}%".format(round(self.damage_reduction * 100)))
+            damage = damage * (1 - self.damage_reduction)
+        print()
+        Entity.injure(self, place, damage, AP)
 
 class Engineer(Enemy):
     """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health but high armor. They also fight with a wrench, a low damage and low 
@@ -1334,7 +1380,7 @@ class Lower_Prison(Place):
     """Place class for the Lower Prison. The Lower Prison is where prisoners from the lowest rungs of society are kept with little regard for their health or safety. Guards do the bare minimum to keep prisoners alive but can kill them at any time they wish. These places are very close quarters 
     as the player will be using mainly melee weapons anyway. Enemies for this area include guards with stun batons and their loyal dogs."""
     possible_sizes = [x for x in range(3, 5)]
-    possible_enemies = ["Prison_Guard", "Dog"]
+    possible_enemies = ["Prison_Guard()", "Dog()"]
     possible_events = []
     max_enemies = 4
 
@@ -1345,7 +1391,7 @@ class Main_Prison_Initial(Place):
     """Place class for Level C, the main section of the prison. Here, prisoners are mainly people from the middle to upper levels of society, enjoying more comfortable living standards than those in Level D. At the beginning, the player and their fellow prisoners (if they were set free) are 
     greeted by more stun baton guards and dogs. In the second half of the prison, reinforcements are called in and soldiers armed with pulse rifles, plasma grenades, and other heavy firearms are sent in. The main prison also has medium sized the entire time."""
     possible_sizes = [x for x in range(4, 7)]
-    possible_enemies = ["Prison_Guard", "Dog"]
+    possible_enemies = ["Prison_Guard()", "Dog()"]
     possible_events = []
     max_enemies = 4
 
@@ -1356,7 +1402,7 @@ class Main_Prison(Place):
     """Place class for Level C, the main section of the prison. Here, prisoners are mainly people from the middle to upper levels of society, enjoying more comfortable living standards than those in Level D. At the beginning, the player and their fellow prisoners (if they were set free) are 
     greeted by more stun baton guards and dogs. In the second half of the prison, reinforcements are called in and soldiers armed with pulse rifles, plasma grenades, and other heavy firearms are sent in. The main prison is also medium sized the entire time."""
     possible_sizes = [x for x in range(6, 9)]
-    possible_enemies = ["Federation_Rifleman", "Federation_Marksmen", "Federation_Enforcer", "Federation_Shielder", "War_Dog"]
+    possible_enemies = ["Federation_Rifleman()", "Federation_Marksmen()", "Federation_Enforcer()", "Federation_Shielder()", "War_Dog()"]
     possible_events = []
     max_enemies = 5
 
