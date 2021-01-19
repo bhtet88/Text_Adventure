@@ -106,13 +106,14 @@ elif first_choice == 1: #Player continues to look at the hallway
 input() #Getting out of the cell and facing the second guard
 print(escape)
 input()
-player.inventory_remove(shank)
-print()
+if shank in player.inventory:
+    player.inventory_remove(shank)
+    print()
 player.inventory_add(Weapon(40, 1, 2, "Stun Baton"))
 print()
 player.inventory_add(Armor_Piece(50, 1, "Guard Vest"))
 input()
-Baton_Guard.can_drop = True
+Prison_Guard.can_drop = True
 cell = Cell()
 onward(player, cell)
 input()
@@ -121,14 +122,15 @@ input()
 print(pa_voice)
 input()
 print(alarm_sounded)
+input()
 
 ### Fighting through Lower Prison ###
-revolt = choices(["Free the prisoners in your wing", "Gear yourself up and don't free the prisoners"], "What will you do?")
+revolt = choices(["Gear yourself up and don't free the prisoners", "Free the prisoners in your wing"], "What will you do?")
 print()
-if revolt == 0:
+if revolt == 1:
     print(free_wing8)
     Lower_Prison.max_enemies = 2
-elif revolt == 1:
+elif not revolt:
     print(forget_wing8)
     player.armor += 100
 encounters = 3
@@ -138,13 +140,13 @@ while encounters:
     onward(player, place)
     encounters -= 1
 input()
-if revolt == 0: #Revolt
+if revolt == 1: #Revolt
     print(lower_section_revolt)
     input()
     print(lower_section_pa)
     input()
     print(lower_section_ascend_revolt)
-elif revolt == 1: #Solo escape
+elif not revolt: #Solo escape
     print(lower_section_solo)
     input()
     print(lower_section_report)
@@ -155,6 +157,8 @@ elif revolt == 1: #Solo escape
 
 input()
 print(levelc_intro)
+if revolt == 1:
+    Main_Prison_Initial.max_enemies = 2
 fights = 3
 while fights:
     input()
@@ -162,13 +166,15 @@ while fights:
     onward(player, place)
     fights -= 1
 input()
-print(guards_retreat.format(("You prove to be more than a match for these guards all by yourself." if revolt == 1 else "You and the prisoners show how capable you are, overpowering the guards almost instantly."), ("prisoner is" if revolt == 1 else "prisoners are")))
+print(guards_retreat.format(("You prove to be more than a match for these guards all by yourself." if not revolt else "You and the prisoners show how capable you are, overpowering the guards almost instantly."), ("prisoner is" if not revolt else "prisoners are")))
 input()
-print((levelc_rest_solo if revolt == 1 else levelc_rest_revolt))
+print((levelc_rest_solo if not revolt else levelc_rest_revolt))
 input()
 print(levelc_reinforcements)
 input()
-print(reinforcement_intimidation.format(("prisoner" if revolt == 1 else "prisoners")))
+print(reinforcement_intimidation.format(("prisoner" if not revolt else "prisoners")))
+if revolt == 1:
+    Main_Prison.max_enemies = 3
 fights = 8
 while fights:
     input()
@@ -176,4 +182,22 @@ while fights:
     onward(player, place)
     fights -= 1
 input()
-
+if not revolt:
+    print(volk_intro_solo)
+else:
+    print(volk_intro_revolt)
+input()
+print(volk_option)
+input()
+volk_choice = choices(volk_dialogue, "What will you say?")
+print()
+if volk_choice in [0, 1]: #Surrendering to Volk gives an early end
+    print("'Very well, follow me. We have plenty of training to do. Command, this is Volkov. Situation has been resolved. Prisoner is now under my authority.'")
+    input()
+    print(volk_surrender)
+    input()
+    quit()
+print(volk_fight)
+input()
+onward(player, Volk_Fight())
+input()

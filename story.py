@@ -176,8 +176,37 @@ are carrying some sort of rifle or firearm while a select few have large, toweri
 perhaps to show ranks and their accomplishments."""
 
 reinforcement_intimidation = """'Attention {0}, your efforts are brave but they must now come to an end. The Federation has placed great effort in providing you shelter and refugee away from society so you will not corrupt it with your rebellious views. However, it appears you reject their 
-kindness and would rather spread your traitorous ideals. This ends now! My name is Commander Leonidas Volkov and before you stand the heroic men and women of the 48th Rapid Response Regiment, 11th Platoon, a unit that is ready to fight at a moment's notice! They have vowed to give up their lives, 
-their very own lives, to end your threat to the free and wonderful people of New Hope. Farewell and good luck surviving. Glory to the Federation! 11th Platoon, advance!'"""
+kindness and would rather spread your traitorous ideals. This ends now! My name is Commander Leonidas 'Volk' Volkov and before you stand the heroic men and women of the 48th Rapid Response Regiment, 11th Platoon, a unit that is ready to fight at a moment's notice! They have vowed to give up their 
+lives, their very own lives, to end your threat to the free and wonderful people of New Hope. Farewell and good luck surviving. Glory to the Federation! 11th Platoon, advance!'"""
+
+volk_intro_solo = """You manage to overpower all the soldiers in your way, an extremely difficult battle. You imagine how much nicer it would have been if you had help from the prisoners down below. Behind you is a pile of dead and dying members of the Federation's forces. However, one foe 
+still remains: Volkov himself. Having stood back from the fighting, he steps forward, fully dressed in riot gear himself and armed with something that looks like a flamethrower. You can see drops of some sort of flammable liquid dripping from the weapon's barrel. His armor is also much more 
+decorated than that of the shielders, having both red and gray accents. His helmet has his an insignia showing his rank, two horizontal gold bars with a row of three silver stars in between. The helmet also encloses most of his head with a face piece that can be lifted up for more vision."""
+
+volk_intro_revolt = """You and your fellow prisoners outnumber the Federation's forces and while it was a tough fight, you guys have beaten them. You imagine how much harder it would have been if you did not have help from these people. Behind you are piles of dead and dying people, both from 
+the Federation but also your fellow prisoners. However, one foe still remains: Volkov himself. Having stood back from the fighting, he steps forward, fully dressed in riot gear himself and armed with something that looks like a flamethrower. You can see drops of some sort of flammable liquid 
+dripping from the weapon's barrel. His armor is also much more decorated than that of the shielders, having both red and gray accents. His helmet has his an insignia showing his rank, two horizontal gold bars with a row of three silver stars in between. The helmet also encloses most of his head 
+with a face piece that can be lifted up for more vision."""
+
+volk_massacre = """Suddenly, he aims his flamethrower down your corridor and unleashes a torrent of bright orange fire. Enclosed within the confines of the hall, the flames quickly rush down towards you and the rest of the prisoners. 'Oh shit, take cover!' one of them yells. You spot a cell 
+that was opened and dive straight in. You hear gun fire being exchanged but the screams of people writhing in pain as they are cooked alive is much louder. Over the span of thirty seconds and four more burst of fire, Volk has single handedly managed to eliminate every single prisoner alive. 
+You hear him reload his weapon and move out of your cell to face him, perhaps the final obstacle in your way to freedom. It is a shame what happened to the others but if you mourn now, you might as well give up and kill yourself."""
+
+volk_option = """'I see that you are the only one left alive. You surely are a quick thinker, doing whatever it takes to survive and get out of here. I mean, just look at how many of my own forces you have defeated, it's incredible! If only I didn't have to kill you. You would have made a 
+fine addition to my unit, perhaps might even be one of the best fighters we could have ever seen. But you would never turn on your own kind would you? No, no, I wil give you one chance to live despite going against my orders. Surrender now and I will allow you to live. Otherwise, I will 
+have to incinerate you and having someone with your skill perish would be a waste don't you think?'"""
+
+volk_dialogue = ["'Are you kidding? Forget my 'kind!' I'll serve under you even if I had to pay you!'", "'Hmmm, you drive a hard bargin but I accept. I surrender!'", "'What kind of spineless trash do you think I am? I'll never surrender!'", "'Fuck you, just try to kill me!'"]
+
+volk_surrender = """Following your surrender, Volk honored his promise and didn't waste any time placing you in the unit's recruit training camp. With your experiences on the dangerous streets in the slums of the city, you proved to be an extremely capable warrior, passing test after test 
+with the highest rankings. During weapons training, you showed your superiors how deadly you could be with anything, including knives, grenades, pistols, rifles, and heavy weapons. When it was time for field exercises and the final grueling weeks long testing, your bravery and leadership skills 
+earned the respect of all your peers. Soon after graduation as a marksman of the 48th Rapid Response Regiment, you are promoted to Corporal and given a small squad of soldiers to command during your regular patrols of New Hope. You all get along well and become solid comrades over your months 
+and years of duty. When given assignments to stop riots from the filth of the ghettos and slums, you and your team show no hesitation, making critical moves that stop the rebellion dead in its tracks and retain peace in society. Eventually, you earn enough to have a nice home in the nice part 
+of the city and are able to live to your heart's content. You have earned your freedom...at the expense of others."""
+
+volk_fight = """'Very well, it is a shame that someone like you would not like an opportunity like this. Many of your fellow prisoners wouldn't even think there was a choice. It seems you really do embody the traitorous ideals that harm the stability of the Federation. Always resisting, always 
+asking for more, never knowing your place in life. You know, I looked into your prison record before coming here. The gentlemen at the CCTV room advised me to. What did you expect would happen if you tried to take part in a riot? And what's worse is that the riot was pointless too, asking for 
+more food and medicine and housing when the Federation has given you more than you deserve. My men got injured in that riot, good people too. I guess this is payback for all the fine people you have hurt and killed in your sad attempt to change our perfect society! Now prepare to burn!'"""
 
 ### The Machine Labs ###
 
