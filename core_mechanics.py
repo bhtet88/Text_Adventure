@@ -237,14 +237,14 @@ class Bow(Weapon):
             print()
             return self.action(place)
 
-class Rifle(Weapon):
-    """Rifles are a powerful ranged weapon similar to bows but in exchange for their great power, each rifle has an accuracy rating that determines if the weapon hits the target or misses. Accuracy is a value between 0 and 100."""
-    armor_piercing = True
+class Firearm(Weapon):
+    """Firearms are powerful ranged weapons similar to bows but in exchange for their great power, each firearm has an accuracy rating that determines if the weapon hits the target or misses. Accuracy is a value between 0 and 100."""
     ranged = True
     accuracy_bonus = 0
 
-    def __init__(self, damage, range, accuracy, weight, name="Rifle"):
+    def __init__(self, damage, range, accuracy, weight, armor_piercing=True, name="Firearm"):
         Weapon.__init__(self, damage, range, weight, name)
+        self.armor_piercing = armor_piercing
         self.accuracy = accuracy
         self.eff_accuracy = accuracy
 
@@ -549,7 +549,7 @@ class Player(Entity):
         self.eff_move = move_speed 
         self.inventory = [Weapon(25, 1, 0, "Fists")]
         self.current_weight = 0
-        self.weight_limit = 10
+        self.weight_limit = 30
         self.max_health = 100
         self.eff_max_health = self.max_health
         self.place = None
@@ -844,13 +844,13 @@ class Enemy(Entity):
     def __str__(self):
         return "{0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.name, self.health, self.armor, self.damage, self.range, self.move_speed)
 
-class Baton_Guard(Enemy):
-    """Baton Guards are the first enemy the player encounters in the game, being the weakest prison guards. Poorly trained and poorly armored, these guards serve as the prison's cheap way to enforce peace. They are armed with a stun baton, which acts as a normal melee weapon and deals low 
+class Prison_Guard(Enemy):
+    """Prison Guards are the first enemy the player encounters in the game, being the weakest prison guards. Poorly trained and poorly armored, these guards serve as the prison's cheap way to enforce peace. They are armed with a stun baton, which acts as a normal melee weapon and deals low 
     damage with each hit. They also have a low movement, low health, and low armor."""
-    name = "Baton Guard"
+    name = "Prison Guard"
     battle_lines = ["'Come on prisoner, I'll make you regret this!'", "'Don't let the prisoner escape!'", "'I can't wait to kill you!'", "'It was a mistake letting you alive!'", "'We should have killed you when we first found you!'"]
     death_lines = ["'How could I die to filth?'", "'Comrades...kill this...bitch!'", "'You will never get past the rest!'", "'AAAHHHHH!'"]
-    possible_loot = ["Weapon(40, 1, 2, 'Stun Baton')", "Armor_Piece(50, 1, 'Guard Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
+    possible_loot = ["Weapon(40, 1, 2, 'Stun Baton')", "Armor_Piece(35, 1, 'Guard Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
     drop_chance = 4
     can_drop = False
 
@@ -858,7 +858,7 @@ class Baton_Guard(Enemy):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
 class Dog(Enemy):
-    """Loyal prison guard dogs, they fight alongside their human masters. They have lower health and no armor but move faster than baton guards. Deal low damage and serve as a means to quickly lower the player's health to assist the guards. 
+    """Loyal prison guard dogs, they fight alongside their human masters. They have lower health and no armor but move faster than prison guards. Deal low damage and serve as a means to quickly lower the player's health to assist the guards. 
     >>> x = Dog(75, 0, 10, 1, 2)
     >>> print(x)
     Dog, Health: 75, Armor: 0, Damage: 10, Range: 1 units, Move Speed: 2 units per turn
@@ -872,257 +872,97 @@ class Dog(Enemy):
     def __init__(self, health=50, armor=0, damage=15, range=1, move_speed=2):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
-class Feral_Monkey(Enemy):
-    """Feral monkeys are rabid beasts that the result of failed experiments with Roman sorcery. Despite losing their minds and being unable to think for themselves for anything other than survival, they fight alongside the Roman defenses. They have the ability to hurl fecal matter at the
-    player if the player is 2 units away. This attack can damage the player but only deals 40% of the base attack."""
-
-    name = "Feral Monkey"
-    battle_lines = ["'OOOO OOOO AAHH AAHH'"]
-    death_lines = ["'Whimpers'"]
-
-    def __init__(self, health=70, armor=0, damage=30, range=1, move_speed=2):
-        Enemy.__init__(self, health, armor, damage, range, move_speed)
-        self.dung_multiplier = 0.40
-        self.dung_range = 3
-        self.throw = True
-        self.dung_counter = 0
+class War_Dog(Dog):
+    """War dogs are dogs bred for killing, augmented by technology and genetic modification. They have been given more armor and health their their ordinary counterparts and move slightly faster. Aside from that, they have no other special moves and are functionally similar to normal dogs."""
+    name = "War Dog"
+    possible_loot =  ["Armor_Piece(15, 1, 'War Dog Armor')"]
+    drop_chance = 4
     
-    def dung_hurl(self, place):
-        """Feral monkeys can hurl dung at the player if the player is 2 spaces away, which deals 40% of their base damage stat. Once hurling the dung, they must wait a turn before throwing another one so they have time to make their projectile."""
-        print("{0} throws a ball of poop at you!".format(self.name))
-        print("")
-        place.player.injure(place, int(self.damage * self.dung_multiplier), self.armor_piercing)
-        self.throw, self.dung_counter = False, 0
+    def __init__(self, health=120, armor=50, damage=25, range=1, move_speed=3):
+        Dog.__init__(self, health, armor, damage, range, move_speed)
+
+class Federation_Rifleman(Enemy):
+    """Federation rifleman are the main bulk of the Federation's military, given moderate armor, kept in good health, and equipped with a laser rifle and grenades. They have a special grenade throw that allows them to lob a medium damage explosive at the player. They have a limited amount of 
+    grenades and there is a cooldown period in between throws. Their normal attack is a laser rifle, which fires non armor piercing ammunition and deals moderate damage. Their rifles also have medium range, requiring them to advance towards the player before firing."""
+    name = "Rifleman"
+    battle_lines = ["'Federation's best about to kick your ass!', 'Ok, the fun's over!', 'You'll wish you were never born!'", "'Moving in for the kill!'", "'OOO RAA!'"]
+    death_lines = ["'I may be gone but so will you very soon!", "'Help! I need assi...'", "'Fuck, they got me!'", "'Finish them off comrades!'", "'Nooooo...how could...this...happen?'"]
+    possible_loot = ["Firearm(40, 3, 75, 8, False, 'LR2047-7 Laser Rifle')", "Explosive(55, 1, 5, 1, 2, 'PG-2039 Plasma Grenade')", "Armor_Piece(60, 5, 'Ballistic Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
+    drop_chance = 6
+    time_check = True
+
+    def __init__(self, health=100, armor=80, damage=40, range=3, move_speed=1):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.grenades = 2
+        self.grenade_damage = 55
+        self.grenade_range = 5
+        self.can_throw = True
+        self.cooldown = 2
+        self.grenade_counter = 0
+
+    def throw_grenade(self, place):
+        """The soldier throws a grenade at the player if the player is within grenade range, dealing damage to the player. Then, the can throw attribute is set to False and the counter is recalculated."""
+        print("Federation {0} throws a plasma grenade at you!".format(self.name))
+        print()
+        place.player.injure(place, self.grenade_damage, Explosive.armor_piercing)
+        self.grenades -= 1
+        self.can_throw, self.grenade_counter = False, place.turn_count + self.cooldown
 
     def take_turn(self, place):
-        """If the player is within 3 spaces away from the monkey and they aren't in a cooldown period, throw a dung pile. Otherwise, perform the same take turn as the default Enemy class, moving towards the player to attack them."""
-        if self.throw and (1 < self.position - place.player.position <= self.dung_range):
-            print("")
-            self.dung_hurl(place)
+        """The soldier will throw a grenade at the player if they are within range, has grenades, and is allowed to throw a grenade. Otherwise, the soldier will follow the standard take turn method, moving towards the player until they are in range and then attacking."""
+        if self.position - place.player.position <= self.grenade_range and self.can_throw and self.grenades:
+            print()
+            self.throw_grenade(place)
         else:
             Enemy.take_turn(self, place)
-            self.dung_counter += 1
-            if self.dung_counter == 1:
-                self.throw = True
-
-class Giant_Snake(Enemy):
-    """The final boss of the forest level is a giant snake, a mutant beast that escaped Roman grasps and now lives in a large field in the forest. The snake has a high move stat, allowing it to close the gap quickly. It also has a lunge attack, allowing it to attack the player from a long
-    range for reduced damage. It also has the rattle move, which gives it a flat bonus attack buff for a few turns. Normal attacks from the snake result in some health damage even if the player has armor on. If the player has no armor, this corrosive damage is dealt as pure bonus damage.
-    Can be charmed."""
-    name = "Giant Snake"
-    battle_lines = ["'SSSSSSSSSSSS'"]
-    death_lines = ["'SSSS...SSSS...SS...S'"]
-    time_check = True
-
-    def __init__(self, health=400, armor=0, damage=35, range=1, move_speed=4):
-        Enemy.__init__(self, health, armor, damage, range, move_speed)
-        self.crit_health= 40
-        self.gap = 3
-        self.rattle_buff = 10
-        self.rattle_length = 2
-        self.rattle_counter = 1
-        self.corrosion = 5
-        self.lunge_range = 4
-        self.lunge_muliplier = 0.70
-
-    def lunge(self, place):
-        """The lunge move allows the snake to lunge forwards at the player, performing a long range attack with range determined by the lunge range attribute. This attack applies no corrosive damage but only does a portion of the normal damage, determined by the lunge multiplier attribute."""
-        print("{0} aggressively lunges at you!".format(self.name))
-        print()
-        place.player.injure(place, int(self.damage * self.lunge_muliplier), self.armor_piercing)
-
-    def rattle(self, place):
-        """The rattle ability gives the snake a flat damage bonus determined by the rattle buff attribute. It lasts for a limited amount of turns, governed by the rattle length attribute. The turn it was activated doesn't count. Once a rattle has been performed, apply the bonus and then 
-        set the rattle counter to the turn number when the rattle effect will wear off and the snake can do the rattle again."""
-        print("{0} rattles its tail, increasing its damage by {1} points for {2} turns".format(self.name, self.rattle_buff, self.rattle_length))
-        self.damage += self.rattle_buff
-        self.rattle_counter = place.turn_count + self.rattle_length
-
-    def attack(self, place):
-        """The attack method applies damage normally, just like the default attack method, but also applies the additional corrosion damage directly to the player's health. If the player has no armor, then corrosion is applied as a pure bonus damage on top of the normal damage."""
-        print("{0} attacks you with its large fangs!".format(self.name))
-        print()
-        Enemy.attack(self, place)
-        print()
-        print("{0} does an additional {1} points of corrosive damage directly to your health!".format(self.name, self.corrosion))
-        print()
-        place.player.injure(place, self.corrosion, True)
-
-    def take_turn(self, place):
-        """The snake's first priority is performing its rattle move. While it is unable to rattle, it will analyze if it can make it directly in front of the player with its move speed. If it can, it will move in front of the player if it can. If it cannot but the player is within lunge
-        range, the snake will perform a lunge. If the snake is in front of the player, it will rattle if it can or normally attack the player. When its health reaches a certain level determined by the crit health attribute, it will try to stay away from the player and perform lunges.
-        Priorities are 1) Rattle 2) Move 3) Attack 4) Lunge."""
-        print()
-        if place.turn_count > self.rattle_counter or place.turn_count == 1:
-            self.rattle(place)
-        elif self.health > self.crit_health:
-            if self.position - place.player.position <= self.range:
-                self.attack(place)
-            elif self.position - place.player.position <= self.move_speed:
-                    self.move(place)
-            elif self.position - place.player.position <= self.lunge_range:
-                self.lunge(place)
-            else:
-                self.move(place)
-        else:
-            if self.position - place.player.position < self.gap:
-                self.move(place, True)
-            elif self.position - place.player.position <= self.lunge_range:
-                self.lunge(place)
-            else:
-                self.move(place)
 
     def check(self, place):
-        """Checks the global turn count to see when to take off the rattle damage buff."""
-        if place.turn_count == self.rattle_counter:
-            self.damage -= self.rattle_buff
+        """Checks if the grenade cooldown is over and if so, sets the can throw attribute back to True."""
+        if self.grenade_counter == place.turn_count:
+            self.can_throw = True
 
-class Harpy(Enemy):
-    """Harpies are warrior bird-like creatures that swoop in quickly to attack and then move back to the safety of the skies. They have a unique attack where they can attack the player if they are in range and then end their attack further away from the player. They also have armor to add 
-    additional protection. However, they are intrinsically frail and have low health. Harpies can also screech to give a damage bonus to all allies and themselves in exchange for lowering their range."""
-
-    name = "Harpy"
-    battle_lines = ["'SCREEECH!'", "'CAAAAA CAAAAAW!'", "'CAW CAW CAW!'"]
-    death_lines = ["'AAAAAAAA'"]
+class Federation_Marksman(Enemy):
+    """Federation marksmen are long range units that are fragile but armed with a powerful sniper rifle that fires armor piercing laser rounds. They do their best to stay away from the player as much as they can, sitting at the outer range of their rifles and dealing damage from a distance. 
+    As a precision shooter, the marksman can only fire every other turn in order to give time for proper aim. If the player gets too close, the marksman retreats unless they are at the end of the place. If there are allies in front of the marksman, they gain information about the battle and 
+    have their range increased. This range increase is only once and does not stack by having multiple allies."""
+    name = "Marksman"
+    battle_lines = ["'Marksman in position'", "'Ready to hunt'", "'This will be just like at the 2041 Riots'", "'Enemy in my sites'", "'In position, engaging targets'", "'Targets spotted, engaging from a distance'"]
+    death_lines = ["'Marksman down, I repeat, marksman down!'", "'All units, you lost your marksman!'", "'Shit, I'm out of the fight!'", "'Good luck guys, I'm not going to make it!'"]
+    possible_loot = ["Firearm(70, 5, 85, 15, True, 'LR2050-SR Precision Laser Rifle')", "Armor_Piece(45, 2, 'Marskman Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
+    drop_chance = 5
+    armor_piercing = True
     time_check = True
 
-    def __init__(self, health=50, armor=60, damage=15, range=2, move_speed=2):
+    def __init__(self, health=80, armor=50, damage=70, range=5, move_speed=3):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.default_range = range
-        self.retreat = 2
-        self.can_screech = True
-        self.screech_damage = 1.50
-        self.screech_length = 3
-        self.screech_counter = 0
-        self.range_debuff = 1 #Debuff is a positive number
-
-    def screech(self, place):
-        """Screeches, causing all allies and itself to gain damage governed by the screech damage attribute, which is a multiplier for their damage. Non Harpy Archer instances have their ranges also lowered by the range debuff attribute. Sets the can screech attribute to False to prevent 
-        the same Harpy from screeching many times. The screech counter should then be calculated using the place turn count as these Harpy instances only show up in the specific battle."""
-        print(random.choice(self.battle_lines))
-        print()
-        print("{0} screeches, increasing the damage of all allies and itself by {1}% but lowering their range by {2} units!".format(self.name, round(self.screech_damage * 100 - 100), self.range_debuff))
-        for enemy in place.enemies:
-            enemy.damage = round(enemy.damage * self.screech_damage) #Range will always be at least 1
-            if isinstance(enemy, Harpy):
-                enemy.range = max(enemy.range - self.range_debuff, 1)
-        self.screech_counter = place.turn_count + self.screech_length
-        self.can_screech = False
-
-    def attack(self, place):
-        """The attack method for Harpies injures the player and then moves the Harpy back by the amount determined by the retreat attribute. This reflects the enemy swooping in and then retreating."""
-        i = place.size - self.position
-        print("{0} swoops in for an attack and then retreats {1} steps back!".format(self.name, min(i, self.retreat)))
-        print()
-        place.player.injure(place, self.damage, self.armor_piercing)
-        if i <= self.retreat:
-            self.position = place.size
-        else:
-            self.position += self.retreat
-
-    def take_turn(self, place):
-        """Harpies screech if no other ally has screeched, otherwise they will move towards the player if not in range. Once in range, they attack, causing them to retreat and have to move back towards the player."""
-        print()
-        dist = self.position - place.player.position
-        if sum([(1 if x.can_screech == False else 0) for x in place.enemies if isinstance(x, Harpy)]) < 2 and self.can_screech:
-            self.screech(place)
-        elif dist > self.range:
-            self.move(place)
-        elif dist <= self.range:
-            self.attack(place)
-
-    def check(self, place):
-        """If the screech effect is over, divide the enemy damage by the screech damage multiplier and increase their range. Range cannot become higher than their original range, stored in the default range attribute. Set the can screech attribute back to True."""
-        if place.turn_count == self.screech_counter:
-            for enemy in place.enemies:
-                enemy.damage = round(enemy.damage / self.screech_damage)
-                if isinstance(enemy, Harpy):
-                    enemy.range = min(enemy.range + self.range_debuff, enemy.default_range)
-            self.can_screech = True
-
-class Harpy_Archer(Enemy):
-    """Harpy archers have no screech ability but attack from a distance with their bows. They have a high move speed and range so they can attack the player from range and in safety. They will try to maintain a gap distance if they can and attack while the gap is maintained. It has a special 
-    move method that allows it to advance until the player is within range instead of merely the full move speed."""
-    name = "Harpy Archer"
-    battle_lines = Harpy.battle_lines
-    death_lines = Harpy.death_lines
-    armor_piercing = True
-
-    def __init__(self, health=50, armor=30, damage=10, range=4, move_speed=4):
-        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.range_boost = 1
+        self.can_attack = True
+        self.attack_counter = 0
         self.gap = 2
 
+    def attack(self, place):
+        """Attacks the player like normal but then sets the can attack attribute to False and calculates the attack counter."""
+        Enemy.attack(self, place)
+        self.can_attack, self.attack_counter = False, place.turn_count + 1
+
     def take_turn(self, place):
-        """If the player is within range and the gap is maintained, then the Harpy archer attacks. If the player is not in range, then the Harpy archer moves until within range. If the desired gap between the player and the archer is not maintained, the archer moves back as much as it can to 
-        maintain a safe distance, assuming it is not already at the end of the place."""
+        """First priority is to maintain the gap so if the player is too close and the marksman can retreat, the marksman retreats. If the player is not in range, the marksman advances until they are in range. If the marksman is in range and can attack, they attack. Otherwise, the marksman 
+        skips their turn."""
         print()
         dist = self.position - place.player.position
         if dist <= self.gap and self.position < place.size:
             self.move(place, True)
-        elif dist <= self.range:
-            self.attack(place)
         elif dist > self.range:
             self.move(place)
-
-class Alpha_Harpy(Harpy):
-    """The Alpha Harpy is a Harpy that also has a wing beat move that uses its powerful wings to push the player backwards a certain amount of spaces if the player is too close to the enemy. This move has a cooldown period as well. On top of this, the Alpha still retains all the moves of a 
-    regular Harpy except it has more move speed and range."""
-    name = "Alpha Harpy"
-
-    def __init__(self, health=200, armor=250, damage=25, range=3, move_speed=6):
-        Harpy.__init__(self, health, armor, damage, range, move_speed)
-        self.can_beat = False
-        self.beat_counter = 0
-        self.cooldown = 3
-        self.knockback = 1
-        self.gap = 1
-
-    def wing_beat(self, place):
-        """The Alpha beats her wings furiously, moving the player back a certain number of steps governed by the knockback attribute. Display a message for this move and then push the player back. Ensure to recalculate the counter for this move and also set the can beat attribute to False."""
-        print("{0} beats its wings furiously, knocking you backwards {1} steps!".format(self.name, min(self.knockback, place.player.position)))
-        place.player.position = max(place.player.position - self.knockback, 0)
-        self.can_beat, self.beat_counter = False, place.turn_count + self.cooldown
-
-    def take_turn(self, place):
-        """The Alpha will use her wing beat if the player is within a certain distance from her, determined by the gap attribute, and if the player is not at the end of the place. Otherwise, she will use the regular Harpy take turn method."""
-        if self.can_beat and self.position - place.player.position <= self.gap and place.player.position:
-            print()
-            self.wing_beat(place)
+        elif dist <= self.range and self.can_attack:
+            self.attack(place)
         else:
-            Harpy.take_turn(self, place)
+            print("{0} prepares their aim and skips a turn".format(self.name))
 
     def check(self, place):
-        """The Alpha's check method checks if the wing beat cooldown is over and if so, sets the can beat attribute to True. It also uses the Harpy check method for its other time limited effects."""
-        if place.turn_count == self.beat_counter:
-            self.can_beat = True
-        Harpy.check(self, place)
-
-class Roman_Archer(Enemy):
-    """Roman archers are braver than expected for people with bows. Instead of running away from the player to keep peppering with their arrows, they will engage in melee combat if the player is in front of them, holding their ground until death. Their melee attacks deal more 
-    damage than their bow's damage but they only have a range of 1 unit with them and unlike their bows, will not penetrate armor. They also have light armor and a medium move speed in exchange for low health. They move at the start of battle to get into range but afterwards will hold their 
-    position until death."""
-    name = "Roman Archer"
-    battle_lines = ["'Target spotted, let's get him!'", "'Show him the might of Roman archery!'", "'If you're in range, it's too late!'"]
-    death_lines = ["'AAAAAHHHHHH!'", "'Show...no...mercy...comrades!'", "'For the...Emperor!'"]
-    armor_piercing = True
-
-    def __init__(self, health=70, armor=50, damage=15, range=4, move_speed=3):
-        Enemy.__init__(self, health, armor, damage, range, move_speed)
-        self.melee_damage = 40
-        self.melee_range = 1
-
-    def melee(self, place):
-        """The archer goes into melee combat once the player is directly in front of them, which injures the player by the damage from the melee damage attribute. This attack is also not armor piercing as a trade off for the higher damage."""
-        place.player.injure(place, self.melee_damage, False)
-
-    def take_turn(self, place):
-        """If the player is not in range, the archer will move towards the player to close the gap and get in range. Afterwards, it will continue to attack the player with their normal bow attack, using the default attack method, until the player is within melee range. Once in melee range, 
-        the archer will switch to using their melee attack. If the player moves out of melee range, the archer will return to using their bow. If the player moves out of bow range, the archer will move to get back into range."""
-        if self.position - place.player.position <= self.melee_range:
-            print()
-            self.melee(place)
-        else:
-            Enemy.take_turn(self, place)
+        if self.attack_counter == place.turn_count:
+            self.can_attack = True
 
 class Engineer(Enemy):
     """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health but high armor. They also fight with a wrench, a low damage and low 
@@ -1367,7 +1207,7 @@ class Place:
     global_turns = 0
     current_time_items = [] #Contains current items with time limited effects used by the player. This is checked at the end of every turn to see if the item is still in use.
     possible_sizes = [x for x in range(4, 6)]
-    possible_enemies = ["Entity"] #Contains the possible types of enemies and events that the place can be populated with. The enemies list is filled with the name of the potential enemies, not classes
+    possible_enemies = ["Entity()"] #Contains the possible types of enemies and events that the place can be populated with. The enemies list is filled with the name of the potential enemies, not classes
     possible_events = []
     min_enemies = 1
     max_enemies = 3
@@ -1392,7 +1232,7 @@ class Place:
         if self.type == "Enemy" and self.possible_enemies:
             number = random.randint(self.min_enemies, self.max_enemies)
             for x in range(number):
-                self.add_enemy(enemy_constructor(random.choice(self.possible_enemies)))
+                self.add_enemy(eval(random.choice(self.possible_enemies)))
         elif self.type == "Event" and self.possible_events:
             self.event = random.choice(self.possible_events)
     
@@ -1483,7 +1323,7 @@ class Place:
 class Cell(Place):
     """Place class for the player's cell at the beginning of the game. The cell is very small and serves as the first place the player can fight in."""
     possible_sizes = [4]
-    possible_enemies = ["Baton_Guard"]
+    possible_enemies = ["Prison_Guard()"]
     possible_events = []
     max_enemies = 1
 
@@ -1494,9 +1334,31 @@ class Lower_Prison(Place):
     """Place class for the Lower Prison. The Lower Prison is where prisoners from the lowest rungs of society are kept with little regard for their health or safety. Guards do the bare minimum to keep prisoners alive but can kill them at any time they wish. These places are very close quarters 
     as the player will be using mainly melee weapons anyway. Enemies for this area include guards with stun batons and their loyal dogs."""
     possible_sizes = [x for x in range(3, 5)]
-    possible_enemies = ["Baton_Guard", "Dog"]
+    possible_enemies = ["Prison_Guard", "Dog"]
     possible_events = []
-    max_enemies = 3
+    max_enemies = 4
+
+    def __init__(self, type_weight=[1, 0]):
+        Place.__init__(self, type_weight)
+
+class Main_Prison_Initial(Place):
+    """Place class for Level C, the main section of the prison. Here, prisoners are mainly people from the middle to upper levels of society, enjoying more comfortable living standards than those in Level D. At the beginning, the player and their fellow prisoners (if they were set free) are 
+    greeted by more stun baton guards and dogs. In the second half of the prison, reinforcements are called in and soldiers armed with pulse rifles, plasma grenades, and other heavy firearms are sent in. The main prison also has medium sized the entire time."""
+    possible_sizes = [x for x in range(4, 7)]
+    possible_enemies = ["Prison_Guard", "Dog"]
+    possible_events = []
+    max_enemies = 4
+
+    def __init__(self, type_weight=[1, 0]):
+        Place.__init__(self, type_weight)
+
+class Main_Prison(Place):
+    """Place class for Level C, the main section of the prison. Here, prisoners are mainly people from the middle to upper levels of society, enjoying more comfortable living standards than those in Level D. At the beginning, the player and their fellow prisoners (if they were set free) are 
+    greeted by more stun baton guards and dogs. In the second half of the prison, reinforcements are called in and soldiers armed with pulse rifles, plasma grenades, and other heavy firearms are sent in. The main prison is also medium sized the entire time."""
+    possible_sizes = [x for x in range(6, 9)]
+    possible_enemies = ["Federation_Rifleman", "Federation_Marksmen", "Federation_Enforcer", "Federation_Shielder", "War_Dog"]
+    possible_events = []
+    max_enemies = 5
 
     def __init__(self, type_weight=[1, 0]):
         Place.__init__(self, type_weight)
@@ -1679,14 +1541,6 @@ def fixed_input(s):
     'the cow jumped over the moon'
     """
     return s.lower().strip()
-
-def enemy_constructor(name):
-    """Takes in a string version of the name of a class and then constructs instances of that class. This allows the game to generate new enemies. Uses a variety of conditional statements to decide which class instance to create. If stats of a class are to be changed, change them here.
-    >>> x = enemy_constructor("Legionary")
-    >>> isinstance(x, Legionary)
-    True
-    """
-    return eval(name + "()")
 
 def choices(lst, header):
     """Shows a list of choices the player can make at the time, each with a number for the player to type in if so they can select it. The player can then input a value and then the function will return their selection. lst is a list of strings while the header is the prompt the player is 

@@ -121,9 +121,58 @@ input()
 print(pa_voice)
 input()
 print(alarm_sounded)
-encounters = 5
+
+### Fighting through Lower Prison ###
+revolt = choices(["Free the prisoners in your wing", "Gear yourself up and don't free the prisoners"], "What will you do?")
+print()
+if revolt == 0:
+    print(free_wing8)
+    Lower_Prison.max_enemies = 2
+elif revolt == 1:
+    print(forget_wing8)
+    player.armor += 100
+encounters = 3
 while encounters:
     input()
     place = Lower_Prison()
     onward(player, place)
     encounters -= 1
+input()
+if revolt == 0: #Revolt
+    print(lower_section_revolt)
+    input()
+    print(lower_section_pa)
+    input()
+    print(lower_section_ascend_revolt)
+elif revolt == 1: #Solo escape
+    print(lower_section_solo)
+    input()
+    print(lower_section_report)
+    input()
+    print(lower_section_ascend_solo)
+
+### Level C ###
+
+input()
+print(levelc_intro)
+fights = 3
+while fights:
+    input()
+    place = Main_Prison_Initial()
+    onward(player, place)
+    fights -= 1
+input()
+print(guards_retreat.format(("You prove to be more than a match for these guards all by yourself." if revolt == 1 else "You and the prisoners show how capable you are, overpowering the guards almost instantly."), ("prisoner is" if revolt == 1 else "prisoners are")))
+input()
+print((levelc_rest_solo if revolt == 1 else levelc_rest_revolt))
+input()
+print(levelc_reinforcements)
+input()
+print(reinforcement_intimidation.format(("prisoner" if revolt == 1 else "prisoners")))
+fights = 8
+while fights:
+    input()
+    place = Main_Prison()
+    onward(player, place)
+    fights -= 1
+

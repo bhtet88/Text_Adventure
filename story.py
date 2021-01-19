@@ -98,7 +98,86 @@ at you over two motionless bodies. Then, you hear microphone feedback followed b
 pa_voice = """'Attention all personnel! A prisoner on Level D, Wing 8 is escaping their cell and has overpowered both guards of the section! All units are to respond immediately and subdue the prisoner for execution! Remember, these people are here because they are a stain on the bright future 
 of our Federation and its mission for humanity! Do not let the prisoner escape and corrupt the rest of society! For the glory of the Federation! Prisoner, you have made a grave mistake!'"""
 
-alarm_sounded = """An alarm then starts blaring all throughout the hallway and you can hear many footsteps approaching the only door leading into your wing of the prison, Wing 8. You prepare yourself for the fight up ahead. These guards will not rest until you have been brutally subdued!"""
+alarm_sounded = """An alarm then starts blaring all throughout the hallway and you can hear many footsteps approaching the only door leading into your wing of the prison, Wing 8. You also have access to the key card that opens all the cells in your wing. Most of the prisoners seem still 
+young and healthy and they look eager to escape and take revenge. Quickly, you have to make a decision before the guards arrive."""
+
+free_wing8 = """You swipe the key card on as many cells as you can, earning gratitude from many of the cell's participants. They stand alongside you as guards begin to funnel into Wing 8 and start picking their own fights with the guards. Some prisoners continue to open cells while others 
+are engaged in furious hand to hand combat with them. It is clear that all of you have significantly better fighting skills than your oppressors. The prisoners take some of the heat off of you, allowing you to fight less guards at a time."""
+
+forget_wing8 = """With guards rushing you fast, you know that you need to maximize your own chances of survival, as grim as that sounds. You strap on as much of the guards' armor, including their vest and helmet, as you can. Your orange jumpsuit still shows on your arms and legs, defeating 
+any chance of your sneaking past. As the first guard enters, you prepare yourself for the brawl ahead."""
+
+lower_section_solo = """You escape the clutches of Wing 8 and find yourself in a wide, two-story central area. The area is shaped like a circle, with entrances to each wing on the outer wall. It appears that there are 10 wings total, evidenced from a Wing 10 sign above one of the doors. 
+Furthermore, you notice that some parts of the outer wall have a large 'Level D' painted on it. In the center is a tower that seems to elevate a small circular room with many large windows high above the floor you are on. A spiral staircase connects this observation room to the ground so you 
+ascend these stairs and enter the room. There is a desk with many monitors, all showing camera feeds from the various wings. You can see many more prisoners, all in environments similar to that of your wing. There is also a small rack of stun batons, not that you need another one right 
+now. Most important, you find a map of the entire prison complex and it amazes you how big it truly is! From what you can gather, you are currently at Level D, the lowest level. Levels D to B are all underground while Level A is above the surface. Level D is visually smaller on the map than 
+Levels C and B. You find handwriting next to each level.
+
+'A - Intake and Surface Peacekeeping Base'
+
+'B - Labs and Medical Research'
+
+'C - Regular Prisoners, some deserve to be at D'
+
+'D - Lowest Filth'
+
+You also find a smaller map of Level D, showing that there is both an elevator and a set of stairs connecting D to Level C. There is nothing else noteworthy about this level so you descend the stairs back down. However, you hear a shuffling coming from the direction of where you killed the 
+guards."""
+
+lower_section_report = """'Command, this is Matthews. Prisoner has escaped their cell and has overpowered all units in the area! It's too late for us but prepare the other units at Level C and cut power to the elevator! Glory to the Federation!'"""
+
+lower_section_ascend_solo = """On that final shout, the guard named Matthews slums over and stops moving. With the prison alerted to your escape, you decide there is no time left. You hustle up the stairs towards Level C."""
+
+lower_section_revolt = """You escape the clutches of Wing 8 and find yourself in a wide, two-story central area. Your fellow prisoners, now a sizeable amount, have already started raiding the other wing and freeing more captives. The area is shaped like a circle, with entrances to each wing 
+on the outer wall. It appears that there are 10 wings total, evidenced from a Wing 10 sign above one of the doors. Furthermore, you notice that some parts of the outer wall have a large 'Level D' painted on it. In the center is a tower that seems to elevate a small circular room with many large 
+windows high above the floor you are on. A spiral staircase connects this observation room to the ground so you ascend these stairs and enter the room. There is a desk with many monitors, all showing camera feeds from the various wings. You can see many prisoners being freed, hugging their 
+saviors and moving towards the center area as well. There is also a small rack of stun batons, not that you need another one right now. Most important, you find a map of the entire prison complex and it amazes you how big it truly is! From what you can gather, you are currently at Level D, 
+the lowest level. Levels D to B are all underground while Level A is above the surface. Level D is visually smaller on the map than Levels C and B. You find handwriting next to each level.
+
+'A - Intake and Surface Peacekeeping Base'
+
+'B - Labs and Medical Research'
+
+'C - Regular Prisoners, some deserve to be at D'
+
+'D - Lowest Filth'
+
+You also find a smaller map of Level D, showing that there is both an elevator and a set of stairs connecting D to Level C. There is nothing else noteworthy about this level so you descend the stairs back to where the other prisoners are. All are eager, some encouraging others while others 
+chat about how they will take on the other guards. Then, another very loud voice booms over the crowd."""
+
+lower_section_pa = """'Prisoners, your escape is impossible. We have cut power to the elevator and we have heavily armed units waiting to greet you in the event you scum try to use the stairs. Enjoy your freedom, you might as well kill youselves now! Glory to the Federation!'"""
+
+lower_section_ascend_revolt = """The prisoners start yelling and chanting and in their fury, storm the stairs towards Level C. You hurry to join the mob."""
+
+### Level C ###
+
+levelc_intro = """From the large prison diagram you saw, Level C is used to house the bulk of prisoners and is multiple stories of cells upon cells. It is also tied with Level B for being the largest levels, being extremely large horizontally. The diagram also seemed to show that the stairs 
+to reach Level B are on the opposite side as those connecting D and C, meaning you will have plently of ground to cover before ascending once again. As you reach the top of the stairs and enter Level C, you find that the diagrams are indeed correct. The level is laid out so that there are 
+many aisles of cells, each aisle three layers tall. Wide corridors separate the aisles and the entire level seems to be one long room. You can barely make out the elevator entrance on the other side when looking down the middle corridor. This place was at least as long as a football field, 
+back when football was still a thing. You also notice that the lighting here was much brighter and whiter than in Level D. However, you have no time right now to admire the engineering and construction that went into this place. You hear and see guards fast approaching you and prepare to fight!"""
+
+guards_retreat = """{0} The guards shuffle back as much as they can but then turn around and break into a sprint, dashing towards the stairs to Level B. 'Command, command, this is Sergeant Ryder! We need reinforcements! The {1} too much for us to handle! My unit and I are retreating to Level B!' 
+The Sergeant's yelling echoes throughout Level C and then all is quiet."""
+
+levelc_rest_solo = """Using this down time, you scavenge the bodies of the fallen guards, finding some armor but no new weapons or equipment that can help you. You also notice the cells on this level and examine one closely. The cells, similar to the rest of the prison thus far, have the same 
+white tile aesthetic. However, each cell also has a table, a bed with pillows instead of a stone bench, blankets, and shelves. Some even have personal items like toys, pictures, drawings, or even laptops. It is clear that equality isn't a principle of this prison and, from your experiences 
+above ground, isn't one in society either. There is no key card for these cells, only a slot for a key. You were unable to find any keys on the guards during your searching so you will have to leave these prisoners behind. Not that they should complain since their lives are miles better than 
+anything in Level D."""
+
+levelc_rest_revolt = """Using this down time, you scavenge the bodies of the fallen guards, finding some armor but no new weapons or equipment that can help you. You also notice the cells on this level and examine one closely. The cells, similar to the rest of the prison thus far, have the same 
+white tile aesthetic. However, each cell also has a table, a bed with pillows instead of a stone bench, blankets, and shelves. Some even have personal items like toys, pictures, drawings, or even laptops. It is clear that equality isn't a principle of this prison and, from your experiences 
+above ground, isn't one in society either. There is no key card for these cells, only a slot for a key. As the prisoners loot the guards, one yells 'Y'all I found the key!' and begins unlocking as many cells as possible. Others attempt to lockpick the cells open with success. The revolt is 
+expotentially growing in size. The newly freed prisoners showering the Level D saviors with praise and promising to spread the word of how honorable they are."""
+
+levelc_reinforcements = """As you prepare to move on, having only at most five minutes to rest, you hear multiple pops in front of you. Then, clouds of white smoke form a barrier in front of you, making {0} cough and forcing you to retreat a few feet. Out of the smoke steps out a multiple 
+heavily armored figures. However, they look even more prepared than the guards you just faced! Many of them are covered head to toe in armor and padding, including flak jackets, ballistic vests, and additional ceramic plates. Their helmets only cover the top and sides of their heads, exposing 
+their faces. Some wear balaclavas, masking their entire face except for their eyes. Others wear caps or hoods instead of helmets and only wear chest pieces similar to the guards fought previously. On some vests, you see grenades, belts of ammo, and other pouches of who knows what? Most of them 
+are carrying some sort of rifle or firearm while a select few have large, towering glass shields that say 'Federation' on their front. When standing together, they look like one unit, wearing all black with red accents. Every member seems to have their own patches on their armor and sleeves, 
+perhaps to show ranks and their accomplishments."""
+
+reinforcement_intimidation = """'Attention {0}, your efforts are brave but they must now come to an end. The Federation has placed great effort in providing you shelter and refugee away from society so you will not corrupt it with your rebellious views. However, it appears you reject their 
+kindness and would rather spread your traitorous ideals. This ends now! My name is Commander Leonidas Volkov and before you stand the heroic men and women of the 48th Rapid Response Regiment, 11th Platoon, a unit that is ready to fight at a moment's notice! They have vowed to give up their lives, 
+their very own lives, to end your threat to the free and wonderful people of New Hope. Farewell and good luck surviving. Glory to the Federation! 11th Platoon, advance!'"""
 
 ### The Machine Labs ###
 
@@ -106,8 +185,6 @@ labs_intro = """You arrive at the entrance to a large building with the words 'M
 city that was not destroyed. Machine Labs? What goes on in here and what warrents having a building that is this large? The Romans didn't have complex technology in ancient times so what could they be making here? Did they learn from the outside world? Maybe they saw how humanity was progressing 
 and using this knowledge, started experiementation and research on their own. There building itself has the same aesthetic as the rest of the city, with clean and polished white concrete walls with a sloped roof. You smell something that reminds you of oil or gasoline. The only way to figure out 
 what happens here is to go in."""
-
-### The Mages' Den ###
 
 ### Event dialogues ###
 
