@@ -154,7 +154,7 @@ class Weapon(Equipment):
         If the enemy is out of range, have the player pick another target. Calls self.attack at the end to perform the actual damaging"""
         sorted_list, i = self.combat_table(place)
         print("")
-        choice = fixed_input(input("Who will you attack? Type the number of the enemy you will attack or type 'Back' to go back and perform a different action. "))
+        choice = fixed_input(input("Who will you attack? Type the number of the enemy you will attack or type 'Back' to perform a different action. "))
         if choice == "back":
             print("")
             return place.player.take_turn(place)
@@ -277,7 +277,7 @@ class Shotgun(Weapon):
     def attack(self, place, target):
         """For every 1 unit the enemy is closer to the player after the max range of the shotgun, the player gets a damage addition determined by the CQC bonus attribte. When the player picks a target to attack, the other enemies on that same place as get hit with reduced damage, which is
         determined by the spread multiplier attribute."""
-        dmg = round(self.eff_damage * (1 + (self.cqc_bonus * (self.eff_range - (target.position - place.player.position)))))
+        dmg = round(self.eff_damage + (self.cqc_bonus * (self.eff_range - (target.position - place.player.position))))
         target.injure(place, dmg, self.armor_piercing)
         for enemy in place.enemies:
             if enemy.position == target.position and enemy is not target:
@@ -625,8 +625,8 @@ class Player(Entity):
         """Allows the player to select a weapon from their inventory and return the weapon object for them to use. Returns None if the weapon isn't in the inventory"""
         self.show_weapons()
         print("")
-        index = fixed_input(input("What weapon will you use? Type the name of the number of it or 'None' to select nothing and perform a different action. ")) #There will be no weapon with a name of 'None'
-        if index == 'none':
+        index = fixed_input(input("What weapon will you use? Type the name of the number of it or 'Back' to perform a different action. ")) #There will be no weapon with a name of 'None'
+        if index == 'back':
             return None
         elif not index.isnumeric() or int(index) not in range(len([x for x in self.inventory if isinstance(x, Weapon)])):
             print("")
@@ -643,8 +643,8 @@ class Player(Entity):
         raise an error and also return None. If the player removes an item, remove the item from the inventory and return None."""
         self.show_inventory()
         print("")
-        choice = fixed_input(input("What would you like to do? Type 'Use' or 'Drop' followed by the number of the item or 'Close' to go back. "))
-        if choice == "close":
+        choice = fixed_input(input("What would you like to do? Type 'Use' or 'Drop' followed by the number of the item or 'Back' to go back. "))
+        if choice == "back":
             return None
         try:
             action, index = choice.split(" ", 1)[0], choice.split(" ", 1)[1]
@@ -733,39 +733,40 @@ class Player(Entity):
         """Method that allows the player to take their turn during combat. Players can either attack, move, or use an item in their inventory. If the player puts in an invalid input, allow them to try again. If the enemy is out of a weapon's range, 
         display a message saying so and let the player try again. If the player chooses an piece of equipment that isn't combat oriented, display a message and try again.
         """
-        place.player.recalculate(place)
-        place.visualize()
-        print("")
-        print("*** Player ***")
-        print("{0}, Health: {1}, Armor: {2}, Move Speed: {3} units per turn".format(self.name, self.health, self.armor, self.eff_move))
-        print("")
-        place.show_enemies()
-        print("")
-        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Inventory' to look at and use something in your inventory. "))
-        print("")
-        if action == "attack": #Attack decision
-            weapon = self.use_weapon()
-            if not weapon:
-                print("")
-                return self.take_turn(place)
-            print("")
-            weapon.action(place)
-        elif action == "move": #Movement decision
-            self.move(place)
-        elif action == "inventory": #Item usage decision
-            item = self.use_inventory()
-            print("")
-            if not item:
-                return self.take_turn(place)
-            elif not item.combat_item:
-                print("Not an item for combat, try again")
-                print("")
-                return self.take_turn(place)
-            item.action(place)
-        else:
-            print("Invalid input, try again")
-            print("")
-            return self.take_turn(place)
+        while True:
+            place.player.recalculate(place)
+            place.visualize()
+            print()
+            print("*** Player ***")
+            print("{0}, Health: {1}, Armor: {2}, Move Speed: {3} units per turn".format(self.name, self.health, self.armor, self.eff_move))
+            print()
+            place.show_enemies()
+            print()
+            action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Inventory' to look at and use something in your inventory. "))
+            print()
+            if action == "attack": #Attack decision
+                weapon = self.use_weapon()
+                if not weapon:
+                    print()
+                else: 
+                    print()
+                    weapon.action(place)
+                    break
+            elif action == "move": #Movement decision
+                self.move(place)
+                break
+            elif action == "inventory": #Item usage decision
+                item = self.use_inventory()
+                print()
+                if item and item.combat_item:
+                    item.action(place)
+                    print()
+                elif not item.combat_item:
+                    print("Not an item for combat, try again")
+                    print()
+            else:
+                print("Invalid input, try again")
+                print()
 
     def remove(self, place):
         "The player has a special remove function that ends the game upon their death."
@@ -796,7 +797,6 @@ class Enemy(Entity):
     battle_lines = [""]
     death_lines = [""]
     possible_loot = []
-    drop_chance = 1
     can_drop = True
     armor_piercing = False
     machine = False
@@ -838,7 +838,9 @@ class Enemy(Entity):
         print(random.choice(self.death_lines))
         print("{0} eliminated!".format(self.name))
         Entity.remove(self, place)
-        if self.possible_loot and self.can_drop and random.randint(1, self.drop_chance) == 1:
+        if random.choice([1, 2]) == 1:
+            place.loot.append(eval("Healing_Tool(50, 1, 0.5, 'Stim Shot')"))
+        if self.possible_loot and self.can_drop:
             place.loot.append(eval(random.choice(self.possible_loot)))
 
     def __str__(self):
@@ -848,13 +850,12 @@ class Prison_Guard(Enemy):
     """Prison Guards are the first enemy the player encounters in the game, being the weakest prison guards. Poorly trained and poorly armored, these guards serve as the prison's cheap way to enforce peace. They are armed with a stun baton, which acts as a normal melee weapon and deals low 
     damage with each hit. They also have a low movement, low health, and low armor."""
     name = "Prison Guard"
-    battle_lines = ["'Come on prisoner, I'll make you regret this!'", "'Don't let the prisoner escape!'", "'I can't wait to kill you!'", "'It was a mistake letting you alive!'", "'We should have killed you when we first found you!'"]
+    battle_lines = ["'Come on prisoner, I'll make you regret this!'", "'Don't let the prisoner escape!'", "'I can't wait to kill you!'", "'It was a mistake leaving you alive!'", "'We should have killed you when we first found you!'"]
     death_lines = ["'How could I die to filth?'", "'Comrades...kill this...bitch!'", "'You will never get past the rest!'", "'AAAHHHHH!'"]
-    possible_loot = ["Weapon(40, 1, 2, 'Stun Baton')", "Armor_Piece(35, 1, 'Guard Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
-    drop_chance = 2
+    possible_loot = ["Weapon(50, 1, 2, 'Stun Baton')", "Armor_Piece(30, 1, 'Guard Vest')"]
     can_drop = False
 
-    def __init__(self, health=70, armor=50, damage=20, range=1, move_speed=1):
+    def __init__(self, health=40, armor=30, damage=20, range=1, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
 class Dog(Enemy):
@@ -869,32 +870,30 @@ class Dog(Enemy):
     battle_lines = ["'GRRRRRRRR!'"]
     death_lines = ["'Whimpers'"]
 
-    def __init__(self, health=50, armor=0, damage=15, range=1, move_speed=2):
+    def __init__(self, health=20, armor=0, damage=15, range=1, move_speed=2):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
 class War_Dog(Dog):
     """War dogs are dogs bred for killing, augmented by technology and genetic modification. They have been given more armor and health their their ordinary counterparts and move slightly faster. Aside from that, they have no other special moves and are functionally similar to normal dogs."""
     name = "War Dog"
-    possible_loot =  ["Armor_Piece(15, 1, 'War Dog Armor')"]
-    drop_chance = 4
-    
-    def __init__(self, health=120, armor=50, damage=25, range=1, move_speed=3):
+    possible_loot =  ["Armor_Piece(50, 1, 'War Dog Armor')"]
+
+    def __init__(self, health=50, armor=50, damage=25, range=1, move_speed=3):
         Dog.__init__(self, health, armor, damage, range, move_speed)
 
 class Federation_Rifleman(Enemy):
     """Federation rifleman are the main bulk of the Federation's military, given moderate armor, kept in good health, and equipped with a laser rifle and grenades. They have a special grenade throw that allows them to lob a medium damage explosive at the player. They have a limited amount of 
     grenades and there is a cooldown period in between throws. Their normal attack is a laser rifle, which fires non armor piercing ammunition and deals moderate damage. Their rifles also have medium range, requiring them to advance towards the player before firing."""
     name = "Rifleman"
-    battle_lines = ["'Federation's best about to kick your ass!', 'Ok, the fun's over!', 'You'll wish you were never born!'", "'Moving in for the kill!'", "'OOO RAA!'"]
+    battle_lines = ["'Federation's best about to kick your ass!'", "'Ok, the fun's over!'", "'You'll wish you were never born!'", "'Moving in for the kill!'", "'OOO RAA!'"]
     death_lines = ["'I may be gone but so will you very soon!", "'Help! I need assi...'", "'Fuck, they got me!'", "'Finish them off comrades!'", "'Nooooo...how could...this...happen?'"]
-    possible_loot = ["Firearm(40, 4, 70, 8, False, 'LR2047-7 Laser Rifle')", "Explosive(55, 1, 5, 1, 2, 'PG-2039 Plasma Grenade')", "Armor_Piece(60, 5, 'Ballistic Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
-    drop_chance = 3
+    possible_loot = ["Firearm(50, 3, 70, 8, False, 'LR2047-7 Laser Rifle')", "Explosive(75, 1, 5, 1, 2, 'PG-2039 Plasma Grenade')", "Armor_Piece(80, 5, 'Ballistic Vest')"]
     time_check = True
 
-    def __init__(self, health=100, armor=80, damage=40, range=4, move_speed=1):
+    def __init__(self, health=70, armor=80, damage=30, range=3, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.grenades = 2
-        self.grenade_damage = 55
+        self.grenade_damage = 35
         self.grenade_range = 5
         self.can_throw = True
         self.cooldown = 2
@@ -928,13 +927,13 @@ class Federation_Marksman(Enemy):
     name = "Marksman"
     battle_lines = ["'Marksman in position'", "'Ready to hunt'", "'This will be just like at the 2041 Riots'", "'Enemy in my sites'", "'In position, engaging targets'", "'Targets spotted, engaging from a distance'"]
     death_lines = ["'Marksman down, I repeat, marksman down!'", "'All units, you lost your marksman!'", "'Shit, I'm out of the fight!'", "'Good luck guys, I'm not going to make it!'"]
-    possible_loot = ["Firearm(35, 6, 85, 15, True, 'LR2050-SR Precision Laser Rifle')", "Armor_Piece(45, 2, 'Marskman Vest')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
-    drop_chance = 4
+    possible_loot = ["Firearm(50, 5, 85, 15, True, 'LR2050-SR Precision Laser Rifle')", "Armor_Piece(50, 2, 'Marskman Vest')"]
     armor_piercing = True
     time_check = True
 
-    def __init__(self, health=80, armor=50, damage=35, range=6, move_speed=3):
+    def __init__(self, health=50, armor=50, damage=30, range=5, move_speed=3):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.accuracy = 70
         self.default_range = range
         self.range_boost = 1
         self.can_attack = True
@@ -943,8 +942,11 @@ class Federation_Marksman(Enemy):
 
     def attack(self, place):
         """Attacks the player like normal but then sets the can attack attribute to False and calculates the attack counter."""
-        Enemy.attack(self, place)
-        self.can_attack, self.attack_counter = False, place.turn_count + 1
+        if random.choices([0, 1], weights=(1 - self.accuracy, self.accuracy))[0] == 1:
+            Enemy.attack(self, place)
+            self.can_attack, self.attack_counter = False, place.turn_count + 1
+        else:
+            print("Federation {0} missed!".format(self.name))
 
     def take_turn(self, place):
         """First priority is to maintain the gap so if the player is too close and the marksman can retreat, the marksman retreats. If the player is not in range, the marksman advances until they are in range. If the marksman is in range and can attack, they attack. Otherwise, the marksman 
@@ -978,10 +980,9 @@ class Federation_Enforcer(Enemy):
     name = "Enforcer"
     battle_lines = ["'Enforcer, closing the distance!'", "'I'll fill you full of laser beams!'", "'This shotty will melt your insides!'", "'I'm going to love seeing you squirm!'", "'Die! That's all your kind is good for!'", "'Moving in for the kill!'"]
     death_lines = ["'No way...they got me!'", "'AAAA AAAAA HELP ME!'", "'NOOOO, IT'S NOT OVER!'", "'DEATH WAS ON MY SIDE!'", "'HELP ME DAMN IT!'"]
-    possible_loot = ["Shotgun(60, 2, 0.7, 50, 12, 'CQC-2034L Laser Shotgun')", "Armor_Piece(75, 7, 'Heavy Armor')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')", "Adrenaline(70, 40, 2, 1, 1)"]
-    drop_chance = 5
+    possible_loot = ["Shotgun(60, 2, 0.7, 50, 20, 'CQC-2034L Laser Shotgun')", "Armor_Piece(100, 7, 'Heavy Armor')", "Adrenaline(70, 0.4, 2, 1, 1)"]
 
-    def __init__(self, health=120, armor=100, damage=60, range=2, move_speed=1):
+    def __init__(self, health=100, armor=100, damage=50, range=2, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
 class Federation_Shielder(Enemy):
@@ -991,24 +992,23 @@ class Federation_Shielder(Enemy):
     name = "Riot Shielder"
     battle_lines = ["'Shield incoming, I have your backs!'", "'Shielder coming through!'", "'Stay behind me boys, I'll cover you!'", "'I'll draw their attention, you kill them!'", "'Stick together y'all, we can do this!'", "'Stay strong, use me for cover!'"]
     death_lines = ["'I'm sorry guys...they were too much...'", "'Impressive...they got...me...'", "'Don't worry about me guys, it's too late'", "'Honor fight with you all, go kick their ass'", "'You can win...without...me...'"]
-    possible_loot = ["Firearm(40, 3, 90, 5, False, 'LP-2066 Laser Pistol')", "Shield(0.50, 3, 14, 'Riot Shield')", "Armor_Piece(100, 12, 'Riot Armor')", "Healing_Tool(45, 1, 0.5, 'Stim Shot')"]
-    drop_chance = 7
+    possible_loot = ["Firearm(30, 3, 90, 5, False, 'LP-2066 Laser Pistol')", "Shield(0.50, 3, 14, 'Riot Shield')", "Armor_Piece(150, 12, 'Riot Armor')"]
 
-    def __init__(self, health=100, armor=180, damage=40, range=2, move_speed=1):
+    def __init__(self, health=100, armor=150, damage=20, range=1, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.damage_reduction = 0.20
         self.team_damage_reduction = 0.30
 
     def injure(self, place, damage, AP):
         """Unique injure method that first reduces the incoming damage by the correct damage reduction percentage and then uses the default Entity injure method."""
-        if any([x.position == self.position for x in place.enemies if isinstance(x, Federation_Shielder)]):
+        if any([x.position == self.position for x in place.enemies if isinstance(x, Federation_Shielder) and x is not self]):
             print("Damage reduced by {0}%".format(round(self.team_damage_reduction * 100)))
             damage = damage * (1 - self.team_damage_reduction)
         else:
             print("Damage reduced by {0}%".format(round(self.damage_reduction * 100)))
             damage = damage * (1 - self.damage_reduction)
         print()
-        Entity.injure(self, place, damage, AP)
+        Entity.injure(self, place, round(damage), AP)
 
 class Volk(Federation_Rifleman):
     """Code wise, Volk behaves like a rifleman, able to throw grenades at the player or attack them with his flamethrower. Since he has a flamethrower, his stats should be adjusted to be different from a base rifleman. Volk also has the ability to heal with a limited amount of experimental 
@@ -1040,13 +1040,16 @@ class Volk(Federation_Rifleman):
         print()
         Federation_Rifleman.attack(self, place)
         self.ammo -= 1
+        if not self.ammo:
+            print()
+            print("'You're lucky I'm out of fuel buddy!'")
 
     def healing(self, place):
         """Heals Volk when his health is below a certain threshold but the heal amount. Then sets the can heal attribute to False and recalculates the heal counter for the cooldown of the ability."""
         self.health += self.heal_amount
         self.syringes -= 1
         self.can_heal, self.heal_counter = False, place.turn_count + self.heal_cooldown
-        print("'Ah, now that's better! I'm invincible!'")
+        print("'Ah, now that's better! I'm almost invincible!'")
 
     def take_turn(self, place):
         """If the flamethrower is out of ammo, reload the weapon. Otherwise, if Volk's health is below the threshold, have him heal. Otherwise, use the standard Rifleman take turn method."""
@@ -1429,7 +1432,7 @@ class Place:
 
 class Cell(Place):
     """Place class for the player's cell at the beginning of the game. The cell is very small and serves as the first place the player can fight in."""
-    possible_sizes = [4]
+    possible_sizes = [3]
     possible_enemies = ["Prison_Guard()"]
     possible_events = []
     max_enemies = 1
@@ -1440,7 +1443,7 @@ class Cell(Place):
 class Lower_Prison(Place):
     """Place class for the Lower Prison. The Lower Prison is where prisoners from the lowest rungs of society are kept with little regard for their health or safety. Guards do the bare minimum to keep prisoners alive but can kill them at any time they wish. These places are very close quarters 
     as the player will be using mainly melee weapons anyway. Enemies for this area include guards with stun batons and their loyal dogs."""
-    possible_sizes = [x for x in range(3, 5)]
+    possible_sizes = [x for x in range(3, 6)]
     possible_enemies = ["Prison_Guard()", "Dog()"]
     max_enemies = 4
 
@@ -1461,9 +1464,9 @@ class Main_Prison(Place):
     """Place class for Level C, the main section of the prison. Here, prisoners are mainly people from the middle to upper levels of society, enjoying more comfortable living standards than those in Level D. At the beginning, the player and their fellow prisoners (if they were set free) are 
     greeted by more stun baton guards and dogs. In the second half of the prison, reinforcements are called in and soldiers armed with laser rifles, plasma grenades, and other heavy firearms are sent in. The main prison is also medium sized the entire time."""
     possible_sizes = [x for x in range(6, 9)]
-    possible_enemies = ["Federation_Rifleman()", "Federation_Marksmen()", "Federation_Enforcer()", "Federation_Shielder()", "War_Dog()"]
+    possible_enemies = ["Federation_Rifleman()", "Federation_Marksman()", "Federation_Enforcer()", "Federation_Shielder()", "War_Dog()"]
     min_enemies = 2
-    max_enemies = 5
+    max_enemies = 3
 
     def __init__(self, type_weight=[1, 0]):
         Place.__init__(self, type_weight)
@@ -1693,9 +1696,11 @@ def onward(player, place):
         elif choice == "inventory":
             print()
             player.sorting()
+            print()
         else:
             print()
             print("Invalid input, try again")
+            print()
 
 def battle(place):
     """Facilitates the entire battle if a player is in an enemy place. Battles begin with the player at position 0 and the enemies at the opposite end. The player always makes the first turn, then all the enemies."""
@@ -1728,6 +1733,7 @@ def battle(place):
         input()
         if place.loot:
             place.looting()
+            print()
     fight()
 
 def game_over():

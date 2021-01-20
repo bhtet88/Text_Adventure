@@ -109,9 +109,8 @@ input()
 if shank in player.inventory:
     player.inventory_remove(shank)
     print()
-player.inventory_add(Weapon(40, 1, 2, "Stun Baton"))
-print()
-player.inventory_add(Armor_Piece(50, 1, "Guard Vest"))
+player.inventory_add(Weapon(50, 1, 2, "Stun Baton"))
+player.armor += 60
 input()
 Prison_Guard.can_drop = True
 cell = Cell()
@@ -154,12 +153,12 @@ elif not revolt: #Solo escape
     print(lower_section_ascend_solo)
 
 ### Level C ###
-
+revolt == 1
 input()
 print(levelc_intro)
 if revolt == 1:
     Main_Prison_Initial.max_enemies = 2
-fights = 3
+fights = 2
 while fights:
     input()
     place = Main_Prison_Initial()
@@ -169,12 +168,18 @@ input()
 print(guards_retreat.format(("You prove to be more than a match for these guards all by yourself." if not revolt else "You and the prisoners show how capable you are, overpowering the guards almost instantly."), ("prisoner is" if not revolt else "prisoners are")))
 input()
 print((levelc_rest_solo if not revolt else levelc_rest_revolt))
+print()
+stims = 4
+while stims:
+    player.inventory_add(eval("Healing_Tool(50, 1, 0.5, 'Stim Shot')"))
+    stims -= 1
+player.armor += 50
 input()
 print(levelc_reinforcements)
 input()
 print(reinforcement_intimidation.format(("prisoner" if not revolt else "prisoners")))
 if revolt == 1:
-    Main_Prison.max_enemies = 3
+    Main_Prison.max_enemies = 2
 fights = 8
 while fights:
     input()
