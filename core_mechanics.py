@@ -1144,12 +1144,13 @@ class Arty(Enemy):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.can_attack = True
         self.attack_counter = 0
+        self.reload = 2
         self.gap = 2
 
     def attack(self, place):
         """Uses the default attack method but then calculates the attack counter and sets the can attack attribute to False."""
         Enemy.attack(self, place)
-        self.can_attack, self.attack_counter = False, place.turn_count + 2
+        self.can_attack, self.attack_counter = False, place.turn_count + self.reload
 
     def take_turn(self, place):
         """If the player is not in range, then the Arty will move towards the player until they are in range. Once in range, they will attack if they are able to or if not, will skip a turn. If the player is too close, the Arty attempts to retreat until it can not retreat anymore, 
@@ -1167,7 +1168,7 @@ class Arty(Enemy):
 
     def check(self, place):
         """Checks if the reloading process is finished and if so, sets the can attack attribute to True."""
-        if place.turn_count == self.can_attack:
+        if place.turn_count == self.attack_counter:
             self.can_attack = True
 
 class Ripper(Enemy):
