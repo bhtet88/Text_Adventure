@@ -173,7 +173,9 @@ stims = 4
 while stims:
     player.inventory_add(eval("Healing_Tool(50, 1, 0.5, 'Stim Shot')"))
     stims -= 1
-player.armor += 50
+print()
+player.inventory_add(Firearm(30, 3, 90, 5, False, 'LP-2043 Laser Pistol'))
+player.armor += 100
 input()
 print(levelc_reinforcements)
 input()

@@ -1010,8 +1010,7 @@ class Federation_Shielder(Enemy):
         Entity.injure(self, place, round(damage), AP)
 
 class Volk(Federation_Rifleman):
-    """Code wise, Volk behaves like a rifleman, able to throw grenades at the player or attack them with his flamethrower. Since he has a flamethrower, his stats should be adjusted to be different from a base rifleman. Volk also has the ability to heal with a limited amount of experimental 
-    healing syringes. There is a cooldown in between heals. After a certain amount of attacks, Volk has to reload his flamethrower, taking him out of the fight for a turn. Upon death, he drops all of the possible loot he has, meaning he needs a modified remove method."""
+    """Code wise, Volk behaves like a rifleman, able to throw grenades at the player or attack them with his flamethrower. Since he has a flamethrower, his stats should be adjusted to be different from a base rifleman. Volk also has the ability to heal with a limited amount of experimental healing syringes. There is a cooldown in between heals. After a certain amount of attacks, Volk has to reload his flamethrower, taking him out of the fight for a turn. Upon death, he drops all of the possible loot he has, meaning he needs a modified remove method."""
     name = "Volk"
     battle_lines = ["'It's a shame you have to die'", "'You could have joined me, the Federation'", "'You can't hide from me or my flame'", "'This is for all my fallen men!'", "'I will enjoy burning you alive!'"]
     death_lines = ["'I guess it is all over...You really are...a force...to be...reckoned...with...'"]
@@ -1074,8 +1073,7 @@ class Volk(Federation_Rifleman):
         Federation_Rifleman.check(self, place)
 
 class Engineer(Enemy):
-    """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health and low armor. They also fight with a wrench, a low damage and low 
-    range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Finally, engineers have a repair ability, where they pick the lowest health machine ally and increase their health by a certain amount. Repairing has no cooldown and can be used repeatedly."""
+    """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health and low armor. They also fight with a wrench, a low damage and low range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Finally, engineers have a repair ability, where they pick the lowest health machine ally and increase their health by a certain amount. Repairing has no cooldown and can be used repeatedly."""
     name = "Engineer"
     battle_lines = ["'Federation engineering is revolutionary!'", "'Fear the mind of the Federation!'", "'I may be weak but my inventions are strong!'", "'With my technology, failure is impossible!'", "'Federation's greatest mind ready to kill you!'"]
     death_lines = ["'Impossible...success was...inevitable!'", "'Were my calculations...wrong?'", "'Man dies, machines live...forever!'", "'My machines will avenge me!'"]
