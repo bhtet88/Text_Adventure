@@ -1080,7 +1080,7 @@ class Engineer(Enemy):
     name = "Engineer"
     battle_lines = ["'Federation engineering is revolutionary!'", "'Fear the mind of the Federation!'", "'I may be weak but my inventions are strong!'", "'With my technology, failure is impossible!'", "'Federation's greatest mind ready to kill you!'"]
     death_lines = ["'Impossible...success was...inevitable!'", "'Were my calculations...wrong?'", "'Man dies, machines live...forever!'", "'My machines will avenge me!'"]
-    possible_loot = []
+    possible_loot = ["Armor_Piece(50, 1, 'Engineer Armor')", "Weapon(30, 1, 5, 'Wrench')"]
     time_check = True
 
     def __init__(self, health=50, armor=50, damage=10, range=1, move_speed=5):
@@ -1141,6 +1141,7 @@ class Arty(Enemy):
     name = "Arty"
     battle_lines = ["'Enemies spotted, preparing mortar'", "'Arty ready for battle'", "'Arty entering combat'", "'Mortar ready'", "'Bombardment commencing'"]
     death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Arty offline'"]
+    possible_loot = ["Armor_Piece(40, 1, 'Salvaged Armor Pieces')"]
     machine = True
     time_check = True
 
@@ -1181,6 +1182,7 @@ class Ripper(Enemy):
     name = "Ripper"
     battle_lines = ["'Rip and tear'", "'Ripper entering combat'", "'Chainsaws functional'", "'Proceeding to eliminate enemies of the Federation'", "'All systems ready for battle'"]
     death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Ripper offline'", "'Safety protocols engaged, powering down'", "'Heavy damage, shutting down'"]
+    possible_loot = ["Armor_Piece(150, 1, 'Salvaged Armor Pieces')"]
     machine = True
     time_check = True
 
@@ -1237,9 +1239,10 @@ class Charger(Enemy):
     name = "Charger"
     battle_lines = ["'Enemy sighted, arming detonation device'", "'Explosives primed'", "'Charging opponent'", "'Attention all units, Charger entering combat'", "'Keep your distance, Charger armed'"]
     death_lines = ["'Detonating device'", "'No one can survive this explosion'", "'All allies, Charger explosion imminent'"]
+    possible_loot = ["Armor_Piece(20, 1, 'Salvaged Armor Pieces')"]
     machine = True
 
-    def __init__(self, health=60, armor=0, damage=50, range=1, move_speed=3):
+    def __init__(self, health=60, armor=20, damage=50, range=1, move_speed=3):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
     def attack(self, place):

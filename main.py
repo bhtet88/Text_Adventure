@@ -211,3 +211,10 @@ input()
 print(labs_intro)
 input()
 print(first_machine)
+events = 10 
+while events:
+    input()
+    place = Machine_Labs()
+    onward(player, place)
+    events -= 1
+input()
