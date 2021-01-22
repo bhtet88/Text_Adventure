@@ -184,7 +184,7 @@ volk_option = """'I see that you are the only one left alive. You surely are a q
 fine addition to my unit, perhaps might even be one of the best fighters we could have ever seen. But you would never turn on your own kind would you? No, no, I wil give you one chance to live despite going against my orders. Surrender now and I will allow you to live. Otherwise, I will 
 have to incinerate you and having someone with your skill perish would be a waste don't you think?'"""
 
-volk_dialogue = ["'Are you kidding? Forget my 'kind!' I'll serve under you even if I had to pay you!'", "'Hmmm, you drive a hard bargin but I accept. I surrender!'", "'What kind of spineless trash do you think I am? I'll never surrender!'", "'Fuck you, just try to kill me!'"]
+volk_dialogue = ["'Are you kidding? Forget my 'kind!' I'll serve under you even if I had to pay you!'", "'Hmmm, you drive a hard bargin but I surrender!'", "'What kind of spineless trash do you think I am? I'll never surrender!'", "'Fuck you, just try to kill me!'"]
 
 volk_surrender = """Following your surrender, Volk honored his promise and didn't waste any time placing you in the unit's recruit training camp. With your experiences on the dangerous streets in the slums of the city, you proved to be an extremely capable warrior, passing test after test 
 with the highest rankings. During weapons training, you showed your superiors how deadly you could be with anything, including knives, grenades, pistols, rifles, and heavy weapons. When it was time for field exercises and the final grueling weeks long testing, your bravery and leadership skills 

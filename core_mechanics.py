@@ -1075,15 +1075,15 @@ class Volk(Federation_Rifleman):
         Federation_Rifleman.check(self, place)
 
 class Engineer(Enemy):
-    """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health but high armor. They also fight with a wrench, a low damage and low 
-    range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Furthermore, any machine on the same spot as an engineer gains a health bonus and this bonus can stack with multiple engineers. Finally, 
-    engineers have a repair ability, where they pick the lowest health machine ally and increase their health by a certain amount. Repairing has no cooldown and can be used repeatedly."""
+    """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health and low armor. They also fight with a wrench, a low damage and low 
+    range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Finally, engineers have a repair ability, where they pick the lowest health machine ally and increase their health by a certain amount. Repairing has no cooldown and can be used repeatedly."""
     name = "Engineer"
-    battle_lines = ["'Roman engineering is revolutionary!'", "'Fear the genius of Rome!'", "'I may be weak but my inventions are strong!'", "'With my technology, failure is impossible!'", "'Rome's greatest mind ready to kill you!'"]
-    death_lines = ["'Impossible...success was...inevitable!'", "'Were my calculations...wrong?'", "'Man dies, machines live...forever!'", "'My inventions will avenge me!'"]
+    battle_lines = ["'Federation engineering is revolutionary!'", "'Fear the mind of the Federation!'", "'I may be weak but my inventions are strong!'", "'With my technology, failure is impossible!'", "'Federation's greatest mind ready to kill you!'"]
+    death_lines = ["'Impossible...success was...inevitable!'", "'Were my calculations...wrong?'", "'Man dies, machines live...forever!'", "'My machines will avenge me!'"]
+    possible_loot = []
     time_check = True
 
-    def __init__(self, health=80, armor=200, damage=15, range=1, move_speed=5):
+    def __init__(self, health=50, armor=50, damage=10, range=1, move_speed=5):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.damage_boost = 1.2
         self.repair_threshold = 0.30
@@ -1092,7 +1092,7 @@ class Engineer(Enemy):
         self.can_tune = True
         self.cooldown = 2
         self.tune_counter = 0
-        self.gap = 2
+        self.gap = 3
 
     def tune_up(self, place):
         """The tune up move boosts all machine type allies by multiplying their damage by the damage multiplier and by increasing their move speed by the move boost. Then, the can tune attribute is set to False and the tune counter is set to the next turn when the move's cooldown is over. """
@@ -1123,7 +1123,7 @@ class Engineer(Enemy):
             elif self.can_tune:
                 self.tune_up(place)
             else:
-                print("{0} does nothing this turn.".format(self.name))
+                print("{0} does nothing this turn".format(self.name))
         else:
             Enemy.take_turn(self, place)
 
@@ -1136,16 +1136,15 @@ class Engineer(Enemy):
                     enemy.damage, enemy.move_speed = round(enemy.damage / self.damage_boost), max(enemy.move_speed - self.move_boost, 1)
             self.can_tune = True
 
-class Siege_Cannon(Enemy):
-    """The Siege Cannon is a powerful machine enemy found in the Machine Labs. It is a four legged machine with a powerful siege cannon on its back, making it a strong ranged enemy. Due to the complex machinary behind this enemy's weapon, it can only fire every other turn. Similar to an archer, 
-    it remains as far of the player as it can and retreats if the player gets too close. However, the cannon has limited movement speed due to the cannon's weight, meaning it has difficulty retreating. Also, while it does powerful damage, this enemy has low health for a machine type enemy."""
-    name = "Siege Cannon"
-    battle_lines = ["'Enemies spotted, moving to kill'", "'Cannon ready for battle'", "'Cannon entering combat'"]
-    death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Cannon offline'"]
+class Arty(Enemy):
+    """The Arty is a powerful machine enemy found in the Machine Labs. It is a four legged machine with miniturized motar on its back, making it a strong ranged enemy. Due to the complex machinary behind this enemy's weapon, it can only fire every 2 turns to allow for reloading and aiming. Similar to an archer, it remains as far of the player as it can and retreats if the player gets too close. However, the Arty has limited movement speed due to the mortar's weight, meaning it has difficulty retreating. Also, while it does powerful damage, this enemy has low health for a machine type enemy."""
+    name = "Arty"
+    battle_lines = ["'Enemies spotted, preparing mortar'", "'Arty ready for battle'", "'Arty entering combat'", "'Mortar ready'", "'Bombardment commencing'"]
+    death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Arty offline'"]
     machine = True
     time_check = True
 
-    def __init__(self, health=100, armor=50, damage=50, range=5, move_speed=1):
+    def __init__(self, health=100, armor=50, damage=25, range=5, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.can_attack = True
         self.attack_counter = 0
@@ -1157,7 +1156,7 @@ class Siege_Cannon(Enemy):
         self.can_attack, self.attack_counter = False, place.turn_count + 1
 
     def take_turn(self, place):
-        """If the player is not in range, then the siege cannon will move towards the player until they are in range. Once in range, they will attack if they are able to or if not, will skip a turn. If the player is too close, the cannon attempts to retreat until it can not retreat anymore, 
+        """If the player is not in range, then the Atry will move towards the player until they are in range. Once in range, they will attack if they are able to or if not, will skip a turn. If the player is too close, the Arty attempts to retreat until it can not retreat anymore, 
         where it will attempt to fight the player at close range."""
         dist = self.position - place.player.position
         print()
@@ -1168,7 +1167,7 @@ class Siege_Cannon(Enemy):
         elif self.can_attack:
             self.attack(place)
         else:
-            print("'Reloading cannon'")
+            print("'Reloading mortar'")
 
     def check(self, place):
         """Checks if the reloading process is finished and if so, sets the can attack attribute to True."""
@@ -1176,12 +1175,12 @@ class Siege_Cannon(Enemy):
             self.can_attack = True
 
 class Ripper(Enemy):
-    """The Ripper is a melee, humanoid looking machine enemy found in the Machine Labs that has a deadly sword on each of its arms. It is heavily armored and has high health but low mobility. To partially resolve the issue, the Romans added an emergency thruster to it, giving it a quick 
+    """The Ripper is a melee, humanoid looking machine enemy found in the Machine Labs that has a deadly chainsaw on each of its arms. It is heavily armored and has high health but low mobility. To partially resolve the issue, the engineers added an emergency thruster to it, giving it a quick 
     burst of speed and dash forwards. However, the Ripper is unable to move for a turn after this move is used to allow its movement mechanisms to cool down and function once again. Up close, this enemy does high damage but the motors for the arms overheat after an attack, preventing it from 
     attacking again for a turn. This serves to give the player an opportunity to get the upper hand against them."""
     name = "Ripper"
-    battle_lines = ["'Rip and tear'", "'Ripper entering combat'", "'Hydraulic blades functional'", "'Proceeding to eliminate enemies of Rome'", "'All systems ready for battle'"]
-    death_lines = Siege_Cannon.death_lines
+    battle_lines = ["'Rip and tear'", "'Ripper entering combat'", "'Chainsaws functional'", "'Proceeding to eliminate enemies of the Federation'", "'All systems ready for battle'"]
+    death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Ripper offline'", "'Safety protocols engaged, powering down'", "'Heavy damage, shutting down'"]
     machine = True
     time_check = True
 
@@ -1240,7 +1239,7 @@ class Charger(Enemy):
     death_lines = ["'Detonating device'", "'No one can survive this explosion'", "'All allies, Charger explosion imminent'"]
     machine = True
 
-    def __init__(self, health=170, armor=0, damage=60, range=1, move_speed=4):
+    def __init__(self, health=60, armor=0, damage=50, range=1, move_speed=3):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
     def attack(self, place):
@@ -1470,16 +1469,14 @@ class Volk_Fight(Place):
         Place.__init__(self, type_weight)
 
 class Machine_Labs(Place):
-    """The Machine Labs are located in the town and the player gets to visit them if they choose the correct pathway in the story. The labs are perhaps the largest section of the game, having the most enemy variety and the most items the player can acquire. Enemies here are both man and 
-    machine, with each type having their own unique moves that work together to give the player a tough time. The final boss of the area is an experimental machine called 'Dominion' and will prove to be the player's toughest fight yet. This area gives the player a movement and damage bonus to 
-    assist them but due to the heavy air from all the industrial work, the player has reduced max health. Places are medium sized but there can be many enemies at a time, creating challenging situations."""
+    """The Machine Labs are perhaps the largest section of the game, having the most enemy variety and the most items the player can acquire. Enemies here are both man and machine, with each type having their own unique moves that work together to give the player a tough time. The final boss of the area is an experimental machine will prove to be the player's toughest fight yet. Places are medium to medium-large sized but there can be many enemies at a time, creating challenging situations."""
     possible_sizes = [x for x in range(5, 10)]
-    possible_enemies = []
-    possible_events = []
+    possible_enemies = ["Engineer()", "Ripper()", "Charger()", "Arty()"]
+    possible_events = [Lab_Files()]
     min_enemies = 2
     max_enemies = 5
 
-    def __init__(self, type_weight=[1, 1]):
+    def __init__(self, type_weight=[3, 2]):
         Place.__init__(self, type_weight)
 
 ### Store Class ###
