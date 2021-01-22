@@ -75,8 +75,7 @@ class Shield(Equipment):
         used attribute to True and keep it like that until the shield's buff is over. Make sure to add this item to the Place time items list only once. If the shield is already in use, show a message and let the player do something else."""
         if self.used:
             print("{0} is already in use, pick another item to use.".format(self.name))
-            print()
-            return place.player.take_turn(place)
+            return 
         for enemy in place.enemies:
             enemy.damage = round(enemy.damage * self.damage_multiplier)
         print("{0} reduced the enemy's attacks by {1}% for {2} turns!".format(self.name, round((1 - self.damage_multiplier) * 100), self.buff_length))
@@ -422,8 +421,7 @@ class Healing_Tool(Equipment):
         diff = place.player.eff_max_health - place.player.health
         if diff == 0:
             print("Health already maximum, can not use this")
-            print("")
-            return place.player.take_turn(place)
+            return None
         elif diff <= self.eff_heal:
             self.effect(place, int(diff))
         else:
@@ -649,29 +647,29 @@ class Player(Entity):
         try:
             action, index = choice.split(" ", 1)[0], choice.split(" ", 1)[1]
         except:
-            print("")
+            print()
             print("Invalid input, try again")
             return None
         if not index.isnumeric():
-            print("")
+            print()
             print("Invalid input, ensure you are typing in a valid number.")
             return None
         index = int(index)
         if action == "use":
             if index in range(len(self.inventory)):
                 return self.inventory[index]
-            print("")
+            print()
             print("Equipment not in inventory")
             return None
         elif action == "drop":
             if index in range(len(self.inventory)):
-                print("")
+                print()
                 return self.inventory_remove(self.inventory[index])
-            print("")
+            print()
             print("Equipment not in inventory")
             return None
         else:
-            print("")
+            print()
             print("Invalid command")
 
     def sorting(self):
@@ -733,40 +731,41 @@ class Player(Entity):
         """Method that allows the player to take their turn during combat. Players can either attack, move, or use an item in their inventory. If the player puts in an invalid input, allow them to try again. If the enemy is out of a weapon's range, 
         display a message saying so and let the player try again. If the player chooses an piece of equipment that isn't combat oriented, display a message and try again.
         """
-        while True:
-            place.player.recalculate(place)
-            place.visualize()
-            print()
-            print("*** Player ***")
-            print("{0}, Health: {1}, Armor: {2}, Move Speed: {3} units per turn".format(self.name, self.health, self.armor, self.eff_move))
-            print()
-            place.show_enemies()
-            print()
-            action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Inventory' to look at and use something in your inventory. "))
-            print()
-            if action == "attack": #Attack decision
-                weapon = self.use_weapon()
-                if not weapon:
-                    print()
-                else: 
-                    print()
-                    weapon.action(place)
-                    break
-            elif action == "move": #Movement decision
-                self.move(place)
-                break
-            elif action == "inventory": #Item usage decision
-                item = self.use_inventory()
+        place.player.recalculate(place)
+        place.visualize()
+        print()
+        print("*** Player ***")
+        print("{0}, Health: {1}, Armor: {2}, Move Speed: {3} units per turn".format(self.name, self.health, self.armor, self.eff_move))
+        print()
+        place.show_enemies()
+        print()
+        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Inventory' to look at and use something in your inventory. "))
+        print()
+        if action == "attack": #Attack decision
+            weapon = self.use_weapon()
+            if not weapon:
                 print()
-                if item and item.combat_item:
-                    item.action(place)
-                    print()
-                elif not item.combat_item:
-                    print("Not an item for combat, try again")
-                    print()
-            else:
-                print("Invalid input, try again")
+                self.take_turn(place)
+            else: 
                 print()
+                weapon.action(place)
+        elif action == "move": #Movement decision
+            self.move(place)
+        elif action == "inventory": #Item usage decision
+            item = self.use_inventory()
+            print()
+            if item and item.combat_item:
+                item.action(place)
+                if not isinstance(item, Weapon):
+                    print()
+                    self.take_turn(place)
+            elif item and not item.combat_item:
+                print("Not an item for combat, try again")
+                print()
+                self.take_turn(place)
+        else:
+            print("Invalid input, try again")
+            self.take_turn(place)
 
     def remove(self, place):
         "The player has a special remove function that ends the game upon their death."
