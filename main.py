@@ -132,7 +132,7 @@ if revolt == 1:
 elif not revolt:
     print(forget_wing8)
     player.armor += 100
-encounters = 3
+encounters = 0
 while encounters:
     input()
     place = Lower_Prison()
@@ -158,7 +158,7 @@ input()
 print(levelc_intro)
 if revolt == 1:
     Main_Prison_Initial.max_enemies = 2
-fights = 2
+fights = 0
 while fights:
     input()
     place = Main_Prison_Initial()
@@ -174,7 +174,7 @@ while stims:
     player.inventory_add(eval("Healing_Tool(50, 1, 0.5, 'Stim Shot')"))
     stims -= 1
 print()
-player.inventory_add(Firearm(30, 3, 90, 5, False, 'LP-2043 Laser Pistol'))
+player.inventory_add(Firearm(40, 3, 90, 5, False, 'LP-2043 Laser Pistol'))
 player.armor += 100
 input()
 print(levelc_reinforcements)
@@ -182,7 +182,7 @@ input()
 print(reinforcement_intimidation.format(("prisoner" if not revolt else "prisoners")))
 if revolt == 1:
     Main_Prison.max_enemies = 2
-fights = 8
+fights = 6
 while fights:
     input()
     place = Main_Prison()

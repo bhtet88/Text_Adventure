@@ -360,7 +360,7 @@ class Explosive(Weapon):
         if choice == "back":
             print()
             return place.player.take_turn(place)
-        elif not choice.isnumeric() or int(choice) not in range(place.player.position + 1, place.size + 1):
+        elif not choice.isnumeric() or int(choice) not in range(place.player.position + 1, place.size + 2):
             print()
             print("Invalid input, answer must be a valid numeric input")
             print()
@@ -763,8 +763,11 @@ class Player(Entity):
                 print("Not an item for combat, try again")
                 print()
                 self.take_turn(place)
+            else:
+                self.take_turn(place)
         else:
             print("Invalid input, try again")
+            print()
             self.take_turn(place)
 
     def remove(self, place):
@@ -920,21 +923,17 @@ class Federation_Rifleman(Enemy):
             self.can_throw = True
 
 class Federation_Marksman(Enemy):
-    """Federation marksmen are long range units that are fragile but armed with a sniper rifle that fires armor piercing laser rounds. They do their best to stay away from the player as much as they can, sitting at the outer range of their rifles and dealing damage from a distance. 
-    As a precision shooter, the marksman can only fire every other turn in order to give time for proper aim. If the player gets too close, the marksman retreats unless they are at the end of the place. If there are allies in front of the marksman, they gain information about the battle and 
-    have their range increased. This range increase is only once and does not stack by having multiple allies."""
+    """Federation marksmen are long range units that are fragile but armed with a sniper rifle that fires armor piercing laser rounds. They do their best to stay away from the player as much as they can, sitting at the outer range of their rifles and dealing damage from a distance. As a precision shooter, the marksman can only fire every other turn in order to give time for proper aim. If the player gets too close, the marksman retreats unless they are at the end of the place."""
     name = "Marksman"
     battle_lines = ["'Marksman in position'", "'Ready to hunt'", "'This will be just like at the 2041 Riots'", "'Enemy in my sites'", "'In position, engaging targets'", "'Targets spotted, engaging from a distance'"]
     death_lines = ["'Marksman down, I repeat, marksman down!'", "'All units, you lost your marksman!'", "'Shit, I'm out of the fight!'", "'Good luck guys, I'm not going to make it!'"]
-    possible_loot = ["Firearm(50, 5, 85, 15, True, 'LR2050-SR Precision Laser Rifle')", "Armor_Piece(50, 2, 'Marskman Vest')"]
+    possible_loot = ["Firearm(50, 5, 80, 15, True, 'LR2050-SR Precision Laser Rifle')", "Armor_Piece(50, 2, 'Marskman Vest')"]
     armor_piercing = True
     time_check = True
 
     def __init__(self, health=50, armor=50, damage=30, range=5, move_speed=3):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
-        self.accuracy = 70
-        self.default_range = range
-        self.range_boost = 1
+        self.accuracy = 60
         self.can_attack = True
         self.attack_counter = 0
         self.gap = 2
@@ -951,10 +950,6 @@ class Federation_Marksman(Enemy):
         """First priority is to maintain the gap so if the player is too close and the marksman can retreat, the marksman retreats. If the player is not in range, the marksman advances until they are in range. If the marksman is in range and can attack, they attack. Otherwise, the marksman 
         skips their turn. At the start of their turn, they get a range boost if they have allies in front of them."""
         print()
-        if any([x.position < self.position for x in place.enemies if x is not self]):
-            self.range = self.default_range + self.range_boost
-        else:
-            self.range = self.default_range
         dist = self.position - place.player.position
         if dist <= self.gap and self.position < place.size:
             self.move(place, True)
@@ -968,10 +963,6 @@ class Federation_Marksman(Enemy):
     def check(self, place):
         if self.attack_counter == place.turn_count:
             self.can_attack = True
-        if any([x.position < self.position for x in place.enemies if x is not self]):
-            self.range = self.default_range + self.range_boost
-        else:
-            self.range = self.default_range
 
 class Federation_Enforcer(Enemy):
     """Federation enforcers are close quarters battle specialists, equipped with higher tier armor and powerful shotguns. Enforcers deal high damage at close range but have a very short range. They follow the default take turn and attack methods, with the only thing special about them 
@@ -981,7 +972,7 @@ class Federation_Enforcer(Enemy):
     death_lines = ["'No way...they got me!'", "'AAAA AAAAA HELP ME!'", "'NOOOO, IT'S NOT OVER!'", "'DEATH WAS ON MY SIDE!'", "'HELP ME DAMN IT!'"]
     possible_loot = ["Shotgun(60, 2, 0.7, 50, 20, 'CQC-2044L Laser Shotgun')", "Armor_Piece(100, 7, 'Heavy Armor')", "Adrenaline(70, 0.4, 2, 1, 1)"]
 
-    def __init__(self, health=100, armor=100, damage=50, range=2, move_speed=1):
+    def __init__(self, health=100, armor=100, damage=40, range=2, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
 
 class Federation_Shielder(Enemy):
@@ -991,7 +982,7 @@ class Federation_Shielder(Enemy):
     name = "Riot Shielder"
     battle_lines = ["'Shield incoming, I have your backs!'", "'Shielder coming through!'", "'Stay behind me boys, I'll cover you!'", "'I'll draw their attention, you kill them!'", "'Stick together y'all, we can do this!'", "'Stay strong, use me for cover!'"]
     death_lines = ["'I'm sorry guys...they were too much...'", "'Impressive...they got...me...'", "'Don't worry about me guys, it's too late'", "'Honor fight with you all, go kick their ass'", "'You can win...without...me...'"]
-    possible_loot = ["Firearm(30, 3, 90, 5, False, 'LP-2043 Laser Pistol')", "Shield(0.50, 3, 14, 'Riot Shield')", "Armor_Piece(150, 12, 'Riot Armor')"]
+    possible_loot = ["Firearm(40, 3, 95, 5, False, 'LP-2043 Laser Pistol')", "Shield(0.50, 3, 14, 'Riot Shield')", "Armor_Piece(150, 12, 'Riot Armor')"]
 
     def __init__(self, health=100, armor=150, damage=20, range=1, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
@@ -1014,9 +1005,9 @@ class Volk(Federation_Rifleman):
     name = "Volk"
     battle_lines = ["'It's a shame you have to die'", "'You could have joined me, the Federation'", "'You can't hide from me or my flame'", "'This is for all my fallen men!'", "'I will enjoy burning you alive!'"]
     death_lines = ["'I guess it is all over...You really are...a force...to be...reckoned...with...'"]
-    possible_loot = ["Flamethrower(70, 20, 4, 5, 18, 'F-2048 Flamethrower')", "Armor_Piece(100, 12, 'Riot Armor')", "Healing_Tool(70, 3, 4, 'Nano Stim')", "Healing_Tool(70, 3, 4, 'Nano Stim')"]
+    possible_loot = ["Flamethrower(70, 20, 4, 5, 10, 'F-2048 Flamethrower')", "Armor_Piece(100, 10, 'Riot Armor')", "Healing_Tool(70, 3, 3, 'Nano Stim')", "Healing_Tool(70, 3, 3, 'Nano Stim')"]
     
-    def __init__(self, health=200, armor=250, damage=70, range=5, move_speed=2):
+    def __init__(self, health=200, armor=250, damage=40, range=5, move_speed=2):
         Federation_Rifleman.__init__(self, health, armor, damage, range, move_speed)
         self.can_heal = True
         self.syringes = 5
@@ -1083,7 +1074,7 @@ class Engineer(Enemy):
     def __init__(self, health=50, armor=50, damage=10, range=1, move_speed=5):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.damage_boost = 1.2
-        self.repair_threshold = 0.30
+        self.repair_threshold = 0.40
         self.repair_amount = 50
         self.move_boost = 1
         self.can_tune = True
@@ -1109,13 +1100,14 @@ class Engineer(Enemy):
         health percentage, otherwise it tune up its machine allies if they are on the field. If the player is directly in front of the engineer, they will attempt to retreat if they can or else they will attempt to fight. If none of these conditions are met, then the engineer will skip a turn. 
         If there are no machine allies left, the engineer will advance towards the player and attempt to attack them."""
         dist, place_machines = self.position - place.player.position, [x for x in place.enemies if x.machine]
+        low_hp = min(place_machines, key=lambda x: x.health / x.default_health)
         if place_machines:
             print()
             if dist <= self.gap and self.position < place.size:
                 self.move(place, True)
             elif dist <= self.range:
                 self.attack(place)
-            elif min(place_machines, key=lambda x: x.health / x.default_health) <= self.repair_threshold:
+            elif (low_hp.health / low_hp.default_health) <= self.repair_threshold:
                 self.repair(place, min(place_machines, key=lambda x: x.health / x.default_health))
             elif self.can_tune:
                 self.tune_up(place)
