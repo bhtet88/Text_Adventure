@@ -215,10 +215,9 @@ input()
 print(first_machine)
 input()
 onward(player, Machine_Labs([1, 0]))
-events = 5
+events = 6
 while events:
     input()
-    place = Machine_Labs()
-    onward(player, place)
+    onward(player, Machine_Labs())
     events -= 1
 input()
