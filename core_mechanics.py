@@ -1064,7 +1064,7 @@ class Volk(Federation_Rifleman):
         Federation_Rifleman.check(self, place)
 
 class Engineer(Enemy):
-    """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health and low armor. They also fight with a wrench, a low damage and low range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Finally, engineers have a repair ability, where they pick the lowest health machine ally and increase their health by a certain amount. Repairing has no cooldown and can be used repeatedly."""
+    """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health and low armor. They also fight with a wrench, a low damage and low range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Finally, engineers have a repair ability, where they pick the lowest health machine ally and increase their health by a certain amount. Repairing has a cooldown."""
     name = "Engineer"
     battle_lines = ["'Federation engineering is revolutionary!'", "'Fear the mind of the Federation!'", "'I may be weak but my inventions are strong!'", "'With my technology, failure is impossible!'", "'Federation's greatest mind ready to kill you!'"]
     death_lines = ["'Impossible...success was...inevitable!'", "'Were my calculations...wrong?'", "'Man dies, machines live...forever!'", "'My machines will avenge me!'"]
@@ -1076,24 +1076,28 @@ class Engineer(Enemy):
         self.damage_boost = 1.2
         self.repair_threshold = 0.40
         self.repair_amount = 50
+        self.repair_cooldown = 2
+        self.can_repair = True
+        self.repair_counter = 0
         self.move_boost = 1
         self.can_tune = True
-        self.cooldown = 2
+        self.cooldown = 4
         self.tune_counter = 0
         self.gap = 3
 
     def tune_up(self, place):
         """The tune up move boosts all machine type allies by multiplying their damage by the damage multiplier and by increasing their move speed by the move boost. Then, the can tune attribute is set to False and the tune counter is set to the next turn when the move's cooldown is over. """
-        print("{0} does a tune up on all machine type allies, granting them a {1}% damage boost and an additional {2} units of move speed!".format(self.name, round((self.damage_boost * 100) - 100), self.move_boost))
+        print("{0} does a tune up on all machine type allies, granting them a {1}% damage boost and an additional {2} units of move speed for {3} turns!".format(self.name, round((self.damage_boost * 100) - 100), self.move_boost, self.cooldown))
         for enemy in place.enemies:
             if enemy.machine:
-                enemy.damage, enemy.move_speed = enemy.damage * self.damage_boost, enemy.move_speed + self.move_boost
+                enemy.damage, enemy.move_speed = round(enemy.damage * self.damage_boost), enemy.move_speed + self.move_boost
         self.can_tune, self.tune_counter = False, place.turn_count + self.cooldown
 
     def repair(self, place, target):
         """The engineer directly adds health to the target, which is a specific machine ally. This is only done when the machine is at a certain percentage of their base health and this move has no cooldown."""
         print("{0} repairs {1} for {2} health".format(self.name, target.name, self.repair_amount))
         target.health = min(target.health + self.repair_amount, target.default_health)
+        self.can_repair, self.repair_counter = False, place.turn_count + self.repair_cooldown
 
     def take_turn(self, place):
         """The engineer's first priority is staying away from combat as much as possible, meaning that it will retreat if the player is within the gap and the engineer is not at the end of the place. If there are machine allies, the engineer will prioritize repairing any below a certain 
@@ -1107,7 +1111,7 @@ class Engineer(Enemy):
                 self.move(place, True)
             elif dist <= self.range:
                 self.attack(place)
-            elif (low_hp.health / low_hp.default_health) <= self.repair_threshold:
+            elif (low_hp.health / low_hp.default_health) <= self.repair_threshold and self.can_repair:
                 self.repair(place, min(place_machines, key=lambda x: x.health / x.default_health))
             elif self.can_tune:
                 self.tune_up(place)
@@ -1124,6 +1128,8 @@ class Engineer(Enemy):
                 if enemy.machine:
                     enemy.damage, enemy.move_speed = round(enemy.damage / self.damage_boost), max(enemy.move_speed - self.move_boost, 1)
             self.can_tune = True
+        if place.turn_count == self.repair_cooldown:
+            self.can_repair = True
 
 class Arty(Enemy):
     """The Arty is a powerful machine enemy found in the Machine Labs. It is a four legged machine with miniturized motar on its back, making it a strong ranged enemy. Due to the complex machinary behind this enemy's weapon, it can only fire every 2 turns to allow for reloading and aiming. Similar to an archer, it remains as far of the player as it can and retreats if the player gets too close. However, the Arty has limited movement speed due to the mortar's weight, meaning it has difficulty retreating. Also, while it does powerful damage, this enemy has low health for a machine type enemy."""
@@ -1134,7 +1140,7 @@ class Arty(Enemy):
     machine = True
     time_check = True
 
-    def __init__(self, health=100, armor=50, damage=25, range=5, move_speed=1):
+    def __init__(self, health=70, armor=50, damage=25, range=5, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.can_attack = True
         self.attack_counter = 0
@@ -1143,10 +1149,10 @@ class Arty(Enemy):
     def attack(self, place):
         """Uses the default attack method but then calculates the attack counter and sets the can attack attribute to False."""
         Enemy.attack(self, place)
-        self.can_attack, self.attack_counter = False, place.turn_count + 1
+        self.can_attack, self.attack_counter = False, place.turn_count + 2
 
     def take_turn(self, place):
-        """If the player is not in range, then the Atry will move towards the player until they are in range. Once in range, they will attack if they are able to or if not, will skip a turn. If the player is too close, the Arty attempts to retreat until it can not retreat anymore, 
+        """If the player is not in range, then the Arty will move towards the player until they are in range. Once in range, they will attack if they are able to or if not, will skip a turn. If the player is too close, the Arty attempts to retreat until it can not retreat anymore, 
         where it will attempt to fight the player at close range."""
         dist = self.position - place.player.position
         print()
@@ -1185,7 +1191,7 @@ class Ripper(Enemy):
 
     def dash(self, place):
         """Dashes the Ripper forward towards the player as far as the dash speed allows or until it reaches the player. Then, the can dash attribute is set to False and the dash counter is recalculated so that the Ripper cannot move for a turn."""
-        steps = min(self.dash, self.position - (place.player.position + 1))
+        steps = min(self.dash_speed, self.position - (place.player.position + 1))
         self.position, self.dash_counter = self.position - steps, place.turn_count + 1
         self.can_move = False
         print("{0} uses its thrusters to dash forward {1} units!".format(self.name, steps))
@@ -1199,8 +1205,8 @@ class Ripper(Enemy):
         """The Ripper will dash into combat if it is able to and the distance between it and the player is greater than its move speed. Otherwise, it will use its normal movement to get into range. If the player is not in range and it can't move, the Ripper will skip a turn. Once in range, 
         the ripper will attack if it is able to or if not, will display a message and skip a turn."""
         dist = self.position - (place.player.position + 1)
+        print()
         if dist > self.range:
-            print()
             if dist > self.move_speed and self.can_move:
                 self.dash(place)
             elif dist <= self.move_speed and self.can_move:
@@ -1211,8 +1217,7 @@ class Ripper(Enemy):
             if self.can_attack:
                 self.attack(place)
             else:
-                print()
-                print("'Attacking motors on cooldown, standby'")
+                print("'Chainsaw motors on cooldown, standby'")
 
     def check(self, place):
         """Checks if the dash and attack cooldowns are done and if so, sets their respective booleans to True."""
@@ -1466,7 +1471,7 @@ class Machine_Labs(Place):
     possible_enemies = ["Engineer()", "Ripper()", "Charger()", "Arty()"]
     possible_events = [Lab_Files()]
     min_enemies = 2
-    max_enemies = 5
+    max_enemies = 4
 
     def __init__(self, type_weight=[3, 2]):
         Place.__init__(self, type_weight)

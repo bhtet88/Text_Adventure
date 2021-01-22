@@ -182,7 +182,7 @@ input()
 print(reinforcement_intimidation.format(("prisoner" if not revolt else "prisoners")))
 if revolt == 1:
     Main_Prison.max_enemies = 2
-fights = 6
+fights = 0
 while fights:
     input()
     place = Main_Prison()
@@ -206,14 +206,16 @@ if volk_choice in [0, 1]: #Surrendering to Volk gives an early end
     quit()
 print(volk_fight)
 input()
-onward(player, Volk_Fight())
+# onward(player, Volk_Fight())
 input()
 print(volk_death)
 input()
 print(labs_intro)
 input()
 print(first_machine)
-events = 10 
+input()
+onward(player, Machine_Labs([1, 0]))
+events = 5
 while events:
     input()
     place = Machine_Labs()
