@@ -980,7 +980,7 @@ class Federation_Enforcer(Enemy):
     name = "Enforcer"
     battle_lines = ["'Enforcer, closing the distance!'", "'I'll fill you full of laser beams!'", "'This shotty will melt your insides!'", "'I'm going to love seeing you squirm!'", "'Die! That's all your kind is good for!'", "'Moving in for the kill!'"]
     death_lines = ["'No way...they got me!'", "'AAAA AAAAA HELP ME!'", "'NOOOO, IT'S NOT OVER!'", "'DEATH WAS ON MY SIDE!'", "'HELP ME DAMN IT!'"]
-    possible_loot = ["Shotgun(60, 2, 0.7, 50, 20, 'CQC-2034L Laser Shotgun')", "Armor_Piece(100, 7, 'Heavy Armor')", "Adrenaline(70, 0.4, 2, 1, 1)"]
+    possible_loot = ["Shotgun(60, 2, 0.7, 50, 20, 'CQC-2044L Laser Shotgun')", "Armor_Piece(100, 7, 'Heavy Armor')", "Adrenaline(70, 0.4, 2, 1, 1)"]
 
     def __init__(self, health=100, armor=100, damage=50, range=2, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
@@ -992,7 +992,7 @@ class Federation_Shielder(Enemy):
     name = "Riot Shielder"
     battle_lines = ["'Shield incoming, I have your backs!'", "'Shielder coming through!'", "'Stay behind me boys, I'll cover you!'", "'I'll draw their attention, you kill them!'", "'Stick together y'all, we can do this!'", "'Stay strong, use me for cover!'"]
     death_lines = ["'I'm sorry guys...they were too much...'", "'Impressive...they got...me...'", "'Don't worry about me guys, it's too late'", "'Honor fight with you all, go kick their ass'", "'You can win...without...me...'"]
-    possible_loot = ["Firearm(30, 3, 90, 5, False, 'LP-2066 Laser Pistol')", "Shield(0.50, 3, 14, 'Riot Shield')", "Armor_Piece(150, 12, 'Riot Armor')"]
+    possible_loot = ["Firearm(30, 3, 90, 5, False, 'LP-2043 Laser Pistol')", "Shield(0.50, 3, 14, 'Riot Shield')", "Armor_Piece(150, 12, 'Riot Armor')"]
 
     def __init__(self, health=100, armor=150, damage=20, range=1, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
@@ -1016,7 +1016,7 @@ class Volk(Federation_Rifleman):
     name = "Volk"
     battle_lines = ["'It's a shame you have to die'", "'You could have joined me, the Federation'", "'You can't hide from me or my flame'", "'This is for all my fallen men!'", "'I will enjoy burning you alive!'"]
     death_lines = ["'I guess it is all over...You really are...a force...to be...reckoned...with...'"]
-    possible_loot = ["Flamethrower(70, 20, 4, 5, 18, 'F-2044 Flamethrower')", "Armor_Piece(100, 12, 'Riot Armor')", "Healing_Tool(70, 3, 4, 'Nano Stim')", "Healing_Tool(70, 3, 4, 'Nano Stim')"]
+    possible_loot = ["Flamethrower(70, 20, 4, 5, 18, 'F-2048 Flamethrower')", "Armor_Piece(100, 12, 'Riot Armor')", "Healing_Tool(70, 3, 4, 'Nano Stim')", "Healing_Tool(70, 3, 4, 'Nano Stim')"]
     
     def __init__(self, health=200, armor=250, damage=70, range=5, move_speed=2):
         Federation_Rifleman.__init__(self, health, armor, damage, range, move_speed)
@@ -1272,20 +1272,9 @@ class Event:
     def __repr__(self):
         return self.name
 
-class Encounter(Event):
-    """The encounter events are purely dialogue based. A piece of dialogue plays and then the player goes on their way. These serve as a way to describe more about the world and their environment to the player"""
-    encounters = [abandoned_village, water]
-
-    def __init__(self):
-        Event.__init__(self)
-    
-    def play(self, place):
-        """Randomly show a text message from the encounters list. No player input or any changes to the game itself."""
-        print(random.choice(self.encounters))
-
 class Lab_Files(Event):
-    """Event that occurs in the labs, where the player can choose to read a file that contains information on the enemies they are fighting."""
-    files = []
+    """Event that occurs in the labs, where the player can choose to read a file that contains information on the enemies they are fighting and weapons they are using."""
+    files = [file_laser_rifle]
 
     def __init__(self):
         Event.__init__(self)
