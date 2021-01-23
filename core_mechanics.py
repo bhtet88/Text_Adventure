@@ -94,8 +94,15 @@ class Shield(Equipment):
     def __str__(self):
         return "{0}, Damage Reduction: {1}%, Block Duration: {2} turns, Weight: {3} lbs".format(self.name, round((1 - self.damage_multiplier) * 100), self.buff_length, self.weight)
 
+class Booster(Equipment):
+    """Booster equipment are items that provide limited time boosts to the player in at least one stat, which is specified when the instance is created. Booster equipment purely give positive changes to the player, not negative ones. They are also universal bonuses so they cannot be for a specific class of weapon for example."""
+    class_name = "Booster"
+    combat_item = True
+
+    def __init__(self, )
+
 class Weapon(Equipment): 
-    """Weapons that the player and enemies can use to fight with. Each weapon has damage, range, weight, and price. Some weapons can have an armor piercing ability
+    """Weapons that the player and enemies can use to fight with. Each weapon has damage, range, weight, and price. Some weapons can have an armor piercing ability.
     >>> x = Weapon(100, 50, 10, 250)
     >>> x.damage 
     100
@@ -206,36 +213,6 @@ class Polearm(Weapon):
             print("Invalid input, try again")
             return self.action(place)
 
-class Bow(Weapon):
-    """Bows are long ranged weapons that are armor piercing and can hit enemies that are more than 1 unit away. Damage is weaker than melee weapons. The bow itself is light but the bundle of arrows makes them heavier than expected. Have a special volley attack that allows them to deal half
-    damage to all enemies within range"""
-    armor_piercing = True
-    ranged = True
-
-    def __init__(self, damage, range, weight, name="Bow"):
-        Weapon.__init__(self, damage, range, weight, name)
-
-    def volley_shot(self, place):
-        """The volley shot deals half of the bow's effective damage (damage after all buffs and debuffs are applied) to all enemies within range."""
-        targets = [enemy for enemy in place.enemies if enemy.position - place.player.position <= self.eff_range]
-        for target in targets:
-            target.injure(place, self.eff_damage // 2, self.armor_piercing)
-
-    def action(self, place):
-        """The action method for bows allows the player to decide if they want to use the normal attack or use the volley shot method. Each decision will call the proper method."""
-        attack = fixed_input(input("What attack will you use? Type 'Normal' or 'Volley Shot' to attack or 'Back' to choose a different action. "))
-        print()
-        if attack == "back":
-            return place.player.take_turn(place)
-        elif attack == "normal":
-            Weapon.action(self, place)
-        elif attack == "volley shot":
-            self.volley_shot(place)
-        else:
-            print("Invalid input, try again")
-            print()
-            return self.action(place)
-
 class Firearm(Weapon):
     """Firearms are powerful ranged weapons similar to bows but in exchange for their great power, each firearm has an accuracy rating that determines if the weapon hits the target or misses. Accuracy is a value between 0 and 100."""
     ranged = True
@@ -250,7 +227,7 @@ class Firearm(Weapon):
     def recalculate(self, place):
         """Uses the normal weapon class recalculation plus recalculates the effective accuracy attribute."""
         Weapon.recalculate(self, place)
-        self.eff_accuracy = int(max(min(self.accuracy + self.accuracy_bonus, 100), 30)) #Ensures that accuracy will never surpass 100 but will also always be at least 40
+        self.eff_accuracy = int(max(min(self.accuracy + self.accuracy_bonus, 100), 40)) #Ensures that accuracy will never surpass 100 but will also always be at least 40
 
     def attack(self, place, target):
         """Rifles have to perform a random roll to see if they hit their target or not."""
@@ -484,8 +461,8 @@ guard_vest = "Armor_Piece(30, 1, 'Guard Vest')"
 salvaged_armor = "Armor_Piece(40, 4, 'Salvaged Armor Pieces')"
 engineer_armor = "Armor_Piece(50, 2, 'Engineer Armor')"
 wd_armor = "Armor_Piece(50, 1, 'War Dog Armor')"
-ballistic_vest = "Armor_Piece(80, 5, 'Ballistic Vest')"
 marksman_vest = "Armor_Piece(50, 2, 'Marskman Vest')"
+ballistic_vest = "Armor_Piece(80, 5, 'Ballistic Vest')"
 heavy_armor = "Armor_Piece(100, 7, 'Heavy Armor')"
 riot_armor = "Armor_Piece(150, 12, 'Riot Armor')"
 
