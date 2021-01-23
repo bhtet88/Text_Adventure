@@ -40,7 +40,7 @@ def escaping(player):
         elif food_choice == 1:
             print(food_lid)
             input()
-            player.inventory_add(shank)
+            player.inventory_add(eval(shank))
             print()
             food_choice = choices(["Bang on the walls, acting insane", "Lie down on the bench and moan as if you were in pain", "Insult the guard when they walk past"], "Now what will you do?")
             print()
@@ -109,7 +109,7 @@ input()
 if shank in player.inventory:
     player.inventory_remove(shank)
     print()
-player.inventory_add(Weapon(50, 1, 2, "Stun Baton"))
+player.inventory_add(eval(stun_baton))
 player.armor += 60
 input()
 Prison_Guard.can_drop = True
@@ -171,10 +171,10 @@ print((levelc_rest_solo if not revolt else levelc_rest_revolt))
 print()
 stims = 4
 while stims:
-    player.inventory_add(eval("Healing_Tool(50, 1, 0.5, 'Stim Shot')"))
+    player.inventory_add(eval(stim))
     stims -= 1
 print()
-player.inventory_add(Firearm(40, 3, 90, 5, False, 'LP-2043 Laser Pistol'))
+player.inventory_add(eval(pistol))
 player.armor += 100
 input()
 print(levelc_reinforcements)

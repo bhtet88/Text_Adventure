@@ -469,7 +469,31 @@ class Adrenaline(Healing_Tool):
 
 ### In-Game Items ###
 
-shank = Weapon(35, 1, 0.5, "Shank")
+wrench = "Weapon(30, 1, 5, 'Wrench')"
+shank = "Weapon(35, 1, 0.5, 'Shank')"
+stun_baton = "Weapon(50, 1, 2, 'Stun Baton')"
+pistol = "Firearm(40, 3, 95, 5, False, 'LP-2043 Laser Pistol')"
+rifle = "Firearm(50, 4, 70, 8, False, 'LR2047-7 Laser Rifle')"
+sniper_rifle = "Firearm(50, 5, 80, 15, True, 'LR 2050-SR Precision Laser Rifle')"
+shotgun = "Shotgun(60, 2, 0.7, 50, 20, 'CQC-2049L Laser Shotgun')"
+flamethrower = "Flamethrower(70, 20, 4, 5, 10, 'F-2048 Flamethrower')"
+
+grenade = "Explosive(75, 1, 5, 1, 2, 'PG-2039 Plasma Grenade')"
+
+guard_vest = "Armor_Piece(30, 1, 'Guard Vest')"
+salvaged_armor = "Armor_Piece(40, 4, 'Salvaged Armor Pieces')"
+engineer_armor = "Armor_Piece(50, 2, 'Engineer Armor')"
+wd_armor = "Armor_Piece(50, 1, 'War Dog Armor')"
+ballistic_vest = "Armor_Piece(80, 5, 'Ballistic Vest')"
+marksman_vest = "Armor_Piece(50, 2, 'Marskman Vest')"
+heavy_armor = "Armor_Piece(100, 7, 'Heavy Armor')"
+riot_armor = "Armor_Piece(150, 12, 'Riot Armor')"
+
+stim = "Healing_Tool(50, 1, 0.5, 'Stim Shot')"
+adrenaline = "Adrenaline(70, 0.4, 2, 1, 1)"
+nano_stim = "Adrenaline(70, 0.7, 4, 3, 3, 'Nano Stim')"
+
+riot_shield = "Shield(0.50, 3, 14, 'Riot Shield')"
 
 ### Creature Class ###
 
@@ -841,7 +865,7 @@ class Enemy(Entity):
         print("{0} eliminated!".format(self.name))
         Entity.remove(self, place)
         if random.choice([1, 2]) == 1:
-            place.loot.append(eval("Healing_Tool(50, 1, 0.5, 'Stim Shot')"))
+            place.loot.append(eval(stim))
         if self.possible_loot and self.can_drop:
             place.loot.append(eval(random.choice(self.possible_loot)))
 
@@ -854,7 +878,7 @@ class Prison_Guard(Enemy):
     name = "Prison Guard"
     battle_lines = ["'Come on prisoner, I'll make you regret this!'", "'Don't let the prisoner escape!'", "'I can't wait to kill you!'", "'It was a mistake leaving you alive!'", "'We should have killed you when we first found you!'"]
     death_lines = ["'How could I die to filth?'", "'Comrades...kill this...bitch!'", "'You will never get past the rest!'", "'AAAHHHHH!'"]
-    possible_loot = ["Weapon(50, 1, 2, 'Stun Baton')", "Armor_Piece(30, 1, 'Guard Vest')"]
+    possible_loot = [stun_baton, guard_vest]
     can_drop = False
 
     def __init__(self, health=40, armor=30, damage=20, range=1, move_speed=1):
@@ -878,18 +902,17 @@ class Dog(Enemy):
 class War_Dog(Dog):
     """War dogs are dogs bred for killing, augmented by technology and genetic modification. They have been given more armor and health their their ordinary counterparts and move slightly faster. Aside from that, they have no other special moves and are functionally similar to normal dogs."""
     name = "War Dog"
-    possible_loot =  ["Armor_Piece(50, 1, 'War Dog Armor')"]
+    possible_loot =  [wd_armor]
 
     def __init__(self, health=50, armor=50, damage=25, range=1, move_speed=3):
         Dog.__init__(self, health, armor, damage, range, move_speed)
 
 class Federation_Rifleman(Enemy):
-    """Federation rifleman are the main bulk of the Federation's military, given moderate armor, kept in good health, and equipped with a laser rifle and grenades. They have a special grenade throw that allows them to lob a medium damage explosive at the player. They have a limited amount of 
-    grenades and there is a cooldown period in between throws. Their normal attack is a laser rifle, which fires non armor piercing ammunition and deals moderate damage. Their rifles also have medium range, requiring them to advance towards the player before firing."""
+    """Federation rifleman are the main bulk of the Federation's military, given moderate armor, kept in good health, and equipped with a laser rifle and grenades. They have a special grenade throw that allows them to lob a medium damage explosive at the player. They have a limited amount of grenades and there is a cooldown period in between throws. Their normal attack is a laser rifle, which fires non armor piercing ammunition and deals moderate damage. Their rifles also have medium range, requiring them to advance towards the player before firing."""
     name = "Rifleman"
     battle_lines = ["'Federation's best about to kick your ass!'", "'Ok, the fun's over!'", "'You'll wish you were never born!'", "'Moving in for the kill!'", "'OOO RAA!'"]
     death_lines = ["'I may be gone but so will you very soon!", "'Help! I need assi...'", "'Fuck, they got me!'", "'Finish them off comrades!'", "'Nooooo...how could...this...happen?'"]
-    possible_loot = ["Firearm(50, 4, 70, 8, False, 'LR2047-7 Laser Rifle')", "Explosive(75, 1, 5, 1, 2, 'PG-2039 Plasma Grenade')", "Armor_Piece(80, 5, 'Ballistic Vest')"]
+    possible_loot = [rifle, grenade, ballistic_vest]
     time_check = True
 
     def __init__(self, health=70, armor=80, damage=30, range=4, move_speed=1):
@@ -927,7 +950,7 @@ class Federation_Marksman(Enemy):
     name = "Marksman"
     battle_lines = ["'Marksman in position'", "'Ready to hunt'", "'This will be just like at the 2041 Riots'", "'Enemy in my sites'", "'In position, engaging targets'", "'Targets spotted, engaging from a distance'"]
     death_lines = ["'Marksman down, I repeat, marksman down!'", "'All units, you lost your marksman!'", "'Shit, I'm out of the fight!'", "'Good luck guys, I'm not going to make it!'"]
-    possible_loot = ["Firearm(50, 5, 80, 15, True, 'LR 2050-SR Precision Laser Rifle')", "Armor_Piece(50, 2, 'Marskman Vest')"]
+    possible_loot = [sniper_rifle, marksman_vest]
     armor_piercing = True
     time_check = True
 
@@ -970,7 +993,7 @@ class Federation_Enforcer(Enemy):
     name = "Enforcer"
     battle_lines = ["'Enforcer, closing the distance!'", "'I'll fill you full of laser beams!'", "'This shotty will melt your insides!'", "'I'm going to love seeing you squirm!'", "'Die! That's all your kind is good for!'", "'Moving in for the kill!'"]
     death_lines = ["'No way...they got me!'", "'AAAA AAAAA HELP ME!'", "'NOOOO, IT'S NOT OVER!'", "'DEATH WAS ON MY SIDE!'", "'HELP ME DAMN IT!'"]
-    possible_loot = ["Shotgun(60, 2, 0.7, 50, 20, 'CQC-2049L Laser Shotgun')", "Armor_Piece(100, 7, 'Heavy Armor')", "Adrenaline(70, 0.4, 2, 1, 1)"]
+    possible_loot = [shotgun, heavy_armor, adrenaline]
 
     def __init__(self, health=100, armor=100, damage=40, range=2, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
@@ -982,7 +1005,7 @@ class Federation_Shielder(Enemy):
     name = "Riot Shielder"
     battle_lines = ["'Shield incoming, I have your backs!'", "'Shielder coming through!'", "'Stay behind me boys, I'll cover you!'", "'I'll draw their attention, you kill them!'", "'Stick together y'all, we can do this!'", "'Stay strong, use me for cover!'"]
     death_lines = ["'I'm sorry guys...they were too much...'", "'Impressive...they got...me...'", "'Don't worry about me guys, it's too late'", "'Honor fight with you all, go kick their ass'", "'You can win...without...me...'"]
-    possible_loot = ["Firearm(40, 3, 95, 5, False, 'LP-2043 Laser Pistol')", "Shield(0.50, 3, 14, 'Riot Shield')", "Armor_Piece(150, 12, 'Riot Armor')"]
+    possible_loot = [pistol, riot_shield, riot_armor]
 
     def __init__(self, health=100, armor=150, damage=20, range=1, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
@@ -1005,7 +1028,7 @@ class Volk(Federation_Rifleman):
     name = "Volk"
     battle_lines = ["'It's a shame you have to die'", "'You could have joined me, the Federation'", "'You can't hide from me or my flame'", "'This is for all my fallen men!'", "'I will enjoy burning you alive!'"]
     death_lines = ["'I guess it is all over...You really are...a force...to be...reckoned...with...'"]
-    possible_loot = ["Flamethrower(70, 20, 4, 5, 10, 'F-2048 Flamethrower')", "Armor_Piece(100, 10, 'Riot Armor')", "Healing_Tool(70, 3, 3, 'Nano Stim')", "Healing_Tool(70, 3, 3, 'Nano Stim')"]
+    possible_loot = [flamethrower, riot_armor, nano_stim, nano_stim]
     
     def __init__(self, health=200, armor=250, damage=40, range=5, move_speed=2):
         Federation_Rifleman.__init__(self, health, armor, damage, range, move_speed)
@@ -1068,7 +1091,7 @@ class Engineer(Enemy):
     name = "Engineer"
     battle_lines = ["'Federation engineering is revolutionary!'", "'Fear the mind of the Federation!'", "'I may be weak but my inventions are strong!'", "'With my technology, failure is impossible!'", "'Federation's greatest mind ready to kill you!'"]
     death_lines = ["'Impossible...success was...inevitable!'", "'Were my calculations...wrong?'", "'Man dies, machines live...forever!'", "'My machines will avenge me!'"]
-    possible_loot = ["Armor_Piece(50, 1, 'Engineer Armor')", "Weapon(30, 1, 5, 'Wrench')"]
+    possible_loot = [engineer_armor, wrench]
     time_check = True
 
     def __init__(self, health=50, armor=50, damage=10, range=1, move_speed=5):
@@ -1136,7 +1159,7 @@ class Arty(Enemy):
     name = "Arty"
     battle_lines = ["'Enemies spotted, preparing mortar'", "'Arty ready for battle'", "'Arty entering combat'", "'Mortar ready'", "'Bombardment commencing'"]
     death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Arty offline'"]
-    possible_loot = ["Armor_Piece(40, 4, 'Salvaged Armor Pieces')"]
+    possible_loot = [salvaged_armor]
     machine = True
     time_check = True
 
@@ -1178,7 +1201,7 @@ class Ripper(Enemy):
     name = "Ripper"
     battle_lines = ["'Rip and tear'", "'Ripper entering combat'", "'Chainsaws functional'", "'Proceeding to eliminate enemies of the Federation'", "'All systems ready for battle'"]
     death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Ripper offline'", "'Safety protocols engaged, powering down'", "'Heavy damage, shutting down'"]
-    possible_loot = ["Armor_Piece(150, 10, 'Salvaged Armor Pieces')"]
+    possible_loot = [salvaged_armor]
     machine = True
     time_check = True
 
@@ -1234,7 +1257,7 @@ class Charger(Enemy):
     name = "Charger"
     battle_lines = ["'Enemy sighted, arming detonation device'", "'Explosives primed'", "'Charging opponent'", "'Attention all units, Charger entering combat'", "'Keep your distance, Charger armed'"]
     death_lines = ["'Detonating device'", "'No one can survive this explosion'", "'All allies, Charger explosion imminent'"]
-    possible_loot = ["Armor_Piece(20, 0.2, 'Salvaged Armor Pieces')"]
+    possible_loot = [salvaged_armor]
     machine = True
 
     def __init__(self, health=55, armor=20, damage=50, range=1, move_speed=3):
