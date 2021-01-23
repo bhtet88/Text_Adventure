@@ -95,11 +95,62 @@ class Shield(Equipment):
         return "{0}, Damage Reduction: {1}%, Block Duration: {2} turns, Weight: {3} lbs".format(self.name, round((1 - self.damage_multiplier) * 100), self.buff_length, self.weight)
 
 class Booster(Equipment):
-    """Booster equipment are items that provide limited time boosts to the player in at least one stat, which is specified when the instance is created. Booster equipment purely give positive changes to the player, not negative ones. They are also universal bonuses so they cannot be for a specific class of weapon for example."""
+    """Booster equipment are items that provide limited time boosts to the player in one stat, which is specified when the instance is created. Booster equipment purely give positive changes to the player, not negative ones. They are also universal bonuses so they cannot be for a specific class of weapon for example. Boosters are always single use items."""
     class_name = "Booster"
     combat_item = True
+    time_check = True
 
-    def __init__(self, )
+    def __init__(self, bonus, kind, bonus_length, weight, name="Booster"):
+        Equipment.__init__(self, weight, name)
+        self.bonus = bonus
+        self.kind = kind
+        self.bonus_length = bonus_length
+        self.bonus_counter = 0
+
+    def action(self, place):
+        """There are six stats the player can have a bonus in: damage, range, healing, move speed, accuracy, or max health. For each one except max health, apply the bonus to the player's respective bonus attribute, calculate the bonus counter using the global turn count, add this item to the time items list in the Place class, and remove the booster from the player's inventory."""
+        if self.kind == "max health":
+            place.player.max_health += self.bonus
+            print("{0} increased {1} by {2} points for {3} turns".format(self.name, self.kind, self.bonus, self.bonus_length))
+        elif self.kind == "damage":
+            place.player.damage_bonus += self.bonus
+            print("{0} increased {1} by {2}% for {3} turns".format(self.name, self.kind, round(self.bonus * 100), self.bonus_length))
+        elif self.kind == "range":
+            place.player.range_bonus += self.bonus
+            print("{0} increased {1} by {2} units for {3} turns".format(self.name, self.kind, self.bonus, self.bonus_length))
+        elif self.kind == "healing":
+            place.player.heal_bonus += self.bonus
+            print("{0} increased {1} by {2} points for {3} turns".format(self.name, self.kind, self.bonus, self.bonus_length))
+        elif self.kind == "movement":
+            place.player.move_bonus += self.bonus
+            print("{0} increased {1} by {2} points for {3} turns".format(self.name, self.kind, self.bonus, self.bonus_length))
+        elif self.kind == "accuracy":
+            place.player.accuracy_bonus += self.bonus
+            print("{0} increased {1} by {2}% for {3} turns".format(self.name, self.kind, self.bonus, self.bonus_length))
+        self.bonus_counter = place.global_turns + self.bonus_length
+        Place.current_time_items.append(self)
+        print()
+        place.player.inventory_remove(self)
+
+    def check(self, place):
+        """Essentially does what happens in action but backwards, removing the bonus. Also, remove the item from the current time items list in the Place class."""
+        if place.global_turns == self.bonus_counter:
+            if self.kind == "max health":
+                place.player.max_health -= self.bonus
+            elif self.kind == "damage":
+                place.player.damage_bonus -= self.bonus
+            elif self.kind == "range":
+                place.player.range_bonus -= self.bonus
+            elif self.kind == "healing":
+                place.player.heal_bonus -= self.bonus
+            elif self.kind == "movement":
+                place.player.move_bonus -= self.bonus
+            elif self.kind == "accuracy":
+                place.player.accuracy_bonus -= self.bonus
+            Place.current_time_items.remove(self)
+
+    def __str__(self):
+        return "{0}, {1} Bonus: {2}, Bonus Length: {3}, Weight: {4} lbs".format(self.name, self.kind.capitalize(), ((str(round(self.bonus * 100)) + "%") if self.kind == "damage" else self.bonus) , self.bonus_length, self.weight)
 
 class Weapon(Equipment): 
     """Weapons that the player and enemies can use to fight with. Each weapon has damage, range, weight, and price. Some weapons can have an armor piercing ability.
@@ -123,8 +174,6 @@ class Weapon(Equipment):
     combat_item = True
     armor_piercing = False
     ranged = False
-    damage_bonus = 0
-    range_bonus = 0
     
     def __init__(self, damage, range, weight, name="Weapon"):
         Equipment.__init__(self, weight, name)
@@ -135,9 +184,9 @@ class Weapon(Equipment):
     
     def recalculate(self, place):
         """Recalculates the effective damage and range of the weapon, taking into account the bonuses of the weapon class, the player, and the current place."""
-        self.eff_damage = int(max(self.damage * (1 + (self.damage_bonus + place.player.damage_bonus)), 5)) #Prevents the weapons from becoming useless 
+        self.eff_damage = int(max(self.damage * (1 + place.player.damage_bonus), 5)) #Prevents the weapons from becoming useless 
         if self.ranged:
-            self.eff_range = int(max(self.range + self.range_bonus + place.player.range_bonus, 1)) #Range must be at least 1 and only ranged weapons get a range bonus
+            self.eff_range = int(max(self.range + place.player.range_bonus, 1)) #Range must be at least 1 and only ranged weapons get a range bonus
 
     def combat_table(self, place):
         """Helper method for the action method for Weapons, showing the enemies sorted by distance and the current weapon's effective range."""
@@ -182,41 +231,9 @@ class Weapon(Equipment):
     def __str__(self):
         return "{0}, Damage: {1}, Range: {2} units, Weight: {3} lbs, Armor Piercing: {4}".format(self.name, self.eff_damage, self.eff_range, self.weight, self.armor_piercing)
 
-class AP_Weapon(Weapon):
-    """Exact same as the Weapon class but armor piercing is turned on."""
-    armor_piercing = True
-
-class Polearm(Weapon):
-    """Polearms are melee weapons that have a special sweep attack, allowing them to hit all enemies in directly in front of the player for reduced damage."""
-
-    def __init__(self, damage, sweep_multiplier, range, weight, name="Polearm"):
-        Weapon.__init__(self, damage, range, weight, name)
-        self.sweep_multiplier = sweep_multiplier
-
-    def sweep(self, place):
-        """Damages all enemies directly in front of the player for reduced damage governed by the sweep multiplier."""
-        for enemy in place.enemies:
-            if enemy.position == place.player.position + 1:
-                enemy.injure(place, int(self.eff_damage * self.sweep_multiplier), self.armor_piercing)
-
-    def action(self, place):
-        """Allow the player to choose between the normal attack or the sweep attack."""
-        attack = fixed_input(input("What attack will you use? Type 'Normal' or 'Sweep' to attack or 'Back' to choose a different action. "))
-        print()
-        if attack == "back":
-            return place.player.take_turn(place)
-        elif attack == "normal":
-            Weapon.action(self, place)
-        elif attack == "sweep":
-            self.sweep(place)
-        else:
-            print("Invalid input, try again")
-            return self.action(place)
-
 class Firearm(Weapon):
     """Firearms are powerful ranged weapons similar to bows but in exchange for their great power, each firearm has an accuracy rating that determines if the weapon hits the target or misses. Accuracy is a value between 0 and 100."""
     ranged = True
-    accuracy_bonus = 0
 
     def __init__(self, damage, range, accuracy, weight, armor_piercing=True, name="Firearm"):
         Weapon.__init__(self, damage, range, weight, name)
@@ -227,7 +244,7 @@ class Firearm(Weapon):
     def recalculate(self, place):
         """Uses the normal weapon class recalculation plus recalculates the effective accuracy attribute."""
         Weapon.recalculate(self, place)
-        self.eff_accuracy = int(max(min(self.accuracy + self.accuracy_bonus, 100), 40)) #Ensures that accuracy will never surpass 100 but will also always be at least 40
+        self.eff_accuracy = int(max(min(self.accuracy + place.player.accuracy_bonus, 100), 40)) #Ensures that accuracy will never surpass 100 but will also always be at least 40
 
     def attack(self, place, target):
         """Rifles have to perform a random roll to see if they hit their target or not."""
@@ -368,7 +385,6 @@ class Healing_Tool(Equipment):
     class_name = "Healing"
     combat_item = True
     heal_bonus = 0
-    uses_bonus = 0
 
     def __init__(self, heal_amount, uses, weight, name = "Healing Equipment"):
         Equipment.__init__(self, weight, name)
@@ -379,8 +395,7 @@ class Healing_Tool(Equipment):
 
     def recalculate(self, place):
         """Recalculates the effective healing of a healing item by taking into account the base heal amount, heal bonus of the class, heal bonus of the player, and heal bonus of the place."""
-        self.eff_heal = int(max(self.heal_amount + self.heal_bonus + place.player.heal_bonus, 5)) #Prevents item from being completely useless
-        self.eff_uses = int(max(self.uses + self.uses_bonus + place.player.uses_bonus, 0))
+        self.eff_heal = int(max(self.heal_amount + place.player.heal_bonus, 5)) #Prevents item from being completely useless
 
     def effect(self, place, amount):
         """Method that performs the intended effects of a healing item. The default is to heal the player by a specified amount and then remove the item from their inventory if it's out of uses."""
@@ -472,6 +487,8 @@ nano_stim = "Adrenaline(70, 0.7, 4, 3, 3, 'Nano Stim')"
 
 riot_shield = "Shield(0.50, 3, 14, 'Riot Shield')"
 
+gum = Booster(15, "accuracy", 2, 0.5, "Chewing Gum")
+
 ### Creature Class ###
 
 class Entity:
@@ -539,7 +556,7 @@ class Player(Entity):
     range_bonus = 0
     move_bonus = 0
     heal_bonus = 0
-    uses_bonus = 0
+    accuracy_bonus = 0
 
     def __init__(self, name, health=100, armor=0, move_speed=1):
         Entity.__init__(self, health, armor)
@@ -855,7 +872,7 @@ class Prison_Guard(Enemy):
     name = "Prison Guard"
     battle_lines = ["'Come on prisoner, I'll make you regret this!'", "'Don't let the prisoner escape!'", "'I can't wait to kill you!'", "'It was a mistake leaving you alive!'", "'We should have killed you when we first found you!'"]
     death_lines = ["'How could I die to filth?'", "'Comrades...kill this...bitch!'", "'You will never get past the rest!'", "'AAAHHHHH!'"]
-    possible_loot = [stun_baton, guard_vest]
+    possible_loot = [stun_baton, guard_vest, gum]
     can_drop = False
 
     def __init__(self, health=40, armor=30, damage=20, range=1, move_speed=1):
@@ -927,7 +944,7 @@ class Federation_Marksman(Enemy):
     name = "Marksman"
     battle_lines = ["'Marksman in position'", "'Ready to hunt'", "'This will be just like at the 2041 Riots'", "'Enemy in my sites'", "'In position, engaging targets'", "'Targets spotted, engaging from a distance'"]
     death_lines = ["'Marksman down, I repeat, marksman down!'", "'All units, you lost your marksman!'", "'Shit, I'm out of the fight!'", "'Good luck guys, I'm not going to make it!'"]
-    possible_loot = [sniper_rifle, marksman_vest]
+    possible_loot = [sniper_rifle, marksman_vest, gum]
     armor_piercing = True
     time_check = True
 
