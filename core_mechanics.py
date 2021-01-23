@@ -927,7 +927,7 @@ class Federation_Marksman(Enemy):
     name = "Marksman"
     battle_lines = ["'Marksman in position'", "'Ready to hunt'", "'This will be just like at the 2041 Riots'", "'Enemy in my sites'", "'In position, engaging targets'", "'Targets spotted, engaging from a distance'"]
     death_lines = ["'Marksman down, I repeat, marksman down!'", "'All units, you lost your marksman!'", "'Shit, I'm out of the fight!'", "'Good luck guys, I'm not going to make it!'"]
-    possible_loot = ["Firearm(50, 5, 80, 15, True, 'LR2050-SR Precision Laser Rifle')", "Armor_Piece(50, 2, 'Marskman Vest')"]
+    possible_loot = ["Firearm(50, 5, 80, 15, True, 'LR 2050-SR Precision Laser Rifle')", "Armor_Piece(50, 2, 'Marskman Vest')"]
     armor_piercing = True
     time_check = True
 
@@ -970,7 +970,7 @@ class Federation_Enforcer(Enemy):
     name = "Enforcer"
     battle_lines = ["'Enforcer, closing the distance!'", "'I'll fill you full of laser beams!'", "'This shotty will melt your insides!'", "'I'm going to love seeing you squirm!'", "'Die! That's all your kind is good for!'", "'Moving in for the kill!'"]
     death_lines = ["'No way...they got me!'", "'AAAA AAAAA HELP ME!'", "'NOOOO, IT'S NOT OVER!'", "'DEATH WAS ON MY SIDE!'", "'HELP ME DAMN IT!'"]
-    possible_loot = ["Shotgun(60, 2, 0.7, 50, 20, 'CQC-2044L Laser Shotgun')", "Armor_Piece(100, 7, 'Heavy Armor')", "Adrenaline(70, 0.4, 2, 1, 1)"]
+    possible_loot = ["Shotgun(60, 2, 0.7, 50, 20, 'CQC-2049L Laser Shotgun')", "Armor_Piece(100, 7, 'Heavy Armor')", "Adrenaline(70, 0.4, 2, 1, 1)"]
 
     def __init__(self, health=100, armor=100, damage=40, range=2, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
@@ -1271,7 +1271,7 @@ class Event:
 
 class Lab_Files(Event):
     """Event that occurs in the labs, where the player can choose to read a file that contains information on the enemies they are fighting and weapons they are using."""
-    files = [file_laser_rifle]
+    files = [file_laser_rifle, file_laser_pistol, file_laser_shotgun, file_laser_sniper]
 
     def __init__(self):
         Event.__init__(self)
