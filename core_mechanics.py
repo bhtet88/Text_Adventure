@@ -1291,7 +1291,7 @@ class GI_Unit(Federation_Rifleman):
         self.attack_counter = 0
 
     def call_repair(self, place):
-        """When the GI Unit is low on health, it can call in two repair drone that, while weak, are each able to repair the unit by 10 HP per turn that the drone is on the same place as the GI Unit. This method only spawns a drone onto the place and the drone all the repairing logic is handled for in the drone's class."""
+        """When the GI Unit is low on health, it can call in two repair drone that, while weak, are each able to repair the unit by 10 HP per turn that the drone is on the same place as the GI Unit. This method only spawns a drone onto the place and the drone all the repairing logic is handled for in the drone's class. When spawning in the drone, make sure to also tether it to the GI Unit."""
 
     def barrage(self, place):
         """Using its missile backpack, the GI Unit is able to randomly pick a certain number of spots within a certain radius of the player's spot and fire missiles at them. If the player is in any of the randomly selected spots, they take damage. Ensure to calculate the counter and turn the can missile attribute to False."""        
@@ -1318,15 +1318,15 @@ class Repair_Drone(Enemy):
     def __init__(self, health=30, armor=0, damage=0, range=1, move_speed=10):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.repair_amount = 10
-        self.tether = None
+        self.GI = None
     
-    def tether(self, place, target):
+    def tether(self, target):
         """Assigns the repair drone to a specific GI Unit to take care of."""
-        self.tether = target
+        self.GI = target
 
     def move(self, place):
         """Repair drones have a special move method that serves to move them to the same spot as a GI Unit, whether forward or backwards."""
-        dist = self.tether.position - self.position
+        dist = self.GI.position - self.position
         steps = min(abs(dist), self.move_speed)
         if dist >= 0:
             self.position += steps
@@ -1334,14 +1334,24 @@ class Repair_Drone(Enemy):
             self.position -= steps
         print("{0} moved {1} steps {2}".format(self.name, steps, ("forward" if dist < 0 else "backwards")))
 
-    def repair(self, place, target):
+    def repair(self):
         """Increases the health of the target GI Unit by the repair amount."""
+        print("'Repairing {0}'".format(self.GI.name))
+        self.GI.health += self.repair_amount
     
     def take_turn(self, place):
         """If there is no GI unit on the same place as the repair drone, move them to the same spot as a GI Unit. Otherwise, repair the GI Unit."""
+        print()
+        if self.GI.position == self.position:
+            self.repair()
+        else:
+            self.move(place)
 
     def remove(self, place):
         """Perform the default remove method but if there are no more repair drones on the field for the target GI Unit, set the tethered GI Unit's can repair attribute to True."""
+        if not sum([1 for x in place.enemies if isinstance(x, Repair_Drone) and x is not self and x.GI is self.GI]):
+            self.GI.can_repair = True
+        Enemy.remove(self, place)
 
 ### Event Classes ###
 
