@@ -1274,15 +1274,16 @@ class GI_Unit(Federation_Rifleman):
     name = "GI Unit"
     battle_lines = ["'Enemy spotted, moving in for the Federation'", "'GI Unit moving into battle'", "'I am the pinnacle of machinary'", "'You will be terminated'", "'Surrender for a quick end'", "'GI advancing'", "'GI engaging target'"]
     death_lines = ["'Damage above th...threshold...Must shut off systeeeems, syyyysteeems...G G G G I I I I Uniiiiit offliiiine'"]
-    possible_loot = [riot_armor, nano_stim, nano_stim]
+    possible_loot = [riot_armor, nano_stim, nano_stim, grenade, grenade, grenade]
 
     def __init__(self, health=400, armor=150, damage=40, range=4, move_speed=2):
         Federation_Rifleman.__init__(self, health, armor, damage, range, move_speed)
+        self.starting_health = health
         self.grenades = 5
         self.repairs = 2
         self.can_repair = True
         self.missile_radius = 2
-        self.missiles = 3
+        self.missile_cluster = 3
         self.missile_damage = 30
         self.missile_cooldown = 3
         self.missile_counter = 0
@@ -1292,14 +1293,65 @@ class GI_Unit(Federation_Rifleman):
 
     def call_repair(self, place):
         """When the GI Unit is low on health, it can call in two repair drone that, while weak, are each able to repair the unit by 10 HP per turn that the drone is on the same place as the GI Unit. This method only spawns a drone onto the place and the drone all the repairing logic is handled for in the drone's class. When spawning in the drone, make sure to also tether it to the GI Unit."""
+        print("'Deploying repair units'")
+        for x in range(0, 2):
+            drone = Repair_Drone()
+            place.add_enemy(drone)
+            drone.position = self.position
+            drone.tether(self)
+        self.can_repair, self.repairs = False, self.repairs - 1
 
     def barrage(self, place):
         """Using its missile backpack, the GI Unit is able to randomly pick a certain number of spots within a certain radius of the player's spot and fire missiles at them. If the player is in any of the randomly selected spots, they take damage. Ensure to calculate the counter and turn the can missile attribute to False."""        
+        spots = random.choices(range(max(0, place.player.position - self.missile_radius)), min(place.player.position + self.missile_radius, place.size + 1), k=self.missile_cluster)
+        print("'Launching missile barrage at hostiles, all allies must stand clear'")
+        time.sleep(1.5)
+        print()
+        self.show_barrage(place, spots)
+        time.sleep(2)
+        print()
+        if place.player.position in spots:
+            print("'Target hit'")
+            print()
+            place.player.injure(place, self.missile_damage, False)
+        else:
+            print("'Missed target, recalibrating aim'")
+
+    def show_barrage(self, place, spots):
+        """Shows visualization of the place but removes all enemies and players on the representation. Only shows the locations targeted for the barrage with a large X. Spots is a list of indicies for the spots that will be hit by the barrage."""
+        visual = ["_____"] * (place.size + 1)
+        for i in spots:
+            visual[i] = ["__X__"]
+        separator = ", "
+        print("[ " + separator.join(visual) + " ]")
+
+    def attack(self, place):
+        """Uses default attack method and then has a counter that causes firing every other turn."""
+        Enemy.attack(self, place)
+        self.can_attack, self.attack_counter = False, place.turn_count + 1
 
     def take_turn(self, place):
-        """If the GI Unit is less than 50% health and can call a repair (can repair is True and it has repairs remaining), it will call in a repair. Else, if the Unit is able to perform a missile barrage, then it will do so. However, if the Unit is within the missile radius of the player, it will retreat first and perform the barrage once it is safely in range. If the player is too far away to be in range, the GI Unit will move in to close the gap and if the player is in range and it can attack, then it will attack. If it cannot do any of these things, the GI Unit will skip a turn."""
+        """If the GI Unit is less than 30% health and can call a repair (can repair is True and it has repairs remaining), it will call in a repair. Else, if the Unit is able to perform a missile barrage, then it will do so. However, if the Unit is within the missile radius of the player, it will retreat first and perform the barrage once it is safely in range. If the player is in grenade range and the unit can throw a grenade, it will throw a greande. If the player is too far away to be in range, the GI Unit will move in to close the gap and if the player is in range and it can attack, then it will attack. If it cannot do any of these things, the GI Unit will skip a turn."""
+        print()
+        dist = self.position - place.player.position
+        if self.health <= (0.30 * self.starting_health) and self.repairs and self.can_repair:
+            self.call_repair(place)
+        elif self.can_missile:
+            if place.player.position + self.missile_radius >= self.position and self.position < place.size:
+                self.move(place, True)
+            else:
+                self.barrage(place)
+        elif dist <= self.grenade_range and self.can_throw and self.grenades:
+            self.throw_grenade(place)
+        elif dist > self.range:
+            self.move(place)
+        elif dist <= self.range and self.can_attack:
+            self.attack(place)
+        else:
+            print("'Surveying battlefield, calculating options, standby'")
 
     def remove(self, place):
+        """Same remove method as Volk that drops all the possible loot."""
         print(random.choice(self.death_lines))
         print("{0} eliminated!".format(self.name))
         Entity.remove(self, place)
@@ -1307,7 +1359,12 @@ class GI_Unit(Federation_Rifleman):
             place.loot.append(eval(loot))
 
     def check(self, place):
-        """Performs the normal Rifleman check and then does a check for the missile barrage and the attack ability. The can repair attribute can only turns on True when both repair drones from the previous call were destroyed and is handled by the drone's remove method, not the GI Unit's."""
+        """Performs the normal Rifleman check and then does a check for the missile barrage and the attack ability. The can repair attribute only turns on True when both repair drones from the previous repair call were destroyed and is handled by the drone's remove method, not the GI Unit's check method."""
+        Federation_Rifleman.check(self, place)
+        if place.turn_count == self.attack_counter:
+            self.can_attack = True
+        if place.turn_count == self.missile_counter:
+            self.can_missile = True
 
 class Repair_Drone(Enemy):
     """The repair drones are supports to the GI Unit, which can call two drones at a time to repair it for 10 HP per turn each. The repair drone is extremely weak but has an extremely high move speed. It has a special move method that tries to keep it on the same spot as the GI Unit so it can repair it. Drones cannot attack nor do they retreat. They only care about repairing or moving to repair the GI Unit. Upon death, they can turn the GI Unit's can repair attribute back to True if both drones of the pair are destroyed."""
@@ -1342,7 +1399,7 @@ class Repair_Drone(Enemy):
     def take_turn(self, place):
         """If there is no GI unit on the same place as the repair drone, move them to the same spot as a GI Unit. Otherwise, repair the GI Unit."""
         print()
-        if self.GI.position == self.position:
+        if self.GI.position == self.position and self.GI.health < self.GI.starting_health:
             self.repair()
         else:
             self.move(place)
