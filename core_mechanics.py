@@ -1326,7 +1326,14 @@ class Repair_Drone(Enemy):
 
     def move(self, place):
         """Repair drones have a special move method that serves to move them to the same spot as a GI Unit, whether forward or backwards."""
-    
+        dist = self.tether.position - self.position
+        steps = min(abs(dist), self.move_speed)
+        if dist >= 0:
+            self.position += steps
+        else:
+            self.position -= steps
+        print("{0} moved {1} steps {2}".format(self.name, steps, ("forward" if dist < 0 else "backwards")))
+
     def repair(self, place, target):
         """Increases the health of the target GI Unit by the repair amount."""
     
