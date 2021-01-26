@@ -176,6 +176,7 @@ while stims:
 print()
 player.inventory_add(eval(pistol))
 player.armor += 100
+player.move_speed += 1
 input()
 print(levelc_reinforcements)
 input()

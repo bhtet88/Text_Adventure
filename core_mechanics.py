@@ -1269,6 +1269,73 @@ class Charger(Enemy):
         print()
         self.injure(place, self.health, True)
 
+class GI_Unit(Federation_Rifleman):
+    """The final boss of the Machine Labs is a prototype GI Unit, a prototype robot meant to serve as a mechanized replacement for human soldiers. Aside from how it looks, the GI Unit behaves like any regular rifleman, throwing grenades and firing at the player with their powerful experimental railgun that can on be fired every other turn. The GI unit also carries a backpack with a payload of three missiles, which is able to randomly strike locations within a certain distance from the player. Finally, the GI Unit can call upon a pair of repair drone that are each able to give it 10 HP every turn if it is on the same spot as the GI Unit. These drones count as enemies and are very weak, easily destroyed by the player. The GI Unit carries four repair drones on it. The GI Unit has high health and medium armor."""
+    name = "GI Unit"
+    battle_lines = ["'Enemy spotted, moving in for the Federation'", "'GI Unit moving into battle'", "'I am the pinnacle of machinary'", "'You will be terminated'", "'Surrender for a quick end'", "'GI advancing'", "'GI engaging target'"]
+    death_lines = ["'Damage above th...threshold...Must shut off systeeeems, syyyysteeems...G G G G I I I I Uniiiiit offliiiine'"]
+    possible_loot = [riot_armor, nano_stim, nano_stim]
+
+    def __init__(self, health=400, armor=150, damage=40, range=4, move_speed=2):
+        Federation_Rifleman.__init__(self, health, armor, damage, range, move_speed)
+        self.grenades = 5
+        self.repairs = 2
+        self.can_repair = True
+        self.missile_radius = 2
+        self.missiles = 3
+        self.missile_damage = 30
+        self.missile_cooldown = 3
+        self.missile_counter = 0
+        self.can_missile = True
+        self.can_attack = True
+        self.attack_counter = 0
+
+    def call_repair(self, place):
+        """When the GI Unit is low on health, it can call in two repair drone that, while weak, are each able to repair the unit by 10 HP per turn that the drone is on the same place as the GI Unit. This method only spawns a drone onto the place and the drone all the repairing logic is handled for in the drone's class."""
+
+    def barrage(self, place):
+        """Using its missile backpack, the GI Unit is able to randomly pick a certain number of spots within a certain radius of the player's spot and fire missiles at them. If the player is in any of the randomly selected spots, they take damage. Ensure to calculate the counter and turn the can missile attribute to False."""        
+
+    def take_turn(self, place):
+        """If the GI Unit is less than 50% health and can call a repair (can repair is True and it has repairs remaining), it will call in a repair. Else, if the Unit is able to perform a missile barrage, then it will do so. However, if the Unit is within the missile radius of the player, it will retreat first and perform the barrage once it is safely in range. If the player is too far away to be in range, the GI Unit will move in to close the gap and if the player is in range and it can attack, then it will attack. If it cannot do any of these things, the GI Unit will skip a turn."""
+
+    def remove(self, place):
+        print(random.choice(self.death_lines))
+        print("{0} eliminated!".format(self.name))
+        Entity.remove(self, place)
+        for loot in self.possible_loot:
+            place.loot.append(eval(loot))
+
+    def check(self, place):
+        """Performs the normal Rifleman check and then does a check for the missile barrage and the attack ability. The can repair attribute can only turns on True when both repair drones from the previous call were destroyed and is handled by the drone's remove method, not the GI Unit's."""
+
+class Repair_Drone(Enemy):
+    """The repair drones are supports to the GI Unit, which can call two drones at a time to repair it for 10 HP per turn each. The repair drone is extremely weak but has an extremely high move speed. It has a special move method that tries to keep it on the same spot as the GI Unit so it can repair it. Drones cannot attack nor do they retreat. They only care about repairing or moving to repair the GI Unit. Upon death, they can turn the GI Unit's can repair attribute back to True if both drones of the pair are destroyed."""
+    name = "Repair Drone"
+    battle_lines = ["'Repairing GI'", "'Must keep GI alive'", "'Keeping GI alive'", "'GI must survive'"]
+    death_lines = ["'Repair unit down'"]
+
+    def __init__(self, health=30, armor=0, damage=0, range=1, move_speed=10):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.repair_amount = 10
+        self.tether = None
+    
+    def tether(self, place, target):
+        """Assigns the repair drone to a specific GI Unit to take care of."""
+        self.tether = target
+
+    def move(self, place):
+        """Repair drones have a special move method that serves to move them to the same spot as a GI Unit, whether forward or backwards."""
+    
+    def repair(self, place, target):
+        """Increases the health of the target GI Unit by the repair amount."""
+    
+    def take_turn(self, place):
+        """If there is no GI unit on the same place as the repair drone, move them to the same spot as a GI Unit. Otherwise, repair the GI Unit."""
+
+    def remove(self, place):
+        """Perform the default remove method but if there are no more repair drones on the field for the target GI Unit, set the tethered GI Unit's can repair attribute to True."""
+
 ### Event Classes ###
 
 class Event:
