@@ -489,12 +489,23 @@ nano_stim = "Adrenaline(70, 0.7, 4, 3, 3, 'Nano Stim')"
 
 riot_shield = "Shield(0.50, 3, 14, 'Riot Shield')"
 
-religious_book = Booster(75, "max health", 3, 3, "Religious Book")
-barbell = Booster(30, "damage", 2, 5, "5lb Dumbbell")
-gum = Booster(15, "accuracy", 2, 0.5, "Chewing Gum")
-binoculars = Booster(2, "range", 4, 3, "Binoculars")
-energy_drink = Booster(4, "movement", 1, 1, "Energy Drink")
-sports_drink = Booster(2, "movement", 3, 1, "Sports Drink")
+religious_book = "Booster(75, 'max health', 3, 3, 'Religious Book')"
+pure_water = "Booster(50, 'max health', 4, 1, 'Bottle of Pure Water')"
+deoderant = "Booster(30, 'max health', 1, 0.2, 'Deoderant')"
+
+propaganda = "Booster(40, 'damage', 1, 0.5, 'Federation Propaganda')"
+oil = "Booster(50, 'damage', 2, 1, 'Can of Oil')"
+barbell = "Booster(30, 'damage', 2, 5, '10 lb Dumbbell')"
+
+gum = "Booster(15, 'accuracy', 2, 0.5, 'Chewing Gum')"
+
+binoculars = "Booster(2, 'range', 4, 3, 'Binoculars')"
+
+energy_drink = "Booster(4, 'movement', 1, 1, 'Energy Drink')"
+sports_drink = "Booster(2, 'movement', 3, 1, 'Sports Drink')"
+
+band_aid = "Booster(10, 'healing', 3, 0.5, 'Band-Aid')"
+antiseptic = "Booster(20, 'healing', 2, 1, 'Antispetic Spray')"
 
 
 ### Creature Class ###
@@ -869,7 +880,10 @@ class Enemy(Entity):
         if random.choice([1, 2]) == 1:
             place.loot.append(eval(stim))
         if self.possible_loot and self.can_drop:
-            place.loot.append(eval(random.choice(self.possible_loot)))
+            wpn_list = [x for x in self.possible_loot if isinstance(x, Weapon)]
+            if wpn_list:
+                place.loot.append(random.choice(wpn_list))
+            place.loot.append(eval(random.choice([x for x in self.possible_loot if not isinstance(x, Weapon)])))
 
     def __str__(self):
         return "{0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.name, self.health, self.armor, self.damage, self.range, self.move_speed)
@@ -880,7 +894,7 @@ class Prison_Guard(Enemy):
     name = "Prison Guard"
     battle_lines = ["'Come on prisoner, I'll make you regret this!'", "'Don't let the prisoner escape!'", "'I can't wait to kill you!'", "'It was a mistake leaving you alive!'", "'We should have killed you when we first found you!'"]
     death_lines = ["'How could I die to filth?'", "'Comrades...kill this...bitch!'", "'You will never get past the rest!'", "'AAAHHHHH!'"]
-    possible_loot = [stun_baton, guard_vest, gum]
+    possible_loot = [stun_baton, guard_vest, gum, barbell, sports_drink, band_aid]
     can_drop = False
 
     def __init__(self, health=40, armor=30, damage=20, range=1, move_speed=1):
@@ -914,7 +928,7 @@ class Federation_Rifleman(Enemy):
     name = "Rifleman"
     battle_lines = ["'Federation's best about to kick your ass!'", "'Ok, the fun's over!'", "'You'll wish you were never born!'", "'Moving in for the kill!'", "'OOO RAA!'"]
     death_lines = ["'I may be gone but so will you very soon!", "'Help! I need assi...'", "'Fuck, they got me!'", "'Finish them off comrades!'", "'Nooooo...how could...this...happen?'"]
-    possible_loot = [rifle, grenade, ballistic_vest]
+    possible_loot = [rifle, grenade, ballistic_vest, propaganda, barbell, gum, energy_drink, antiseptic, pure_water]
     time_check = True
 
     def __init__(self, health=70, armor=80, damage=30, range=4, move_speed=1):
@@ -952,7 +966,7 @@ class Federation_Marksman(Enemy):
     name = "Marksman"
     battle_lines = ["'Marksman in position'", "'Ready to hunt'", "'This will be just like at the 2041 Riots'", "'Enemy in my sites'", "'In position, engaging targets'", "'Targets spotted, engaging from a distance'"]
     death_lines = ["'Marksman down, I repeat, marksman down!'", "'All units, you lost your marksman!'", "'Shit, I'm out of the fight!'", "'Good luck guys, I'm not going to make it!'"]
-    possible_loot = [sniper_rifle, marksman_vest, gum]
+    possible_loot = [sniper_rifle, marksman_vest, gum, binoculars, antiseptic, pure_water, sports_drink]
     armor_piercing = True
     time_check = True
 
@@ -995,7 +1009,7 @@ class Federation_Enforcer(Enemy):
     name = "Enforcer"
     battle_lines = ["'Enforcer, closing the distance!'", "'I'll fill you full of laser beams!'", "'This shotty will melt your insides!'", "'I'm going to love seeing you squirm!'", "'Die! That's all your kind is good for!'", "'Moving in for the kill!'"]
     death_lines = ["'No way...they got me!'", "'AAAA AAAAA HELP ME!'", "'NOOOO, IT'S NOT OVER!'", "'DEATH WAS ON MY SIDE!'", "'HELP ME DAMN IT!'"]
-    possible_loot = [shotgun, heavy_armor, adrenaline]
+    possible_loot = [shotgun, heavy_armor, adrenaline, propaganda, barbell, gum, energy_drink, religious_book]
 
     def __init__(self, health=100, armor=100, damage=40, range=2, move_speed=1):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
@@ -1030,7 +1044,7 @@ class Volk(Federation_Rifleman):
     name = "Volk"
     battle_lines = ["'It's a shame you have to die'", "'You could have joined me, the Federation'", "'You can't hide from me or my flame'", "'This is for all my fallen men!'", "'I will enjoy burning you alive!'"]
     death_lines = ["'I guess it is all over...You really are...a force...to be...reckoned...with...'"]
-    possible_loot = [flamethrower, riot_armor, nano_stim, nano_stim]
+    possible_loot = [flamethrower, riot_armor, nano_stim, nano_stim, religious_book, propaganda]
     
     def __init__(self, health=200, armor=250, damage=40, range=5, move_speed=2):
         Federation_Rifleman.__init__(self, health, armor, damage, range, move_speed)
@@ -1093,7 +1107,7 @@ class Engineer(Enemy):
     name = "Engineer"
     battle_lines = ["'Federation engineering is revolutionary!'", "'Fear the mind of the Federation!'", "'I may be weak but my inventions are strong!'", "'With my technology, failure is impossible!'", "'Federation's greatest mind ready to kill you!'"]
     death_lines = ["'Impossible...success was...inevitable!'", "'Were my calculations...wrong?'", "'Man dies, machines live...forever!'", "'My machines will avenge me!'"]
-    possible_loot = [engineer_armor, wrench]
+    possible_loot = [engineer_armor, wrench, pure_water, propaganda, gum]
     time_check = True
 
     def __init__(self, health=50, armor=50, damage=10, range=1, move_speed=5):
@@ -1161,7 +1175,7 @@ class Arty(Enemy):
     name = "Arty"
     battle_lines = ["'Enemies spotted, preparing mortar'", "'Arty ready for battle'", "'Arty entering combat'", "'Mortar ready'", "'Bombardment commencing'"]
     death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Arty offline'"]
-    possible_loot = [salvaged_armor]
+    possible_loot = [salvaged_armor, oil]
     machine = True
     time_check = True
 
@@ -1203,7 +1217,7 @@ class Ripper(Enemy):
     name = "Ripper"
     battle_lines = ["'Rip and tear'", "'Ripper entering combat'", "'Chainsaws functional'", "'Proceeding to eliminate enemies of the Federation'", "'All systems ready for battle'"]
     death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Ripper offline'", "'Safety protocols engaged, powering down'", "'Heavy damage, shutting down'"]
-    possible_loot = [salvaged_armor]
+    possible_loot = [salvaged_armor, oil]
     machine = True
     time_check = True
 
@@ -1259,7 +1273,7 @@ class Charger(Enemy):
     name = "Charger"
     battle_lines = ["'Enemy sighted, arming detonation device'", "'Explosives primed'", "'Charging opponent'", "'Attention all units, Charger entering combat'", "'Keep your distance, Charger armed'"]
     death_lines = ["'Detonating device'", "'No one can survive this explosion'", "'All allies, Charger explosion imminent'"]
-    possible_loot = [salvaged_armor]
+    possible_loot = [salvaged_armor, oil]
     machine = True
 
     def __init__(self, health=55, armor=20, damage=50, range=1, move_speed=3):
@@ -1285,7 +1299,7 @@ class GI_Unit(Federation_Rifleman):
     name = "GI Unit"
     battle_lines = ["'Enemy spotted, moving in for the Federation'", "'GI Unit moving into battle'", "'I am the pinnacle of machinary'", "'You will be terminated'", "'Surrender for a quick end'", "'GI advancing'", "'GI engaging target'"]
     death_lines = ["'Damage above th...threshold...Must shut off systeeeems, syyyysteeems...G G G G I I I I Uniiiiit offliiiine'"]
-    possible_loot = [riot_armor, nano_stim, nano_stim, grenade, grenade, grenade]
+    possible_loot = [riot_armor, nano_stim, nano_stim, grenade, grenade, grenade, oil, oil]
 
     def __init__(self, health=400, armor=150, damage=40, range=4, move_speed=2):
         Federation_Rifleman.__init__(self, health, armor, damage, range, move_speed)
