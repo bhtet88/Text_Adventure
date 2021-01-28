@@ -489,6 +489,9 @@ riot_shield = "Shield(0.50, 3, 14, 'Riot Shield')"
 
 gum = Booster(15, "accuracy", 2, 0.5, "Chewing Gum")
 
+energy_drink = Booster(2, "movement", 2, 1, "Energy Drink")
+
+
 ### Creature Class ###
 
 class Entity:
