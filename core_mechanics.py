@@ -137,6 +137,8 @@ class Booster(Equipment):
         if place.global_turns == self.bonus_counter:
             if self.kind == "max health":
                 place.player.max_health -= self.bonus
+                if place.player.health > place.player.max_health:
+                    place.player.health = place.player.max_health
             elif self.kind == "damage":
                 place.player.damage_bonus -= self.bonus
             elif self.kind == "range":
@@ -487,9 +489,12 @@ nano_stim = "Adrenaline(70, 0.7, 4, 3, 3, 'Nano Stim')"
 
 riot_shield = "Shield(0.50, 3, 14, 'Riot Shield')"
 
+religious_book = Booster(75, "max health", 3, 3, "Religious Book")
+barbell = Booster(30, "damage", 2, 5, "5lb Dumbbell")
 gum = Booster(15, "accuracy", 2, 0.5, "Chewing Gum")
-
-energy_drink = Booster(2, "movement", 2, 1, "Energy Drink")
+binoculars = Booster(2, "range", 4, 3, "Binoculars")
+energy_drink = Booster(4, "movement", 1, 1, "Energy Drink")
+sports_drink = Booster(2, "movement", 3, 1, "Sports Drink")
 
 
 ### Creature Class ###
