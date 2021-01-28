@@ -393,7 +393,6 @@ class Healing_Tool(Equipment):
         self.heal_amount = heal_amount
         self.eff_heal = heal_amount
         self.uses = uses
-        self.eff_uses = uses
 
     def recalculate(self, place):
         """Recalculates the effective healing of a healing item by taking into account the base heal amount, heal bonus of the class, heal bonus of the player, and heal bonus of the place."""
@@ -405,8 +404,8 @@ class Healing_Tool(Equipment):
         self.uses -= 1
         print("Healed for {0} HP, {1} uses remaining".format(amount, self.uses))
         self.recalculate(place)
-        if not self.eff_uses:
-            print("")
+        if not self.uses:
+            print()
             place.player.inventory_remove(self)
 
     def action(self, place):
@@ -422,7 +421,7 @@ class Healing_Tool(Equipment):
             self.effect(place, self.eff_heal)
 
     def __str__(self):
-        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Weight: {3} lbs".format(self.name, self.eff_heal, self.eff_uses, self.weight)
+        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Weight: {3} lbs".format(self.name, self.eff_heal, self.uses, self.weight)
 
 class Adrenaline(Healing_Tool):
     """Adrenaline shots heal the player but also give a temporary damage boost for a certain amount of turns."""
@@ -459,7 +458,7 @@ class Adrenaline(Healing_Tool):
             print("Adrenaline damage bonus has worn off")
 
     def __str__(self):
-        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Damage Bonus: {3}, Bonus Length {4} turns, Weight: {5} lbs".format(self.name, self.eff_heal, self.eff_uses, self.damage_bonus, self.bonus_length, self.weight)
+        return "{0}, Heal Amount: {1} HP, Uses Left: {2}, Damage Bonus: {3}, Bonus Length {4} turns, Weight: {5} lbs".format(self.name, self.eff_heal, self.uses, self.damage_bonus, self.bonus_length, self.weight)
 
 ### In-Game Items ###
 
@@ -493,9 +492,9 @@ religious_book = "Booster(75, 'max health', 3, 3, 'Religious Book')"
 pure_water = "Booster(50, 'max health', 4, 1, 'Bottle of Pure Water')"
 deoderant = "Booster(30, 'max health', 1, 0.2, 'Deoderant')"
 
-propaganda = "Booster(40, 'damage', 1, 0.5, 'Federation Propaganda')"
-oil = "Booster(50, 'damage', 2, 1, 'Can of Oil')"
-barbell = "Booster(30, 'damage', 2, 5, '10 lb Dumbbell')"
+propaganda = "Booster(0.5, 'damage', 1, 0.5, 'Federation Propaganda')"
+oil = "Booster(0.25, 'damage', 2, 1, 'Can of Oil')"
+barbell = "Booster(0.15, 'damage', 2, 5, '10 lb Dumbbell')"
 
 gum = "Booster(15, 'accuracy', 2, 0.5, 'Chewing Gum')"
 
@@ -880,10 +879,10 @@ class Enemy(Entity):
         if random.choice([1, 2]) == 1:
             place.loot.append(eval(stim))
         if self.possible_loot and self.can_drop:
-            wpn_list = [x for x in self.possible_loot if isinstance(x, Weapon)]
+            wpn_list = [eval(x) for x in self.possible_loot if isinstance(eval(x), Weapon)]
             if wpn_list:
                 place.loot.append(random.choice(wpn_list))
-            place.loot.append(eval(random.choice([x for x in self.possible_loot if not isinstance(x, Weapon)])))
+            place.loot.append((random.choice([eval(x) for x in self.possible_loot if not isinstance(eval(x), Weapon)])))
 
     def __str__(self):
         return "{0}, Health: {1}, Armor: {2}, Damage: {3}, Range: {4} units, Move Speed: {5} units per turn".format(self.name, self.health, self.armor, self.damage, self.range, self.move_speed)
@@ -1289,7 +1288,8 @@ class Charger(Enemy):
 
     def remove(self, place):
         """Before the charger is removed, it will damage all allies on the same spot as it."""
-        allies = [x for x in place.enemies if x.position == self.position]
+        Enemy.remove(self, place)
+        allies = [x for x in place.enemies if x.position == self.position and x is not self]
         for ally in allies:
             print()
             ally.injure(place, self.damage, False)
@@ -1590,7 +1590,7 @@ class Place:
                     print()
             except:
                 print()
-                print("Invalid input. If buying or refunding, make sure to type in the action followed by the number of the item")
+                print("Invalid input")
                 print()
 
     def __repr__(self):
