@@ -465,7 +465,7 @@ wrench = "Weapon(30, 1, 5, 'Wrench')"
 shank = "Weapon(35, 1, 0.5, 'Shank')"
 stun_baton = "Weapon(50, 1, 2, 'Stun Baton')"
 pistol = "Firearm(40, 3, 95, 5, False, 'LP-2043 Laser Pistol')"
-rifle = "Firearm(50, 4, 70, 8, False, 'LR2047-7 Laser Rifle')"
+rifle = "Firearm(50, 4, 80, 8, False, 'LR2047-7 Laser Rifle')"
 sniper_rifle = "Firearm(50, 5, 80, 15, True, 'LR 2050-SR Precision Laser Rifle')"
 shotgun = "Shotgun(60, 2, 0.7, 50, 20, 'CQC-2049L Laser Shotgun')"
 flamethrower = "Flamethrower(70, 20, 4, 5, 10, 'F-2048 Flamethrower')"
@@ -1121,8 +1121,8 @@ class Engineer(Enemy):
         health percentage, otherwise it tune up its machine allies if they are on the field. If the player is directly in front of the engineer, they will attempt to retreat if they can or else they will attempt to fight. If none of these conditions are met, then the engineer will skip a turn. 
         If there are no machine allies left, the engineer will advance towards the player and attempt to attack them."""
         dist, place_machines = self.position - place.player.position, [x for x in place.enemies if x.machine]
-        low_hp = min(place_machines, key=lambda x: x.health / x.default_health)
         if place_machines:
+            low_hp = min(place_machines, key=lambda x: x.health / x.default_health)
             print()
             if dist <= self.gap and self.position < place.size:
                 self.move(place, True)
@@ -1262,12 +1262,15 @@ class Charger(Enemy):
         print("{0} explodes, dealing {1} points of damage to everyone near it!".format(self.name, self.damage))
         print()
         place.player.injure(place, self.damage, False)
+        print()
+        self.injure(place, self.health, True)
+
+    def remove(self, place):
+        """Before the charger is removed, it will damage all allies on the same spot as it."""
         allies = [x for x in place.enemies if x.position == self.position]
         for ally in allies:
             print()
             ally.injure(place, self.damage, False)
-        print()
-        self.injure(place, self.health, True)
 
 class GI_Unit(Federation_Rifleman):
     """The final boss of the Machine Labs is a prototype GI Unit, a prototype robot meant to serve as a mechanized replacement for human soldiers. Aside from how it looks, the GI Unit behaves like any regular rifleman, throwing grenades and firing at the player with their powerful experimental railgun that can on be fired every other turn. The GI unit also carries a backpack with a payload of three missiles, which is able to randomly strike locations within a certain distance from the player. Finally, the GI Unit can call upon a pair of repair drone that are each able to give it 10 HP every turn if it is on the same spot as the GI Unit. These drones count as enemies and are very weak, easily destroyed by the player. The GI Unit carries four repair drones on it. The GI Unit has high health and medium armor."""
