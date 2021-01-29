@@ -216,6 +216,7 @@ input()
 print(first_machine)
 input()
 player.inventory_add(eval(rifle))
+player.inventory_add(eval(ap_ammo))
 player.inventory_add(eval(propaganda))
 onward(player, Machine_Labs([1, 0]))
 events = 6

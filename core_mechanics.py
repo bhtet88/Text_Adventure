@@ -167,6 +167,19 @@ class AP_Ammo(Equipment):
         self.counter = 0
     
     def action(self, place):
+        index = self.select_index(place)
+        if not index:
+            return
+        i, weapons = int(index), [x for x in place.player.inventory if isinstance(x, Firearm) or isinstance(x, Shotgun)]
+        self.loaded_weapon = weapons[i]
+        self.loaded_weapon.armor_piercing, self.counter = True, self.loaded_weapon.times_fired + self.duration
+        Place.current_time_items.append(self)
+        print()
+        print("{0} loaded with AP ammo for {1} attacks!".format(self.loaded_weapon.name, self.duration))
+        print()
+        place.player.inventory_remove(self)
+
+    def select_index(self, place):
         self.show_guns(place)
         print()
         index = fixed_input(input("What weapon will you load AP rounds into? Type the number of it or 'Back' to perform a different action. ")) #There will be no weapon with a name of 'None'
@@ -175,23 +188,15 @@ class AP_Ammo(Equipment):
         elif not index.isnumeric() or int(index) not in range(len([x for x in place.player.inventory if isinstance(x, Firearm) or isinstance(x, Shotgun)])):
             print()
             print("Not a valid numerical input, try again")
-            print()
-            return self.action(place)
-        index, weapons = int(index), [x for x in place.player.inventory if isinstance(x, Firearm) or isinstance(x, Shotgun)]
-        self.loaded_weapon = weapons[index]
-        self.loaded_weapon.armor_piercing, self.counter = True, self.loaded_weapon.times_fired + self.duration
-        Place.current_time_items.append(self)
-        print()
-        print("{0} loaded with AP ammo for {1} attacks!".format(self.loaded_weapon.name, self.duration))
-        print()
-        place.player.inventory_remove(self)
+            return None
+        return int(index)
 
     def show_guns(self, place):
         """Shows only the guns in the player's inventory that are not AP."""
         print("*** Non-AP Firearms ***")
         i, guns = 0, [x for x in place.player.inventory if isinstance(x, Firearm) or isinstance(x, Shotgun)]
         for x in guns:
-            print("[{0}] ".format(i) + x)
+            print("[{0}] ".format(i) + str(x))
             i += 1
 
     def check(self, place):
@@ -199,7 +204,9 @@ class AP_Ammo(Equipment):
         if self.loaded_weapon.times_fired == self.counter:
             self.loaded_weapon.armor_piercing = False
             Place.current_time_items.remove(self)
-
+    
+    def __str__(self):
+        return "{0}, Duration: {1} attacks, Weight: {2} lbs".format(self.name, self.duration, self.weight)
 
 class Weapon(Equipment): 
     """Weapons that the player and enemies can use to fight with. Each weapon has damage, range, weight, and price. Some weapons can have an armor piercing ability.
@@ -522,6 +529,8 @@ rifle = "Firearm(50, 4, 80, 8, False, 'LR2047-7 Laser Rifle')"
 sniper_rifle = "Firearm(50, 5, 90, 15, True, 'LR 2050-SR Precision Laser Rifle')"
 shotgun = "Shotgun(60, 2, 0.7, 50, 20, 'CQC-2049L Laser Shotgun')"
 flamethrower = "Flamethrower(70, 20, 4, 5, 10, 'F-2048 Flamethrower')"
+
+ap_ammo = "AP_Ammo(5, 'AP Ammo')"
 
 grenade = "Explosive(75, 1, 5, 1, 2, 'PG-2039 Plasma Grenade')"
 
@@ -982,7 +991,7 @@ class Federation_Rifleman(Enemy):
     name = "Rifleman"
     battle_lines = ["'Federation's best about to kick your ass!'", "'Ok, the fun's over!'", "'You'll wish you were never born!'", "'Moving in for the kill!'", "'OOO RAA!'"]
     death_lines = ["'I may be gone but so will you very soon!", "'Help! I need assi...'", "'Fuck, they got me!'", "'Finish them off comrades!'", "'Nooooo...how could...this...happen?'"]
-    possible_loot = [rifle, grenade, ballistic_vest, propaganda, barbell, gum, energy_drink, antiseptic, pure_water]
+    possible_loot = [rifle, grenade, ballistic_vest, ap_ammo, propaganda, barbell, gum, energy_drink, antiseptic, pure_water]
     time_check = True
 
     def __init__(self, health=70, armor=80, damage=30, range=4, move_speed=1):
@@ -1058,6 +1067,10 @@ class Federation_Marksman(Enemy):
         else:
             print("Federation {0} prepares their aim and skips a turn".format(self.name))
 
+    def drop_loot(self, place):
+        Enemy.drop_loot(self, place)
+        place.loot.append(eval(ap_ammo))
+
     def check(self, place):
         if self.attack_counter == place.turn_count:
             self.can_attack = True
@@ -1104,7 +1117,7 @@ class Volk(Federation_Rifleman):
     name = "Volk"
     battle_lines = ["'It's a shame you have to die'", "'You could have joined me, the Federation'", "'You can't hide from me or my flame'", "'This is for all my fallen men!'", "'I will enjoy burning you alive!'"]
     death_lines = ["'I guess it is all over...You really are...a force...to be...reckoned...with...'"]
-    possible_loot = [flamethrower, riot_armor, nano_stim, nano_stim, religious_book, propaganda]
+    possible_loot = [flamethrower, riot_armor, nano_stim, nano_stim, religious_book, propaganda, ap_ammo, ap_ammo]
     
     def __init__(self, health=200, armor=250, damage=40, range=5, move_speed=2):
         Federation_Rifleman.__init__(self, health, armor, damage, range, move_speed)
@@ -1245,7 +1258,7 @@ class Arty(Enemy):
     name = "Arty"
     battle_lines = ["'Enemies spotted, preparing mortar'", "'Arty ready for battle'", "'Arty entering combat'", "'Mortar ready'", "'Bombardment commencing'"]
     death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Arty offline'"]
-    possible_loot = [salvaged_armor, oil]
+    possible_loot = [salvaged_armor, oil, ap_ammo]
     machine = True
     time_check = True
 
@@ -1290,7 +1303,7 @@ class Ripper(Enemy):
     name = "Ripper"
     battle_lines = ["'Rip and tear'", "'Ripper entering combat'", "'Chainsaws functional'", "'Proceeding to eliminate enemies of the Federation'", "'All systems ready for battle'"]
     death_lines = ["'Powering down'", "'Maximum damage sustained, powering down'", "'Ripper offline'", "'Safety protocols engaged, powering down'", "'Heavy damage, shutting down'"]
-    possible_loot = [salvaged_armor, oil]
+    possible_loot = [salvaged_armor, oil, ap_ammo]
     machine = True
     time_check = True
 
@@ -1385,7 +1398,7 @@ class GI_Unit(Federation_Rifleman):
     name = "GI Unit"
     battle_lines = ["'Enemy spotted, moving in for the Federation'", "'GI Unit moving into battle'", "'I am the pinnacle of machinary'", "'You will be terminated'", "'Surrender for a quick end'", "'GI advancing'", "'GI engaging target'"]
     death_lines = ["'Damage above th...threshold...Must shut off systeeeems, syyyysteeems...G G G G I I I I Uniiiiit offliiiine'"]
-    possible_loot = [riot_armor, nano_stim, nano_stim, grenade, grenade, grenade, oil, oil]
+    possible_loot = [riot_armor, nano_stim, nano_stim, grenade, grenade, grenade, oil, oil, ap_ammo]
 
     def __init__(self, health=400, armor=150, damage=40, range=4, move_speed=2):
         Federation_Rifleman.__init__(self, health, armor, damage, range, move_speed)
