@@ -1692,9 +1692,20 @@ class Machine_Labs(Place):
     possible_enemies = ["Engineer()", "Ripper()", "Charger()", "Arty()"]
     possible_events = [Lab_Files()]
     min_enemies = 2
-    max_enemies = 4
+    max_enemies = 3
 
     def __init__(self, type_weight=[3, 2]):
+        Place.__init__(self, type_weight)
+
+class GI_Boss(Place):
+    """Place class for the GI Unit boss fight in the Machine Labs"""
+    possible_sizes = [15]
+    possible_enemies = ["GI_Unit()"]
+    possible_events = []
+    min_enemies = 1
+    max_enemies = 1
+
+    def __init__(self, type_weight=[1, 0]):
         Place.__init__(self, type_weight)
 
 ### Game Manager ###
