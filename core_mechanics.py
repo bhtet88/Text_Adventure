@@ -1771,7 +1771,7 @@ def battle(place):
             enemy.take_turn(place)
         for item in Place.current_time_items: #Checking to see if any time limited effects for items and enemies need to be removed before continuing to the next turn
             item.check(place)
-        for enemy in place.check_enemies:
+        for enemy in place.check_enemies[:]:
             enemy.check(place)
         if place.enemies:
             time.sleep(1.5)
