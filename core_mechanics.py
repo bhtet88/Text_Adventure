@@ -127,7 +127,7 @@ class Booster(Equipment):
         elif self.kind == "accuracy":
             place.player.accuracy_bonus += self.bonus
             print("{0} increased {1} by {2}% for {3} turns".format(self.name, self.kind, self.bonus, self.bonus_length))
-        self.bonus_counter = place.global_turns + self.bonus_length
+        self.bonus_counter = place.global_turns + (self.bonus_length - 1)
         Place.current_time_items.append(self)
         print()
         place.player.inventory_remove(self)
@@ -153,6 +153,53 @@ class Booster(Equipment):
 
     def __str__(self):
         return "{0}, {1} Bonus: {2}, Bonus Length: {3}, Weight: {4} lbs".format(self.name, self.kind.capitalize(), ((str(round(self.bonus * 100)) + "%") if self.kind == "damage" else self.bonus) , self.bonus_length, self.weight)
+
+class AP_Ammo(Equipment):
+    """Similar to boosters, AP Ammo allows the player to select a specific weapon and load armor piercing ammo, which lasts for a certain number of attacks. Then, the weapon will go back to being non armor piercing. Ensure that this can only be used on non-AP weapons."""
+    class_name = "Booster"
+    combat_item = True
+    time_check = True
+    duration = 5
+
+    def __init__(self, weight, name="AP Ammo"):
+        Equipment.__init__(self, weight, name)
+        self.loaded_weapon = None
+        self.counter = 0
+    
+    def action(self, place):
+        self.show_guns(place)
+        print()
+        index = fixed_input(input("What weapon will you load AP rounds into? Type the number of it or 'Back' to perform a different action. ")) #There will be no weapon with a name of 'None'
+        if index == 'back':
+            return None
+        elif not index.isnumeric() or int(index) not in range(len([x for x in place.player.inventory if isinstance(x, Firearm) or isinstance(x, Shotgun)])):
+            print()
+            print("Not a valid numerical input, try again")
+            print()
+            return self.action(place)
+        index, weapons = int(index), [x for x in place.player.inventory if isinstance(x, Firearm) or isinstance(x, Shotgun)]
+        self.loaded_weapon = weapons[index]
+        self.loaded_weapon.armor_piercing, self.counter = True, self.loaded_weapon.times_fired + self.duration
+        Place.current_time_items.append(self)
+        print()
+        print("{0} loaded with AP ammo for {1} attacks!".format(self.loaded_weapon.name, self.duration))
+        print()
+        place.player.inventory_remove(self)
+
+    def show_guns(self, place):
+        """Shows only the guns in the player's inventory that are not AP."""
+        print("*** Non-AP Firearms ***")
+        i, guns = 0, [x for x in place.player.inventory if isinstance(x, Firearm) or isinstance(x, Shotgun)]
+        for x in guns:
+            print("[{0}] ".format(i) + x)
+            i += 1
+
+    def check(self, place):
+        """Checks if the weapon has fired enough times to remove the AP ammo from it."""    
+        if self.loaded_weapon.times_fired == self.counter:
+            self.loaded_weapon.armor_piercing = False
+            Place.current_time_items.remove(self)
+
 
 class Weapon(Equipment): 
     """Weapons that the player and enemies can use to fight with. Each weapon has damage, range, weight, and price. Some weapons can have an armor piercing ability.
@@ -242,6 +289,7 @@ class Firearm(Weapon):
         self.armor_piercing = armor_piercing
         self.accuracy = accuracy
         self.eff_accuracy = accuracy
+        self.times_fired = 0
 
     def recalculate(self, place):
         """Uses the normal weapon class recalculation plus recalculates the effective accuracy attribute."""
@@ -253,6 +301,7 @@ class Firearm(Weapon):
         hit = random.choices([1, 0], weights=(self.eff_accuracy, 100 - self.eff_accuracy))
         if hit[0]:
             target.injure(place, self.eff_damage, self.armor_piercing)
+            self.times_fired += 1
         else:
             print("You missed!")
         
@@ -268,6 +317,7 @@ class Shotgun(Weapon):
         Weapon.__init__(self, damage, range, weight, name)
         self.spread_multiplier = spread_multiplier
         self.cqc_bonus = cqc_bonus
+        self.times_fired = 0
 
     def attack(self, place, target):
         """For every 1 unit the enemy is closer to the player after the max range of the shotgun, the player gets a damage addition determined by the CQC bonus attribte. When the player picks a target to attack, the other enemies on that same place as get hit with reduced damage, which is
@@ -278,6 +328,7 @@ class Shotgun(Weapon):
             if enemy.position == target.position and enemy is not target:
                 print()
                 enemy.injure(place, round(dmg * self.spread_multiplier), self.armor_piercing)
+        self.times_fired += 1
 
 class Flamethrower(Weapon):
     """Harnessing the power of fire, the flamethrower is a devestating weapon the player can get in the late game. It shoots an intense stream of fire, damaging all enemies in the spots between the player and the selected target, including all enemies in the same position as the target. 
@@ -462,6 +513,7 @@ class Adrenaline(Healing_Tool):
 
 ### In-Game Items ###
 
+fists = "Weapon(25, 1, 0, 'Fists')"
 wrench = "Weapon(30, 1, 5, 'Wrench')"
 shank = "Weapon(35, 1, 0.5, 'Shank')"
 stun_baton = "Weapon(50, 1, 2, 'Stun Baton')"
@@ -505,7 +557,6 @@ sports_drink = "Booster(2, 'movement', 3, 1, 'Sports Drink')"
 
 band_aid = "Booster(10, 'healing', 3, 0.5, 'Band-Aid')"
 antiseptic = "Booster(20, 'healing', 2, 1, 'Antispetic Spray')"
-
 
 ### Creature Class ###
 
@@ -581,7 +632,7 @@ class Player(Entity):
         self.name = name
         self.move_speed = move_speed
         self.eff_move = move_speed 
-        self.inventory = [Weapon(25, 1, 0, "Fists")]
+        self.inventory = [eval(fists)]
         self.current_weight = 0
         self.weight_limit = 30
         self.max_health = 100
@@ -659,7 +710,7 @@ class Player(Entity):
         """Allows the player to select a weapon from their inventory and return the weapon object for them to use. Returns None if the weapon isn't in the inventory"""
         self.show_weapons()
         print("")
-        index = fixed_input(input("What weapon will you use? Type the name of the number of it or 'Back' to perform a different action. ")) #There will be no weapon with a name of 'None'
+        index = fixed_input(input("What weapon will you use? Type the number of it or 'Back' to perform a different action. ")) #There will be no weapon with a name of 'None'
         if index == 'back':
             return None
         elif not index.isnumeric() or int(index) not in range(len([x for x in self.inventory if isinstance(x, Weapon)])):
@@ -876,6 +927,10 @@ class Enemy(Entity):
         print(random.choice(self.death_lines))
         print("{0} eliminated!".format(self.name))
         Entity.remove(self, place)
+        self.drop_loot(place)
+
+    def drop_loot(self, place):
+        """Method that, by default, drops a random weapon and a random non weapon item from the possible loot onto the ground."""
         if random.choice([1, 2]) == 1:
             place.loot.append(eval(stim))
         if self.possible_loot and self.can_drop:
@@ -1097,12 +1152,10 @@ class Volk(Federation_Rifleman):
         else:
             Federation_Rifleman.take_turn(self, place)
 
-    def remove(self, place):
-        print(random.choice(self.death_lines))
-        print("{0} eliminated!".format(self.name))
-        Entity.remove(self, place)
-        for loot in self.possible_loot:
-            place.loot.append(eval(loot))
+    def drop_loot(self, place):
+        """Drops all the loot in the possible loot list"""
+        for item in self.possible_loot:
+            place.loot.append(eval(item))
     
     def check(self, place):
         Federation_Rifleman.check(self, place)
@@ -1248,6 +1301,7 @@ class Ripper(Enemy):
         self.dash_counter = 0
         self.can_attack = True
         self.attack_counter = 0
+        self.attack_cooldown = 2
 
     def dash(self, place):
         """Dashes the Ripper forward towards the player as far as the dash speed allows or until it reaches the player. Then, the can dash attribute is set to False and the dash counter is recalculated so that the Ripper cannot move for a turn."""
@@ -1259,9 +1313,9 @@ class Ripper(Enemy):
         print("{0} uses its thrusters to dash forward {1} units!".format(self.name, steps))
 
     def attack(self, place):
-        """The Ripper uses the default attack method but after attacking, is unable to attack for a turn. Set the can attack to False and calculate the attack counter attribute."""
+        """The Ripper uses the default attack method but after attacking, is unable to attack for a few turns. Set the can attack to False and calculate the attack counter attribute."""
         Enemy.attack(self, place)
-        self.can_attack, self.attack_counter = False, place.turn_count + 1
+        self.can_attack, self.attack_counter = False, place.turn_count + self.attack_cooldown
         if self not in place.check_enemies:
             place.check_enemies.append(self)
 
@@ -1282,6 +1336,11 @@ class Ripper(Enemy):
                 self.attack(place)
             else:
                 print("'Chainsaw motors on cooldown, standby'")
+
+    def drop_loot(self, place):
+        """Drops all the loot in the possible loot list"""
+        for item in self.possible_loot:
+            place.loot.append(eval(item))
 
     def check(self, place):
         """Checks if the dash and attack cooldowns are done and if so, sets their respective booleans to True."""
@@ -1409,13 +1468,10 @@ class GI_Unit(Federation_Rifleman):
         else:
             print("'Surveying battlefield, calculating options, standby'")
 
-    def remove(self, place):
-        """Same remove method as Volk that drops all the possible loot."""
-        print(random.choice(self.death_lines))
-        print("{0} eliminated!".format(self.name))
-        Entity.remove(self, place)
-        for loot in self.possible_loot:
-            place.loot.append(eval(loot))
+    def drop_loot(self, place):
+        """Drops all the loot in the possible loot list"""
+        for item in self.possible_loot:
+            place.loot.append(eval(item))
 
     def check(self, place):
         """Performs the normal Rifleman check and then does a check for the missile barrage and the attack ability. The can repair attribute only turns on True when both repair drones from the previous repair call were destroyed and is handled by the drone's remove method, not the GI Unit's check method."""
@@ -1484,6 +1540,7 @@ class Event:
         """The default play method takes in a place instance as a parameter, giving it access to everything it could need to function. Any randomization will occur here so a single instance can suffice for the entire game and no other new ones need to be created. The default play method
         also does nothing."""
         print("You come across an empty space. Take a breath for now and prepare yourself to continue onwards.")
+        input()
     
     def __repr__(self):
         return self.name
@@ -1773,14 +1830,14 @@ def battle(place):
         print(">>> {0}'s Turn".format(place.player.name))
         print()
         place.player.take_turn(place)
-        for enemy in place.enemies:
+        for enemy in place.enemies[:]:
             time.sleep(1.5)
             print()
             print(">>> {0}'s Turn".format(enemy.name))
             print()
             print(random.choice(enemy.battle_lines))
             enemy.take_turn(place)
-        for item in Place.current_time_items: #Checking to see if any time limited effects for items and enemies need to be removed before continuing to the next turn
+        for item in Place.current_time_items[:]: #Checking to see if any time limited effects for items and enemies need to be removed before continuing to the next turn
             item.check(place)
         for enemy in place.check_enemies[:]:
             enemy.check(place)
