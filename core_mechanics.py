@@ -946,6 +946,8 @@ class Federation_Rifleman(Enemy):
         place.player.injure(place, self.grenade_damage, Explosive.armor_piercing)
         self.grenades -= 1
         self.can_throw, self.grenade_counter = False, place.turn_count + self.cooldown
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
 
     def take_turn(self, place):
         """The soldier will throw a grenade at the player if they are within range, has grenades, and is allowed to throw a grenade. Otherwise, the soldier will follow the standard take turn method, moving towards the player until they are in range and then attacking."""
@@ -959,6 +961,7 @@ class Federation_Rifleman(Enemy):
         """Checks if the grenade cooldown is over and if so, sets the can throw attribute back to True."""
         if self.grenade_counter == place.turn_count:
             self.can_throw = True
+            place.check_enemies.remove(self)
 
 class Federation_Marksman(Enemy):
     """Federation marksmen are long range units that are fragile but armed with a sniper rifle that fires armor piercing laser rounds. They do their best to stay away from the player as much as they can, sitting at the outer range of their rifles and dealing damage from a distance. As a precision shooter, the marksman can only fire every other turn in order to give time for proper aim. If the player gets too close, the marksman retreats unless they are at the end of the place."""
@@ -981,6 +984,8 @@ class Federation_Marksman(Enemy):
         if random.choices([0, 1], weights=(1 - self.accuracy, self.accuracy))[0] == 1:
             Enemy.attack(self, place)
             self.can_attack, self.attack_counter = False, place.turn_count + 1
+            if self not in place.check_enemies:
+                place.check_enemies.append(self)
         else:
             print("Federation {0} missed!".format(self.name))
 
@@ -1001,6 +1006,7 @@ class Federation_Marksman(Enemy):
     def check(self, place):
         if self.attack_counter == place.turn_count:
             self.can_attack = True
+            place.check_enemies.remove(self)
 
 class Federation_Enforcer(Enemy):
     """Federation enforcers are close quarters battle specialists, equipped with higher tier armor and powerful shotguns. Enforcers deal high damage at close range but have a very short range. They follow the default take turn and attack methods, with the only thing special about them 
@@ -1076,6 +1082,8 @@ class Volk(Federation_Rifleman):
         self.health += self.heal_amount
         self.syringes -= 1
         self.can_heal, self.heal_counter = False, place.turn_count + self.heal_cooldown
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
         print("'Ah, now that's better! I'm almost invincible!'")
 
     def take_turn(self, place):
@@ -1097,9 +1105,13 @@ class Volk(Federation_Rifleman):
             place.loot.append(eval(loot))
     
     def check(self, place):
+        Federation_Rifleman.check(self, place)
         if place.turn_count == self.heal_counter:
             self.can_heal = True
-        Federation_Rifleman.check(self, place)
+            if self in place.check_enemies:
+                place.check_enemies.remove(self)
+        if (not self.can_throw or not self.can_heal) and self not in place.check_enemies:
+            place.check_enemies.append(self)
 
 class Engineer(Enemy):
     """Engineers are enemies that the player encounters in the Machine Labs, which are humans who were in charge of designing and manufacturing the prototype technology there. They are armed with a wrench and have low health and low armor. They also fight with a wrench, a low damage and low range melee weapon. Their power comes from the Tune Up move, with gives machine type allies damage and movement bonuses, with a short cooldown. Finally, engineers have a repair ability, where they pick the lowest health machine ally and increase their health by a certain amount. Repairing has a cooldown."""
@@ -1113,7 +1125,7 @@ class Engineer(Enemy):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.damage_boost = 1.2
         self.repair_threshold = 0.40
-        self.repair_amount = 50
+        self.repair_amount = 35
         self.repair_cooldown = 2
         self.can_repair = True
         self.repair_counter = 0
@@ -1130,12 +1142,16 @@ class Engineer(Enemy):
             if enemy.machine:
                 enemy.damage, enemy.move_speed = round(enemy.damage * self.damage_boost), enemy.move_speed + self.move_boost
         self.can_tune, self.tune_counter = False, place.turn_count + self.cooldown
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
 
     def repair(self, place, target):
-        """The engineer directly adds health to the target, which is a specific machine ally. This is only done when the machine is at a certain percentage of their base health and this move has no cooldown."""
+        """The engineer directly adds health to the target, which is a specific machine ally. This is only done when the machine is at a certain percentage of their base health and this move has a cooldown."""
         print("{0} repairs {1} for {2} health".format(self.name, target.name, self.repair_amount))
         target.health = min(target.health + self.repair_amount, target.default_health)
         self.can_repair, self.repair_counter = False, place.turn_count + self.repair_cooldown
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
 
     def take_turn(self, place):
         """The engineer's first priority is staying away from combat as much as possible, meaning that it will retreat if the player is within the gap and the engineer is not at the end of the place. If there are machine allies, the engineer will prioritize repairing any below a certain 
@@ -1168,6 +1184,8 @@ class Engineer(Enemy):
             self.can_tune = True
         if place.turn_count == self.repair_cooldown:
             self.can_repair = True
+        if self.can_repair and self.can_tune:
+            place.check_enemies.remove(self)
 
 class Arty(Enemy):
     """The Arty is a powerful machine enemy found in the Machine Labs. It is a four legged machine with miniturized motar on its back, making it a strong ranged enemy. Due to the complex machinary behind this enemy's weapon, it can only fire every 2 turns to allow for reloading and aiming. Similar to an archer, it remains as far of the player as it can and retreats if the player gets too close. However, the Arty has limited movement speed due to the mortar's weight, meaning it has difficulty retreating. Also, while it does powerful damage, this enemy has low health for a machine type enemy."""
@@ -1189,6 +1207,8 @@ class Arty(Enemy):
         """Uses the default attack method but then calculates the attack counter and sets the can attack attribute to False."""
         Enemy.attack(self, place)
         self.can_attack, self.attack_counter = False, place.turn_count + self.reload
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
 
     def take_turn(self, place):
         """If the player is not in range, then the Arty will move towards the player until they are in range. Once in range, they will attack if they are able to or if not, will skip a turn. If the player is too close, the Arty attempts to retreat until it can not retreat anymore, 
@@ -1208,6 +1228,7 @@ class Arty(Enemy):
         """Checks if the reloading process is finished and if so, sets the can attack attribute to True."""
         if place.turn_count == self.attack_counter:
             self.can_attack = True
+            place.check_enemies.remove(self)
 
 class Ripper(Enemy):
     """The Ripper is a melee, humanoid looking machine enemy found in the Machine Labs that has a deadly chainsaw on each of its arms. It is heavily armored and has high health but low mobility. To partially resolve the issue, the engineers added an emergency thruster to it, giving it a quick 
@@ -1233,12 +1254,16 @@ class Ripper(Enemy):
         steps = min(self.dash_speed, self.position - (place.player.position + 1))
         self.position, self.dash_counter = self.position - steps, place.turn_count + 1
         self.can_move = False
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
         print("{0} uses its thrusters to dash forward {1} units!".format(self.name, steps))
 
     def attack(self, place):
         """The Ripper uses the default attack method but after attacking, is unable to attack for a turn. Set the can attack to False and calculate the attack counter attribute."""
         Enemy.attack(self, place)
         self.can_attack, self.attack_counter = False, place.turn_count + 1
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
 
     def take_turn(self, place):
         """The Ripper will dash into combat if it is able to and the distance between it and the player is greater than its move speed. Otherwise, it will use its normal movement to get into range. If the player is not in range and it can't move, the Ripper will skip a turn. Once in range, 
@@ -1264,6 +1289,8 @@ class Ripper(Enemy):
             self.can_attack = True
         if place.turn_count == self.dash_counter:
             self.can_move = True
+        if self.can_move and self.can_attack:
+            place.check_enemies.remove(self)
             
 class Charger(Enemy):
     """Chargers are machine enemies that are extremely simple. Designed as cheap and replaceable assets, these enemies move to their target as fast as they can and detonate themselves, effectively acting like suicide bombers. They have no concern for their own safety or that of their nearby 
@@ -1325,6 +1352,8 @@ class GI_Unit(Federation_Rifleman):
             drone.position = self.position
             drone.tether(self)
         self.can_repair, self.repairs = False, self.repairs - 1
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
 
     def barrage(self, place):
         """Using its missile backpack, the GI Unit is able to randomly pick a certain number of spots within a certain radius of the player's spot and fire missiles at them. If the player is in any of the randomly selected spots, they take damage. Ensure to calculate the counter and turn the can missile attribute to False."""        
@@ -1341,6 +1370,9 @@ class GI_Unit(Federation_Rifleman):
             place.player.injure(place, self.missile_damage, False)
         else:
             print("'Missed target, recalibrating aim'")
+        self.can_missile, self.missile_counter = False, self.missile_cooldown + place.turn_count
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
 
     def show_barrage(self, place, spots):
         """Shows visualization of the place but removes all enemies and players on the representation. Only shows the locations targeted for the barrage with a large X. Spots is a list of indicies for the spots that will be hit by the barrage."""
@@ -1354,6 +1386,8 @@ class GI_Unit(Federation_Rifleman):
         """Uses default attack method and then has a counter that causes firing every other turn."""
         Enemy.attack(self, place)
         self.can_attack, self.attack_counter = False, place.turn_count + 1
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
 
     def take_turn(self, place):
         """If the GI Unit is less than 30% health and can call a repair (can repair is True and it has repairs remaining), it will call in a repair. Else, if the Unit is able to perform a missile barrage, then it will do so. However, if the Unit is within the missile radius of the player, it will retreat first and perform the barrage once it is safely in range. If the player is in grenade range and the unit can throw a grenade, it will throw a greande. If the player is too far away to be in range, the GI Unit will move in to close the gap and if the player is in range and it can attack, then it will attack. If it cannot do any of these things, the GI Unit will skip a turn."""
@@ -1390,6 +1424,8 @@ class GI_Unit(Federation_Rifleman):
             self.can_attack = True
         if place.turn_count == self.missile_counter:
             self.can_missile = True
+        if self.can_throw and self.can_attack and self.can_missile and self.can_repair:
+            place.check_enemies.remove(self)
 
 class Repair_Drone(Enemy):
     """The repair drones are supports to the GI Unit, which can call two drones at a time to repair it for 10 HP per turn each. The repair drone is extremely weak but has an extremely high move speed. It has a special move method that tries to keep it on the same spot as the GI Unit so it can repair it. Drones cannot attack nor do they retreat. They only care about repairing or moving to repair the GI Unit. Upon death, they can turn the GI Unit's can repair attribute back to True if both drones of the pair are destroyed."""
@@ -1495,6 +1531,7 @@ class Place:
         self.size = random.choice(self.possible_sizes) #Picks random size based off of the possible sizes
         self.type = random.choices(["Enemy", "Event"], weights=type_weight)[0] #Picks a random type based off of the type_weight
         self.enemies = []
+        self.check_enemies = []
         self.loot = []
         self.event = Event()
         self.player = None
@@ -1734,9 +1771,8 @@ def battle(place):
             enemy.take_turn(place)
         for item in Place.current_time_items: #Checking to see if any time limited effects for items and enemies need to be removed before continuing to the next turn
             item.check(place)
-        for enemy in place.enemies:
-            if enemy.time_check:
-                enemy.check(place)
+        for enemy in place.check_enemies:
+            enemy.check(place)
         if place.enemies:
             time.sleep(1.5)
             return fight()
