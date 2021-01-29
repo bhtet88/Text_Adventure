@@ -467,7 +467,7 @@ shank = "Weapon(35, 1, 0.5, 'Shank')"
 stun_baton = "Weapon(50, 1, 2, 'Stun Baton')"
 pistol = "Firearm(40, 3, 95, 5, False, 'LP-2043 Laser Pistol')"
 rifle = "Firearm(50, 4, 80, 8, False, 'LR2047-7 Laser Rifle')"
-sniper_rifle = "Firearm(50, 5, 80, 15, True, 'LR 2050-SR Precision Laser Rifle')"
+sniper_rifle = "Firearm(50, 5, 90, 15, True, 'LR 2050-SR Precision Laser Rifle')"
 shotgun = "Shotgun(60, 2, 0.7, 50, 20, 'CQC-2049L Laser Shotgun')"
 flamethrower = "Flamethrower(70, 20, 4, 5, 10, 'F-2048 Flamethrower')"
 
@@ -1268,16 +1268,16 @@ class Ripper(Enemy):
     def take_turn(self, place):
         """The Ripper will dash into combat if it is able to and the distance between it and the player is greater than its move speed. Otherwise, it will use its normal movement to get into range. If the player is not in range and it can't move, the Ripper will skip a turn. Once in range, 
         the ripper will attack if it is able to or if not, will display a message and skip a turn."""
-        dist = self.position - (place.player.position + 1)
+        dist = self.position - place.player.position
         print()
-        if dist > self.range:
-            if dist > self.move_speed and self.can_move:
+        if (dist - 1) > self.range:
+            if dist - 1 > self.move_speed and self.can_move:
                 self.dash(place)
-            elif dist <= self.move_speed and self.can_move:
+            elif dist - 1 <= self.move_speed and self.can_move:
                 self.move(place)
             else:
                 print("'Movement motors on cooldown. standby'")
-        else:
+        elif dist <= self.range:
             if self.can_attack:
                 self.attack(place)
             else:
