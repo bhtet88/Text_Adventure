@@ -315,6 +315,17 @@ class Firearm(Weapon):
     def __str__(self):
         return "{0}, Damage: {1}, Range: {2} units, Accuracy: {3}, Weight: {4} lbs, Armor Piercing: {5}".format(self.name, self.eff_damage, self.eff_range, self.eff_accuracy, self.weight, self.armor_piercing)
 
+class AMR(Firearm):
+    """The best weapon in the game, the AMR is an armor piercing railgun with a unique attack method that damages its target and a random enemy on each spot with enemies in front of them and behind them up to the end of the rifle's range. The rifle's accuracy check is done for every enemy."""
+    
+    def attack(self, place, target):
+        final_spot = min(place.size, place.player.position + self.range)
+        targets = [x for x in place.enemies if x is not target and x.position in range(place.player.position, final_spot + 1)]
+        Firearm.attack(self, place, target)
+        for enemy in targets:
+            print()
+            Firearm.attack(self, place, enemy)
+
 class Shotgun(Weapon):
     """Shotguns are a powerful short ranged weapon that have no accuracy stat but have extremely limited range. In exchange, shotguns are damage machines. For every space closer to the player that the enemy is past the maximum range, the gun gains a damage bonus. Furthermore, a player is able
     to deal full damage to the selected enemy but then all other enemies on the same spot as that enemy are also hit by the spread of the pellets, causing reduced damage."""
@@ -529,6 +540,7 @@ rifle = "Firearm(50, 4, 80, 8, False, 'LR2047-7 Laser Rifle')"
 sniper_rifle = "Firearm(50, 5, 90, 15, True, 'LR 2050-SR Precision Laser Rifle')"
 shotgun = "Shotgun(60, 2, 0.7, 50, 20, 'CQC-2049L Laser Shotgun')"
 flamethrower = "Flamethrower(70, 20, 4, 5, 10, 'F-2048 Flamethrower')"
+amr = "AMR(100, 10, 95, 15, True, 'X-50 Volt AMR')"
 
 ap_ammo = "AP_Ammo(5, 'AP Ammo')"
 
