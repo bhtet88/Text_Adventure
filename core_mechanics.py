@@ -55,7 +55,7 @@ class Armor_Piece(Equipment):
         place.player.inventory_remove(self)
 
     def __str__(self):
-        return "{0}, Armor: {1} Weight: {2} lbs".format(self.name, self.armor, self.weight)
+        return "{0}, Armor: {1}, Weight: {2} lbs".format(self.name, self.armor, self.weight)
 
 class Shield(Equipment):
     """Shields are a piece of equipment that the player can choose to use during battle, reducing damage by a certain amount for a certain number of turns. It does this by directly lowering the enemy's damage as long as the effect lasts. Damage reduction is written as the percentage of damage
@@ -168,7 +168,7 @@ class AP_Ammo(Equipment):
     
     def action(self, place):
         index = self.select_index(place)
-        if not index:
+        if index is None:
             return
         i, weapons = int(index), [x for x in place.player.inventory if isinstance(x, Firearm) or isinstance(x, Shotgun)]
         self.loaded_weapon = weapons[i]
@@ -1349,7 +1349,7 @@ class Ripper(Enemy):
         the ripper will attack if it is able to or if not, will display a message and skip a turn."""
         dist = self.position - place.player.position
         print()
-        if (dist - 1) > self.range:
+        if dist > self.range:
             if dist - 1 > self.move_speed and self.can_move:
                 self.dash(place)
             elif dist - 1 <= self.move_speed and self.can_move:
@@ -1441,7 +1441,7 @@ class GI_Unit(Federation_Rifleman):
 
     def barrage(self, place):
         """Using its missile backpack, the GI Unit is able to randomly pick a certain number of spots within a certain radius of the player's spot and fire missiles at them. If the player is in any of the randomly selected spots, they take damage. Ensure to calculate the counter and turn the can missile attribute to False."""        
-        spots = random.choices(range(max(0, place.player.position - self.missile_radius)), min(place.player.position + self.missile_radius, place.size + 1), k=self.missile_cluster)
+        spots = random.choices(range(max(0, place.player.position - self.missile_radius), min(place.player.position + self.missile_radius + 1, place.size + 1)), k=self.missile_cluster)
         print("'Launching missile barrage at hostiles, all allies must stand clear'")
         time.sleep(1.5)
         print()
@@ -1462,7 +1462,7 @@ class GI_Unit(Federation_Rifleman):
         """Shows visualization of the place but removes all enemies and players on the representation. Only shows the locations targeted for the barrage with a large X. Spots is a list of indicies for the spots that will be hit by the barrage."""
         visual = ["_____"] * (place.size + 1)
         for i in spots:
-            visual[i] = ["__X__"]
+            visual[i] = "__X__"
         separator = ", "
         print("[ " + separator.join(visual) + " ]")
 
@@ -1588,7 +1588,7 @@ class Tank(Enemy):
             place.check_enemies.append(self)
 
     def rocket_barrage(self, place):
-        spots = random.sample(range(max(place.player.position - self.rocket_radius, 0), min(place.size, place.player.position + self.rocket_radius)), k=self.rocket_cluster)
+        spots = random.sample(range(max(place.player.position - self.rocket_radius, 0), min(place.size + 1, place.player.position + self.rocket_radius + 1)), k=self.rocket_cluster)
         print("{0} launches a swarm of {1} missiles at you!".format(self.name, self.rocket_cluster))
         time.sleep(1.5)
         print()
@@ -1870,7 +1870,7 @@ class Machine_Labs(Place):
     min_enemies = 2
     max_enemies = 3
 
-    def __init__(self, type_weight=[3, 2]):
+    def __init__(self, type_weight=[2, 1]):
         Place.__init__(self, type_weight)
 
 class GI_Boss(Place):
