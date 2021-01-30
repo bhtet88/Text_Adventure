@@ -85,7 +85,7 @@ class Shield(Equipment):
 
     def check(self, place):
         """If the buff is up, then divide all the damage of all enemies by the damage multiplier to undo the shield's damage reduction. Then, remove this item from the Place time item list. Set the used attribute back to False so the player can use the shield again."""
-        if Place.global_turns == self.buff_counter:
+        if Place.global_turns >= self.buff_counter:
             for enemy in place.enemies:
                 enemy.damage = int(enemy.damage / self.damage_multiplier)
             Place.current_time_items.remove(self)
@@ -134,7 +134,7 @@ class Booster(Equipment):
 
     def check(self, place):
         """Essentially does what happens in action but backwards, removing the bonus. Also, remove the item from the current time items list in the Place class."""
-        if place.global_turns == self.bonus_counter:
+        if place.global_turns >= self.bonus_counter:
             if self.kind == "max health":
                 place.player.max_health -= self.bonus
                 if place.player.health > place.player.max_health:
@@ -201,7 +201,7 @@ class AP_Ammo(Equipment):
 
     def check(self, place):
         """Checks if the weapon has fired enough times to remove the AP ammo from it."""    
-        if self.loaded_weapon.times_fired == self.counter:
+        if self.loaded_weapon.times_fired >= self.counter:
             self.loaded_weapon.armor_piercing = False
             Place.current_time_items.remove(self)
     
@@ -519,7 +519,7 @@ class Adrenaline(Healing_Tool):
 
     def check(self, place):
         """The check method is run at the end of every turn to see if the bonus of the adrenaline has worn off. If it has worn off, set the in effect method back to False and reduce the player's damage bonus attribute by the adrenaline's damage bonus."""
-        if Place.global_turns == self.bonus_counter:
+        if Place.global_turns >= self.bonus_counter:
             place.player.damage_bonus -= self.damage_bonus
             self.in_effect = False
             Place.current_time_items.remove(self)
@@ -1035,7 +1035,7 @@ class Federation_Rifleman(Enemy):
 
     def check(self, place):
         """Checks if the grenade cooldown is over and if so, sets the can throw attribute back to True."""
-        if self.grenade_counter == place.turn_count:
+        if self.grenade_counter <= place.turn_count:
             self.can_throw = True
             place.check_enemies.remove(self)
 
@@ -1084,7 +1084,7 @@ class Federation_Marksman(Enemy):
         place.loot.append(eval(ap_ammo))
 
     def check(self, place):
-        if self.attack_counter == place.turn_count:
+        if self.attack_counter <= place.turn_count:
             self.can_attack = True
             place.check_enemies.remove(self)
 
@@ -1184,7 +1184,7 @@ class Volk(Federation_Rifleman):
     
     def check(self, place):
         Federation_Rifleman.check(self, place)
-        if place.turn_count == self.heal_counter:
+        if place.turn_count >= self.heal_counter:
             self.can_heal = True
             if self in place.check_enemies:
                 place.check_enemies.remove(self)
@@ -1255,12 +1255,12 @@ class Engineer(Enemy):
     def check(self, place):
         """The check method just haves to check if the cooldown for the tune up move is over. If so, each machine type ally on the field has its damage divided by the damage boost and has its move speed lowered by the move boost. Ensure that the move speed never goes below 1. Also, 
         set the can tune attribute back to True."""
-        if place.turn_count == self.tune_counter:
+        if place.turn_count >= self.tune_counter:
             for enemy in place.enemies:
                 if enemy.machine:
                     enemy.damage, enemy.move_speed = round(enemy.damage / self.damage_boost), max(enemy.move_speed - self.move_boost, 1)
             self.can_tune = True
-        if place.turn_count == self.repair_cooldown:
+        if place.turn_count >= self.repair_cooldown:
             self.can_repair = True
         if self.can_repair and self.can_tune:
             place.check_enemies.remove(self)
@@ -1304,7 +1304,7 @@ class Arty(Enemy):
 
     def check(self, place):
         """Checks if the reloading process is finished and if so, sets the can attack attribute to True."""
-        if place.turn_count == self.attack_counter:
+        if place.turn_count >= self.attack_counter:
             self.can_attack = True
             place.check_enemies.remove(self)
 
@@ -1369,9 +1369,9 @@ class Ripper(Enemy):
 
     def check(self, place):
         """Checks if the dash and attack cooldowns are done and if so, sets their respective booleans to True."""
-        if place.turn_count == self.attack_counter:
+        if place.turn_count >= self.attack_counter:
             self.can_attack = True
-        if place.turn_count == self.dash_counter:
+        if place.turn_count >= self.dash_counter:
             self.can_move = True
         if self.can_move and self.can_attack:
             place.check_enemies.remove(self)
@@ -1501,12 +1501,14 @@ class GI_Unit(Federation_Rifleman):
     def check(self, place):
         """Performs the normal Rifleman check and then does a check for the missile barrage and the attack ability. The can repair attribute only turns on True when both repair drones from the previous repair call were destroyed and is handled by the drone's remove method, not the GI Unit's check method."""
         Federation_Rifleman.check(self, place)
-        if place.turn_count == self.attack_counter:
+        if place.turn_count >= self.attack_counter:
             self.can_attack = True
-        if place.turn_count == self.missile_counter:
+        if place.turn_count >= self.missile_counter:
             self.can_missile = True
         if self.can_throw and self.can_attack and self.can_missile and self.can_repair:
             place.check_enemies.remove(self)
+        elif self not in place.check_enemies:
+            place.check_enemies.append(self)
 
 class Repair_Drone(Enemy):
     """The repair drones are supports to the GI Unit, which can call two drones at a time to repair it for 10 HP per turn each. The repair drone is extremely weak but has an extremely high move speed. It has a special move method that tries to keep it on the same spot as the GI Unit so it can repair it. Drones cannot attack nor do they retreat. They only care about repairing or moving to repair the GI Unit. Upon death, they can turn the GI Unit's can repair attribute back to True if both drones of the pair are destroyed."""
@@ -1541,10 +1543,12 @@ class Repair_Drone(Enemy):
     def take_turn(self, place):
         """If there is no GI unit on the same place as the repair drone, move them to the same spot as a GI Unit. Otherwise, repair the GI Unit."""
         print()
-        if self.GI.position == self.position and self.GI.health < self.GI.starting_health:
+        if self.GI.position == self.position and self.GI.health < self.GI.starting_health and self.GI.health > 0:
             self.repair()
-        else:
+        elif self.GI.position != self.position:
             self.move(place)
+        else:
+            print("'Standby'")
 
     def remove(self, place):
         """Perform the default remove method but if there are no more repair drones on the field for the target GI Unit, set the tethered GI Unit's can repair attribute to True."""
@@ -1609,7 +1613,7 @@ class Tank(Enemy):
     def show_barrage(self, place, spots):
         visual = ["_____"] * (place.size + 1)
         for i in spots:
-            visual[i] = ["__X__"]
+            visual[i] = "__X__"
         separator = ", "
         print("[ " + separator.join(visual) + " ]")
 
@@ -1632,9 +1636,9 @@ class Tank(Enemy):
                 print("'Loading a new shell! Standby!'")
     
     def check(self, place):
-        if place.turn_count == self.attack_counter:
+        if place.turn_count >= self.attack_counter:
             self.can_attack = True
-        if place.turn_count == self.rocket_counter:
+        if place.turn_count >= self.rocket_counter:
             self.can_rocket = True
         if not [x for x in place.enemies if isinstance(x, Engineer)]:
             self.can_engineer = True
