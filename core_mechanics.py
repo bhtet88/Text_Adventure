@@ -1760,7 +1760,12 @@ class Place:
 
     def add_loot(self, player, item):
         """Allows for the player to pick up a piece of loot. Must check to see if the player can carry an item."""
-        if player.weight_limit - player.current_weight < item.weight:
+        if isinstance(item, Armor_Piece):
+            player.armor += item.armor
+            print("Armor increased by {0} from {1}".format(item.armor, item.name))
+            self.loot.remove(item)
+            return
+        elif player.weight_limit - player.current_weight < item.weight:
             print("Adding item would go over the weight limit")
             return
         else:
