@@ -699,7 +699,7 @@ class Player(Entity):
         >>> player.inventory 
         []
         """
-        permanent = ["fists"]
+        permanent = ["fists", "x-50 volt amr"]
         if item.name.lower() in permanent:
             print("Cannot remove this item from your inventory")
         elif item in self.inventory:
