@@ -320,7 +320,7 @@ class AMR(Firearm):
     
     def attack(self, place, target):
         final_spot = min(place.size, place.player.position + self.range)
-        targets = [x for x in place.enemies if x is not target and x.position in range(place.player.position, final_spot + 1)]
+        targets = [x for x in place.enemies if x is not target and x.position in range(place.player.position, final_spot + 1) and x.position != target.position]
         Firearm.attack(self, place, target)
         for enemy in targets:
             print()
@@ -1582,6 +1582,7 @@ class Tank(Enemy):
         self.rocket_counter = 0
 
     def deploy_engineer(self, place):
+        print("'Deploying Engineers, cover them guys!'")
         place.add_enemy(Engineer())
         self.can_engineer, self.engineers = False, self.engineers - 1
 

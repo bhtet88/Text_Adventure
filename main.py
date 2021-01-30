@@ -132,7 +132,7 @@ if revolt == 1:
 elif not revolt:
     print(forget_wing8)
     player.armor += 100
-encounters = 0
+encounters = 4
 while encounters:
     input()
     place = Lower_Prison()
@@ -183,7 +183,7 @@ input()
 print(reinforcement_intimidation.format(("prisoner" if not revolt else "prisoners")))
 if revolt == 1:
     Main_Prison.max_enemies = 2
-fights = 0
+fights = 6
 while fights:
     input()
     place = Main_Prison()
@@ -207,7 +207,7 @@ if volk_choice in [0, 1]: #Surrendering to Volk gives an early end
     quit()
 print(volk_fight)
 input()
-# onward(player, Volk_Fight())
+onward(player, Volk_Fight())
 input()
 print(volk_death)
 input()
@@ -219,7 +219,7 @@ player.inventory_add(eval(rifle))
 player.inventory_add(eval(ap_ammo))
 player.inventory_add(eval(propaganda))
 onward(player, Machine_Labs([1, 0]))
-events = 0
+events = 6
 while events:
     input()
     onward(player, Machine_Labs())
@@ -257,3 +257,5 @@ for x in range(2):
     onward(player, Outside())
 input()
 onward(player, Final_Tanks())
+input()
+print(end)
