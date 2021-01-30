@@ -1517,7 +1517,7 @@ class Repair_Drone(Enemy):
     def __init__(self, health=30, armor=0, damage=0, range=1, move_speed=10):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
         self.repair_amount = 10
-        self.GI = None
+        self.machine = None
     
     def tether(self, target):
         """Assigns the repair drone to a specific GI Unit to take care of."""
@@ -1551,6 +1551,39 @@ class Repair_Drone(Enemy):
         if not sum([1 for x in place.enemies if isinstance(x, Repair_Drone) and x is not self and x.GI is self.GI]):
             self.GI.can_repair = True
         Enemy.remove(self, place)
+
+class Tank(Enemy):
+    """The T-2040 Tank is the most powerful tank design in the world, armed with a powerful and accurate 120mm cannon and heavy armor. The tank is also fitted with a rocket launcher with a limited supply of rockets. There is a random chance that the rocket will not hit the player, similar to the GI Unit, but it does deal great damage if it does. When the tank is low on health, it can summon an engineer twice to jump out of the tank to repair it and boost it's performance."""
+    name = "T-2040 Heavy Tank"
+    battle_lines = ["'Alright, let's end this!'", "'Fox 1, Fox 2. Moving towards the enemy'", "'Best armor in the world coming through!'", "'Bet you wish you died down there huh?'"]
+    death_lines = ["'Fire on board, fire on...'", "'AAAAAAHHHHHH, AAAAAHHHHH'", "'Get away from the ammo!'", "'Too much damage, it's over for us!'", "'AAHHHHHH, what kind of weapon was that!'", "'Guys, it was an honor!"]
+    machine = True
+    time_check = True
+
+    def __init__(self, health=300, armor=400, damage=50, range=12, move_speed=6):
+        Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.attack_counter = 0
+        self.can_attack = True
+        self.engineers = 2
+        self.can_engineer = True
+        self.rocket_ammo = 4
+        self.rocket_cluster = 2
+        self.rocket_damage = 60
+        self.rocket_radius = 3
+        self.can_rocket = True
+        self.rocket_cooldown = 3
+        self.rocket_counter = 0
+
+    def deploy_engineer(self, place):
+
+    def attack(self, place):
+
+    def rocket(self, place):
+
+    def take_turn(self, place):
+    
+    def check(self, place):
+
 
 ### Event Classes ###
 
@@ -1624,6 +1657,11 @@ class Place:
         """Helper function that adds an enemy instance to the enemies list. Takes in an enemy instance as an argument."""
         self.enemies.append(enemy)
         enemy.position = self.size
+    
+    def add_turn(self):
+        """Adds a turn to the turn counter"""
+        self.turn_count += 1
+        Place.global_turns += 1
 
     def fill(self):
         """Fills the place with either enemies or an event, depending on the type of the room."""
@@ -1783,12 +1821,38 @@ class GI_Boss(Place):
     """Place class for the GI Unit boss fight in the Machine Labs"""
     possible_sizes = [15]
     possible_enemies = ["GI_Unit()"]
-    possible_events = []
     min_enemies = 1
     max_enemies = 1
 
     def __init__(self, type_weight=[1, 0]):
         Place.__init__(self, type_weight)
+
+class Outside(Place):
+    """The place class for the final fight outside of the police station. Has a special add turn event that spawns in a new enemy a certain amount of times."""
+    possible_sizes = [x for x in range(14, 19)]
+    possible_enemies = ["Federation_Rifleman()", "Federation_Marksman()", "Federation_Shielder()"]
+    min_enemies = 4
+    max_enemies = 4
+
+    def __init__(self, type_weight=[1, 0]):
+        Place.__init__(self, type_weight)
+        self.spawns = 4
+    
+    def add_turn(self):
+        Place.add_turn(self)
+        if len(self.enemies) < self.max_enemies:
+            self.add_enemy(eval(random.choice(self.possible_enemies)))
+            self.spawns -= 1
+
+class Final_Tanks(Outside):
+    """Outside place class but only has three T-2040 Heavy Tanks."""
+    possible_sizes = [x for x in range(14, 19)]
+    possible_enemies = ["Tank()"]
+    min_enemies = 3
+    max_enemies = 3
+
+    def __init__(self, type_weight=[1, 0]):
+        Place.__init__(self, type_weight)   
 
 ### Game Manager ###
 
@@ -1848,7 +1912,7 @@ def battle(place):
     """Facilitates the entire battle if a player is in an enemy place. Battles begin with the player at position 0 and the enemies at the opposite end. The player always makes the first turn, then all the enemies."""
     print(">>> Battle begin")
     def fight(): #Using this internal function to avoid writing a battle opening for every call of the function
-        place.turn_count, Place.global_turns = place.turn_count + 1, Place.global_turns + 1
+        place.add_turn()
         print()
         print("TURN {0}".format(place.turn_count))
         print()
