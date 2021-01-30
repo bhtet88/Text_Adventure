@@ -1555,14 +1555,17 @@ class Repair_Drone(Enemy):
 class Tank(Enemy):
     """The T-2040 Tank is the most powerful tank design in the world, armed with a powerful and accurate 120mm cannon and heavy armor. The tank is also fitted with a rocket launcher with a limited supply of rockets. There is a random chance that the rocket will not hit the player, similar to the GI Unit, but it does deal great damage if it does. When the tank is low on health, it can summon an engineer twice to jump out of the tank to repair it and boost it's performance."""
     name = "T-2040 Heavy Tank"
-    battle_lines = ["'Alright, let's end this!'", "'Fox 1, Fox 2. Moving towards the enemy'", "'Best armor in the world coming through!'", "'Bet you wish you died down there huh?'"]
+    battle_lines = ["'Alright, let's end this!'", "'Fox Squad, moving towards the enemy!'", "'Best armor in the world coming through!'", "'Bet you wish you died down there huh?'"]
     death_lines = ["'Fire on board, fire on...'", "'AAAAAAHHHHHH, AAAAAHHHHH'", "'Get away from the ammo!'", "'Too much damage, it's over for us!'", "'AAHHHHHH, what kind of weapon was that!'", "'Guys, it was an honor!"]
     machine = True
     time_check = True
 
     def __init__(self, health=300, armor=400, damage=50, range=12, move_speed=6):
         Enemy.__init__(self, health, armor, damage, range, move_speed)
+        self.default_health = 300
+        self.threshold = 0.4
         self.attack_counter = 0
+        self.reload = 2
         self.can_attack = True
         self.engineers = 2
         self.can_engineer = True
@@ -1575,15 +1578,68 @@ class Tank(Enemy):
         self.rocket_counter = 0
 
     def deploy_engineer(self, place):
+        place.add_enemy(Engineer())
+        self.can_engineer, self.engineers = False, self.engineers - 1
 
     def attack(self, place):
+        Enemy.attack(self, place)
+        self.can_attack, self.attack_counter = False, place.turn_count + self.reload
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
 
-    def rocket(self, place):
+    def rocket_barrage(self, place):
+        spots = random.sample(range(max(place.player.position - self.rocket_radius, 0), min(place.size, place.player.position + self.rocket_radius)), k=self.rocket_cluster)
+        print("{0} launches a swarm of {1} missiles at you!".format(self.name, self.rocket_cluster))
+        time.sleep(1.5)
+        print()
+        self.show_barrage(place, spots)
+        time.sleep(2)
+        print()
+        if place.player.position in spots:
+            print("'We got em!'")
+            print()
+            place.player.injure(place, self.rocket_damage, False)
+        else:
+            print("'Aw shit, we missed!'")
+        self.can_rocket, self.rocket_counter = False, self.rocket_cooldown + place.turn_count
+        self.rocket_ammo -= 1
+        if self not in place.check_enemies:
+            place.check_enemies.append(self)
+    
+    def show_barrage(self, place, spots):
+        visual = ["_____"] * (place.size + 1)
+        for i in spots:
+            visual[i] = ["__X__"]
+        separator = ", "
+        print("[ " + separator.join(visual) + " ]")
 
     def take_turn(self, place):
+        print()
+        dist = self.position - place.player.position
+        if self.health < round(self.default_health * self.threshold) and self.engineers and self.can_engineer:
+            self.deploy_engineer(place)
+        elif self.can_rocket and self.rocket_ammo:
+            if place.player.position + self.rocket_radius >= self.position and self.position < place.size:
+                self.move(place, True)
+            elif place.player.position + self.rocket_radius < self.position:
+                self.rocket_barrage(place)
+        elif dist > self.range:
+            self.move(place)
+        elif dist <= self.range:
+            if self.can_attack:
+                self.attack(place)
+            else:
+                print("'Loading a new shell! Standby!'")
     
     def check(self, place):
-
+        if place.turn_count == self.attack_counter:
+            self.can_attack = True
+        if place.turn_count == self.rocket_counter:
+            self.can_rocket = True
+        if not [x for x in place.enemies if isinstance(x, Engineer)]:
+            self.can_engineer = True
+        if self.can_attack and self.can_engineer and self.can_rocket:
+            place.check_enemies.remove(self)
 
 ### Event Classes ###
 

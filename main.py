@@ -252,3 +252,8 @@ input()
 saying = choices(final_choice, "What will you say?")
 print()
 print("Taking a deep breath, you prepare your weapons and smash through the door, ready to earn your freedom!")
+for x in range(2):
+    input()
+    onward(player, Outside())
+input()
+onward(player, Final_Tanks())
