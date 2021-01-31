@@ -847,7 +847,7 @@ class Player(Entity):
         print()
         place.show_enemies()
         print()
-        action = fixed_input(input("What will you do? Type 'Attack' to attack the enemy, 'Move' to move, or 'Inventory' to look at and use something in your inventory. "))
+        action = fixed_input(input("What will you do? Type 'Attack', 'Move', or 'Inventory'. "))
         print()
         if action == "attack": #Attack decision
             weapon = self.use_weapon()

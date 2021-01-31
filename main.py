@@ -67,6 +67,7 @@ def escaping(player):
     cell = Cell()
     onward(player, cell)
 
+### Game Start ###
 name = input("You are thrown into a cold dark cell. You awake, dazed and confused. What is your name? ") #Player creation
 player = Player(name)
 generic_place = Place([0, 1])
@@ -106,7 +107,9 @@ elif first_choice == 1: #Player continues to look at the hallway
             input()
             escaping(player)
 
-input() #Getting out of the cell and facing the second guard
+### Escape ###
+
+input()
 print(wrapper.fill(escape))
 input()
 if shank in player.inventory:
@@ -127,6 +130,7 @@ print(wrapper.fill(alarm_sounded))
 input()
 
 ### Fighting through Lower Prison ###
+
 revolt = choices(["Gear yourself up and don't free the prisoners", "Free the prisoners in your wing"], "What will you do?")
 print()
 if revolt == 1:
@@ -156,6 +160,7 @@ elif not revolt: #Solo escape
     print(wrapper.fill(lower_section_ascend_solo))
 
 ### Level C ###
+
 input()
 print(wrapper.fill(levelc_intro))
 if revolt == 1:
@@ -191,6 +196,9 @@ while fights:
     place = Main_Prison()
     onward(player, place)
     fights -= 1
+
+### Volk ###
+
 input()
 if not revolt:
     print(wrapper.fill(volk_intro_solo))
@@ -212,14 +220,14 @@ input()
 onward(player, Volk_Fight())
 input()
 print(wrapper.fill(volk_death))
+
+### Labs ###
+
 input()
 print(wrapper.fill(labs_intro))
 input()
 print(wrapper.fill(first_machine))
 input()
-player.inventory_add(eval(rifle))
-player.inventory_add(eval(ap_ammo))
-player.inventory_add(eval(propaganda))
 onward(player, Machine_Labs([1, 0]))
 events = 6
 while events:
@@ -248,6 +256,9 @@ input()
 x50 = eval(amr)
 player.weight_limit += x50.weight
 player.inventory_add(x50)
+
+### Final Area ###
+
 input()
 print(wrapper.fill(level_a_intro))
 input()
