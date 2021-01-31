@@ -1,6 +1,9 @@
 from core_mechanics import *
 from story import *
 import random
+import textwrap
+
+wrapper = textwrap.TextWrapper(width=70)
 
 ### Creating player character and escaping the cell ###
 
@@ -69,7 +72,7 @@ player = Player(name)
 generic_place = Place([0, 1])
 player.place, generic_place.player = generic_place, player
 print()
-print(opening.format(player.name))
+print(wrapper.fill(opening.format(player.name)))
 input()
 print(footsteps)
 input()
